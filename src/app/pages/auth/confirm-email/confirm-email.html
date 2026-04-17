@@ -1,0 +1,68 @@
+<div class="auth-page">
+  <div class="auth-bg">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+  </div>
+
+  <div class="auth-card">
+    @if (success()) {
+      <div class="success-view">
+        <div class="success-icon">🎉</div>
+        <h2>تم التأكيد!</h2>
+        <p>إيميلك اتأكد بنجاح 🎯</p>
+      </div>
+    } @else {
+      <a routerLink="/register" class="back-link">← رجوع</a>
+
+      <div class="auth-logo">
+        <span class="logo-icon">ص</span>
+        <span>صُنّاع</span>
+      </div>
+
+      <div class="otp-header">
+        <div class="otp-icon">📧</div>
+        <h1>تأكيد الإيميل</h1>
+        <p class="auth-sub">
+          بعتنا كود على
+          <strong>{{ email() || 'إيميلك' }}</strong>
+        </p>
+      </div>
+
+      <div class="auth-form">
+        <div class="field">
+          <label>الكود</label>
+          <input
+            type="text"
+            [(ngModel)]="code"
+            placeholder="XXXXXX"
+            maxlength="6"
+            dir="ltr"
+            class="otp-input"
+          />
+        </div>
+
+        @if (error()) {
+          <div class="error-msg">{{ error() }}</div>
+        }
+
+        <button class="btn-primary submit-btn" (click)="submit()" [disabled]="loading()">
+          @if (loading()) {
+            <span class="spinner"></span>
+          } @else {
+            تأكيد الكود ✓
+          }
+        </button>
+
+        <!-- ✅ زرار resend -->
+        <button class="btn-secondary" (click)="resend()">
+          إعادة إرسال الكود
+        </button>
+
+        <div class="auth-footer">
+          <span>محتاج تسجّل من جديد؟</span>
+          <a routerLink="/register">تسجيل</a>
+        </div>
+      </div>
+    }
+  </div>
+</div>

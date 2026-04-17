@@ -1,0 +1,75 @@
+<div class="modal-backdrop" (click)="onBackdrop($event)">
+  <div class="modal-box">
+
+    <button class="modal-close" (click)="close.emit()">✕</button>
+
+    @if (submitted()) {
+    <!-- SUCCESS STATE -->
+    <div class="success-view">
+      <div class="success-icon">✅</div>
+      <h2>طلبك تحت المراجعة!</h2>
+      <p>شكراً ليك، هنراجع بياناتك ونتواصل معاك قريباً على رقم التليفون اللي سبّته.</p>
+      <button class="btn-primary" (click)="close.emit()">تمام، شكراً</button>
+    </div>
+    } @else {
+    <!-- FORM STATE -->
+    <div class="modal-header">
+      <div class="modal-badge">🔧 انضم كفني</div>
+      <h2>قدّم بياناتك</h2>
+      <p>سيب بياناتك وخبرتك وهنتواصل معاك</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>الاسم الكامل *</label>
+        <input type="text" [(ngModel)]="form.fullName" placeholder="اسمك كامل" />
+      </div>
+
+      <div class="field">
+        <label>رقم التليفون *</label>
+        <input type="tel" [(ngModel)]="form.phone" placeholder="01xxxxxxxxx" dir="ltr" />
+      </div>
+
+      <div class="field">
+        <label>التخصص *</label>
+        <select [(ngModel)]="form.specialty">
+          <option value="">اختار تخصصك</option>
+          @for (s of specialties; track s) {
+          <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+
+      @if (form.specialty === 'أخري') {
+      <div class="field full">
+        <label>اكتب تخصصك *</label>
+        <input type="text" [(ngModel)]="form.customSpecialty" placeholder="مثال: تركيب جبس بورد" />
+      </div>
+      }
+
+      <div class="field">
+        <label>سنوات الخبرة</label>
+        <input type="number" [(ngModel)]="form.yearsExperience" placeholder="مثال: 5" min="0" />
+      </div>
+
+      <div class="field full">
+        <label>نبذة عنك</label>
+        <textarea [(ngModel)]="form.bio" placeholder="اكتب شوية عن نفسك وخبرتك..." rows="3"></textarea>
+      </div>
+    </div>
+
+    @if (error()) {
+    <div class="error-msg">{{ error() }}</div>
+    }
+
+    <button class="btn-primary submit-btn" (click)="submit()" [disabled]="loading()">
+      @if (loading()) {
+      <span class="spinner"></span>
+      } @else {
+      إرسال الطلب 🚀
+      }
+    </button>
+    }
+
+  </div>
+</div>

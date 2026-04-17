@@ -1,0 +1,63 @@
+@use '../../../auth/auth-shared' as *;
+
+.otp-header {
+  text-align: center;
+  margin-bottom: 8px;
+
+  .otp-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+}
+
+.otp-input {
+  text-align: center;
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  letter-spacing: 10px;
+}
+
+.success-view {
+  padding: 16px 0 8px;
+  text-align: center;
+  animation: fadeInUp 0.4s ease;
+
+  .success-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--gray-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+
+  .progress-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: var(--radius-full);
+    animation: shrink 2s linear forwards;
+  }
+}
+
+@keyframes shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}

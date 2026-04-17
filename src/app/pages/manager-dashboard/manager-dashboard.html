@@ -1,0 +1,438 @@
+<div class="dash" dir="rtl">
+
+  <!-- ═══════════════════════════════════════ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">م</div>
+      <span>تمكين — المدير</span>
+    </div>
+
+    <nav class="sb-nav">
+      <button class="sb-link" [class.active]="activeTab() === 'tickets'" (click)="switchTab('tickets')">
+        <span class="sb-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+        </span>
+        <span>الطلبات</span>
+        <span class="sb-badge">{{ ticketStats().total }}</span>
+      </button>
+
+      <button class="sb-link" [class.active]="activeTab() === 'vendors'" (click)="switchTab('vendors')">
+        <span class="sb-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+        </span>
+        <span>الفنيون</span>
+        <span class="sb-badge">{{ vendorStats().total }}</span>
+      </button>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-avatar">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
+      <div class="sb-user-info">
+        <span class="sb-name">{{ auth.currentUser()?.fullName }}</span>
+        <span class="sb-role">مدير النظام</span>
+      </div>
+      <button class="sb-logout" (click)="auth.logout()" title="خروج">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════ MAIN ══════ -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div>
+        <h1>مرحباً، {{ firstName() }} 👋</h1>
+        <p>لوحة تحكم المدير — إدارة الطلبات والفنيين</p>
+      </div>
+    </div>
+
+    <!-- ══════════ TICKETS TAB ══════════ -->
+    @if (activeTab() === 'tickets') {
+
+      <!-- STAT CARDS -->
+      <div class="stats-row">
+        <div class="stat-card s-purple">
+          <div class="stat-icon purple-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().total }}</div>
+            <div class="stat-lbl">إجمالي الطلبات</div>
+          </div>
+        </div>
+        <div class="stat-card s-amber">
+          <div class="stat-icon amber-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().pending }}</div>
+            <div class="stat-lbl">قيد الانتظار</div>
+          </div>
+        </div>
+        <div class="stat-card s-blue">
+          <div class="stat-icon blue-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().inProgress }}</div>
+            <div class="stat-lbl">جارٍ التنفيذ</div>
+          </div>
+        </div>
+        <div class="stat-card s-green">
+          <div class="stat-icon green-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().resolved }}</div>
+            <div class="stat-lbl">تم الحل</div>
+          </div>
+        </div>
+        <div class="stat-card s-red">
+          <div class="stat-icon red-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().emergency }}</div>
+            <div class="stat-lbl">طارئ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTERS BAR -->
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+          <input
+            type="text"
+            placeholder="ابحث في الطلبات..."
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            class="search-input"
+          />
+        </div>
+
+        <div class="select-wrap">
+          <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          <select [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)" class="filter-select">
+            <option value="all">كل الحالات</option>
+            <option value="Pending">انتظار</option>
+            <option value="Assigned">محدد له فني</option>
+            <option value="InProgress">جارٍ التنفيذ</option>
+            <option value="Resolved">تم الحل</option>
+            <option value="Closed">مغلق</option>
+          </select>
+        </div>
+
+        <div class="select-wrap">
+          <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          <select [value]="priorityFilter()" (change)="priorityFilter.set($any($event.target).value)" class="filter-select">
+            <option value="all">كل الأولويات</option>
+            <option value="Low">منخفضة</option>
+            <option value="Medium">متوسطة</option>
+            <option value="High">عالية</option>
+            <option value="Emergency">طارئة</option>
+          </select>
+        </div>
+
+        <span class="results-count">{{ filteredTickets().length }} نتيجة</span>
+      </div>
+
+      <!-- TICKETS TABLE / CARDS -->
+      @if (loadingTickets()) {
+        <div class="state-center"><div class="spin"></div><p>جاري التحميل...</p></div>
+      } @else if (filteredTickets().length === 0) {
+        <div class="state-center">
+          <div class="empty-icon">📭</div>
+          <h3>لا توجد طلبات</h3>
+          <p>جرب تغيير الفلاتر</p>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الوصف</th>
+                <th>الموقع</th>
+                <th>المستأجر</th>
+                <th>الحالة</th>
+                <th>الأولوية</th>
+                <th>الفني</th>
+                <th>الموعد</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (t of filteredTickets(); track t.id) {
+                <tr class="trow" (click)="openTicket(t)">
+                  <td class="td-desc">
+                    <span class="desc-text">{{ t.description }}</span>
+                  </td>
+                  <td class="td-loc">
+                    @if (t.tenantLocation) {
+                      <span class="loc-pill">{{ t.tenantLocation }}</span>
+                    }
+                  </td>
+                  <td class="td-tenant">{{ t.tenantName }}</td>
+                  <td>
+                    <span class="chip"
+                      [style.background]="getStatus(t.status).bg"
+                      [style.color]="getStatus(t.status).color">
+                      {{ getStatus(t.status).label }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="priority-dot" [style.background]="getPriority(t.priority).dot"></span>
+                    <span class="chip"
+                      [style.background]="getPriority(t.priority).bg"
+                      [style.color]="getPriority(t.priority).color">
+                      {{ getPriority(t.priority).label }}
+                    </span>
+                  </td>
+                  <td class="td-vendor">
+                    @if (t.vendorName) {
+                      <span class="vendor-name">{{ t.vendorName }}</span>
+                    } @else {
+                      <span class="no-vendor">غير محدد</span>
+                    }
+                  </td>
+                  <td class="td-date">{{ t.deadline | date:'dd/MM/yy' }}</td>
+                  <td>
+                    <button class="row-btn" (click)="$event.stopPropagation(); openTicket(t)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    <!-- ══════════ VENDORS TAB ══════════ -->
+    @if (activeTab() === 'vendors') {
+
+      <div class="stats-row">
+        <div class="stat-card s-purple">
+          <div class="stat-icon purple-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ vendorStats().total }}</div>
+            <div class="stat-lbl">إجمالي الفنيين</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+          <input
+            type="text"
+            placeholder="ابحث عن فني..."
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+            class="search-input"
+          />
+        </div>
+
+        <div class="select-wrap">
+          <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          <select [value]="specialtyFilter()" (change)="specialtyFilter.set($any($event.target).value)" class="filter-select">
+            <option value="all">كل التخصصات</option>
+            @for (sp of specialties; track sp) {
+              <option [value]="sp">{{ sp }}</option>
+            }
+          </select>
+        </div>
+
+        <span class="results-count">{{ filteredVendors().length }} فني</span>
+      </div>
+
+      @if (loadingVendors()) {
+        <div class="state-center"><div class="spin"></div><p>جاري التحميل...</p></div>
+      } @else if (filteredVendors().length === 0) {
+        <div class="state-center">
+          <div class="empty-icon">👷</div>
+          <h3>لا يوجد فنيون</h3>
+          <p>لم يتم تسجيل أي فنيين بعد</p>
+        </div>
+      } @else {
+        <div class="vendors-grid">
+          @for (v of filteredVendors(); track v.fullName) {
+            <div class="vcard" (click)="openVendor(v)">
+              <div class="vcard-top">
+                <div class="vcard-avatar">{{ v.fullName.charAt(0) }}</div>
+                <div class="vcard-info">
+                  <div class="vcard-name">{{ v.fullName }}</div>
+                  <div class="vcard-spec">{{ v.specialty }}</div>
+                </div>
+              </div>
+              <div class="vcard-stats">
+                <div class="vstat">
+                  <span class="vstat-num">{{ v.yearsExperience }}</span>
+                  <span class="vstat-lbl">سنة خبرة</span>
+                </div>
+              </div>
+              @if (v.bio) {
+                <p class="vcard-bio">{{ v.bio }}</p>
+              }
+              <div class="vcard-footer">
+                <span class="vcard-phone">{{ v.phone }}</span>
+                <span class="vcard-date">{{ v.createdAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+  </main>
+
+  <!-- ═══════════════════ TICKET MODAL ════════════════════ -->
+  @if (selectedTicket()) {
+    <div class="overlay" (click)="closeTicket()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-hd">
+          <h2>تفاصيل الطلب</h2>
+          <button class="modal-close" (click)="closeTicket()">✕</button>
+        </div>
+        <div class="modal-bd">
+          <div class="modal-badges">
+            <span class="chip lg"
+              [style.background]="getStatus(selectedTicket()!.status).bg"
+              [style.color]="getStatus(selectedTicket()!.status).color">
+              {{ getStatus(selectedTicket()!.status).label }}
+            </span>
+            <span class="chip lg"
+              [style.background]="getPriority(selectedTicket()!.priority).bg"
+              [style.color]="getPriority(selectedTicket()!.priority).color">
+              {{ getPriority(selectedTicket()!.priority).label }}
+            </span>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-lbl">الوصف</div>
+            <div class="modal-val">{{ selectedTicket()!.description }}</div>
+          </div>
+
+          @if (selectedTicket()!.tenantLocation) {
+            <div class="modal-section">
+              <div class="modal-lbl">الموقع</div>
+              <div class="modal-val">{{ selectedTicket()!.tenantLocation }}</div>
+            </div>
+          }
+
+          <div class="modal-section">
+            <div class="modal-lbl">المستأجر</div>
+            <div class="modal-val">{{ selectedTicket()!.tenantName }}</div>
+          </div>
+
+          <div class="modal-dates">
+            <div class="modal-date-item">
+              <div class="modal-lbl">وقت الوصول</div>
+              <div class="modal-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
+            </div>
+            <div class="modal-date-item">
+              <div class="modal-lbl">الموعد النهائي</div>
+              <div class="modal-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
+            </div>
+            <div class="modal-date-item">
+              <div class="modal-lbl">تاريخ الإنشاء</div>
+              <div class="modal-val">{{ selectedTicket()!.createdAt | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </div>
+
+          @if (selectedTicket()!.vendorName) {
+            <div class="modal-vendor-row">
+              <div class="modal-vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
+              <div>
+                <div class="modal-lbl">الفني المسؤول</div>
+                <div class="modal-val">{{ selectedTicket()!.vendorName }}</div>
+              </div>
+            </div>
+          }
+
+          @if (selectedTicket()?.imageUrls && selectedTicket()!.imageUrls.length > 0) {
+            <div class="modal-section">
+              <div class="modal-lbl">الصور المرفقة</div>
+              <div class="modal-imgs-grid">
+                @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
+                  <img
+                    [src]="API_URL + '/' + img"
+                    alt="صورة الطلب"
+                    [class.active-thumb]="i === currentImageIndex()"
+                    (click)="openImage(selectedTicket()!.imageUrls, i)"
+                  />
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════ VENDOR MODAL ════════════════════ -->
+  @if (selectedVendor()) {
+    <div class="overlay" (click)="closeVendor()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-hd">
+          <h2>بيانات الفني</h2>
+          <button class="modal-close" (click)="closeVendor()">✕</button>
+        </div>
+        <div class="modal-bd">
+          <div class="vendor-profile-top">
+            <div class="vp-avatar">{{ selectedVendor()!.fullName.charAt(0) }}</div>
+            <div>
+              <div class="vp-name">{{ selectedVendor()!.fullName }}</div>
+              <div class="vp-spec">{{ selectedVendor()!.specialty }}</div>
+            </div>
+          </div>
+
+          <div class="modal-dates">
+            <div class="modal-date-item">
+              <div class="modal-lbl">رقم الهاتف</div>
+              <div class="modal-val">{{ selectedVendor()!.phone }}</div>
+            </div>
+            <div class="modal-date-item">
+              <div class="modal-lbl">سنوات الخبرة</div>
+              <div class="modal-val">{{ selectedVendor()!.yearsExperience }} سنة</div>
+            </div>
+            <div class="modal-date-item">
+              <div class="modal-lbl">تاريخ الانضمام</div>
+              <div class="modal-val">{{ selectedVendor()!.createdAt | date:'dd/MM/yyyy' }}</div>
+            </div>
+          </div>
+
+          @if (selectedVendor()!.bio) {
+            <div class="modal-section">
+              <div class="modal-lbl">نبذة</div>
+              <div class="modal-val">{{ selectedVendor()!.bio }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════ IMAGE VIEWER ════════════════════ -->
+  @if (previewImage()) {
+    <div class="img-viewer" (click)="closeImage()">
+      <button class="iv-close" (click)="closeImage()">✕</button>
+      <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">&#8250;</button>
+      <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+      <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">&#8249;</button>
+      <div class="iv-dots" (click)="$event.stopPropagation()">
+        @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
+          <span class="iv-dot" [class.active]="i === currentImageIndex()"
+            (click)="openImage(selectedTicket()!.imageUrls, i)"></span>
+        }
+      </div>
+    </div>
+  }
+
+</div>

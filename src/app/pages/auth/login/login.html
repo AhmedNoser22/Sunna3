@@ -1,0 +1,63 @@
+<div class="auth-page">
+  <div class="auth-bg">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+  </div>
+
+  <div class="auth-card">
+    <a routerLink="/" class="back-link">← الرئيسية</a>
+
+    <div class="auth-logo">
+      <span class="logo-icon">ص</span>
+      <span>صُنّاع</span>
+    </div>
+
+    @if (justConfirmed()) {
+      <div class="confirmed-banner">
+        ✅ تم تأكيد إيميلك! سجّل دخولك دلوقتي
+      </div>
+    }
+
+    <h1>أهلاً بيك!</h1>
+    <p class="auth-sub">دخّل بياناتك وابدأ تشتغل</p>
+
+    <div class="auth-form">
+      <div class="field">
+        <label>البريد الإلكتروني</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email" [(ngModel)]="form.email" placeholder="example@email.com" dir="ltr" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>كلمة المرور</label>
+        <div class="pass-wrap">
+          <span class="input-icon">🔒</span>
+          <input
+            [type]="showPass() ? 'text' : 'password'"
+            [(ngModel)]="form.password"
+            placeholder="••••••••"
+            dir="ltr"
+          />
+          <button class="show-pass" (click)="showPass.set(!showPass())">
+            {{ showPass() ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="error-msg">{{ error() }}</div>
+      }
+
+      <button class="btn-primary submit-btn" (click)="submit()" [disabled]="loading()">
+        @if (loading()) { <span class="spinner"></span> } @else { دخول 🚀 }
+      </button>
+
+      <div class="auth-footer">
+        <span>مش عندك حساب؟</span>
+        <a routerLink="/register">سجّل دلوقتي</a>
+      </div>
+    </div>
+  </div>
+</div>

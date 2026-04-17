@@ -1,0 +1,159 @@
+<div class="landing">
+
+  <!-- ===== NAV ===== -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <div class="nav-logo">
+        <span class="logo-icon">ندي </span>
+        <span class="logo-text">صُنّاع</span>
+      </div>
+
+      <button class="vendor-apply-btn" (click)="showVendorModal.set(true)">
+        <span class="btn-pulse"></span>
+        🔧 انضم كفني
+      </button>
+
+      <div class="nav-actions">
+        <a routerLink="/login" class="btn-ghost">دخول</a>
+        <a routerLink="/register" class="btn-primary">ابدأ الآن</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="grid-overlay"></div>
+    </div>
+
+    <div class="container hero-inner">
+      <div class="hero-content">
+        <div class="section-tag"> منصة إدارة الصيانة الأولى في مصر</div>
+        <h1 class="hero-title">
+          احجز خدمة الصيانة<br />
+          <span class="gradient-text">فنيين موثوقين</span><br />
+          وأسعار واضحة
+        </h1>
+        <p class="hero-desc">
+          حجز سهل، متابعة واضحة، وتكلفة بدون مفاجآت <br />
+
+        </p>
+        <div class="hero-ctas">
+          <a routerLink="/register" class="btn-primary large">ابدأ تجربتك المجانية ✨</a>
+          <a routerLink="/login" class="btn-outline large">عندي حساب</a>
+        </div>
+        <div class="hero-stats">
+          @for (s of stats; track s.label) {
+          <div class="stat">
+            <span class="stat-value">{{ s.value }}</span>
+            <span class="stat-label">{{ s.label }}</span>
+          </div>
+          }
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="dashboard-card">
+          <div class="card-header">
+            <span>📋 طلبات اليوم</span>
+            <span class="badge-count">3 جارية</span>
+          </div>
+          @for (t of tickets; track t.title) {
+          <div class="ticket">
+            <div class="ticket-icon" [style.background]="t.color + '22'">{{ t.icon }}</div>
+            <div class="ticket-info">
+              <div class="ticket-title">{{ t.title }}</div>
+              <div class="ticket-loc">{{ t.loc }}</div>
+            </div>
+            <div class="ticket-status" [style.color]="t.color">{{ t.status }}</div>
+          </div>
+          }
+        </div>
+        <div class="floating-card rating-card">⭐ 4.9 &nbsp; أعلى تقييم</div>
+        <div class="floating-card alert-card">⚡ تنبيه تأخير</div>
+      </div>
+    </div>
+  </section>
+  <section class="services">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">خدماتنا</div>
+        <h2 class="section-title">كل خدمات الصيانة في مكان واحد</h2>
+        <p class="section-sub">
+          سباكة، كهرباء، تكييف وصيانة عامة — كل خدمة ليها متخصص
+        </p>
+      </div>
+
+      <div class="services-grid">
+        @for (s of services; track s.title; let i = $index) {
+        <div class="service-card" [style.animation-delay]="(i * 0.1) + 's'">
+
+          <div class="service-image">
+            <img [src]="s.image" [alt]="s.title" loading="lazy" />
+            <div class="image-overlay"></div>
+          </div>
+
+          <div class="service-content">
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.desc }}</p>
+          </div>
+
+          <div class="service-line"></div>
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+  <!-- ===== FEATURES ===== -->
+  <section class="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">المميزات</div>
+        <h2 class="section-title">كل حاجة في مكانها</h2>
+        <p class="section-sub">من أول الطلب لحد الإغلاق — مفيش خطوة بدون توثيق</p>
+      </div>
+      <div class="features-grid">
+        @for (f of features; track f.title; let i = $index) {
+        <div class="feature-card" [style.animation-delay]="(i * 0.08) + 's'">
+          <div class="feature-icon">{{ f.icon }}</div>
+          <h3>{{ f.title }}</h3>
+          <p>{{ f.desc }}</p>
+          <div class="feature-line"></div>
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+  <!-- ===== CTA ===== -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-box">
+        <div class="section-tag">ابدأ مجاناً</div>
+        <h2 class="section-title">جاهز تبدأ مع صُنّاع؟</h2>
+        <p class="section-sub">انضم لشركات العقارات اللي بتدير صيانتها بذكاء وشفافية كاملة</p>
+        <div class="cta-btns">
+          <a routerLink="/register" class="btn-primary large">إنشاء حساب مجاناً</a>
+          <a routerLink="/login" class="btn-outline large">تسجيل دخول</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-logo">
+        <span class="logo-icon sm">ص</span>
+        <span>صُنّاع</span>
+      </div>
+      <p>© 2025 صُنّاع — جميع الحقوق محفوظة</p>
+    </div>
+  </footer>
+
+</div>
+
+@if (showVendorModal()) {
+<app-vendor-apply-modal (close)="showVendorModal.set(false)" />
+}
