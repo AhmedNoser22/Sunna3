@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard, tenantGuard, managerGuard } from './guards/auth-guard';
- 
+import { authGuard, tenantGuard, managerGuard, vendorGuard } from './guards/auth-guard';
+
 export const routes: Routes = [
   {
     path: '',
@@ -25,6 +25,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'vendor-register',
+    loadComponent: () =>
+      import('./pages/auth/vendor-register/vendor-register').then(
+        (m) => m.VendorRegister
+      ),
+  },
+  {
     path: 'create-ticket',
     canActivate: [tenantGuard],
     loadComponent: () =>
@@ -44,6 +51,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/manager-dashboard/manager-dashboard').then(
         (m) => m.Dashboard
+      ),
+  },
+  {
+    path: 'vendor-dashboard',
+    canActivate: [vendorGuard],
+    loadComponent: () =>
+      import('./pages/vendor-dashboard/vendor-dashboard').then(
+        (m) => m.VendorDashboard
       ),
   },
   { path: '**', redirectTo: '' },
