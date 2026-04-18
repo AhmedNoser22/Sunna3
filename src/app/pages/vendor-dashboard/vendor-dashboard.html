@@ -1,0 +1,271 @@
+<div class="dash" dir="rtl">
+
+  <!-- ═══════════════════════════════════════ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">ص</div>
+      <span>صُنّاع — الفني</span>
+    </div>
+
+    <nav class="sb-nav">
+      <button class="sb-link" [class.active]="activeTab() === 'assigned'" (click)="switchTab('assigned')">
+        <span class="sb-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+        </span>
+        <span>مهامي</span>
+        <span class="sb-badge">{{ ticketStats().total }}</span>
+      </button>
+
+      <button class="sb-link" [class.active]="activeTab() === 'profile'" (click)="switchTab('profile')">
+        <span class="sb-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+        </span>
+        <span>ملفي الشخصي</span>
+      </button>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-avatar">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
+      <div class="sb-user-info">
+        <span class="sb-name">{{ auth.currentUser()?.fullName }}</span>
+        <span class="sb-role">فني صيانة</span>
+      </div>
+      <button class="sb-logout" (click)="auth.logout()" title="خروج">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════ MAIN ══════ -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div>
+        <h1>أهلاً، {{ firstName() }} 👷</h1>
+        <p>لوحة الفني — مهامك المسندة إليك</p>
+      </div>
+    </div>
+
+    <!-- ══════════ ASSIGNED TICKETS TAB ══════════ -->
+    @if (activeTab() === 'assigned') {
+
+      <!-- STAT CARDS -->
+      <div class="stats-row">
+        <div class="stat-card s-purple">
+          <div class="stat-icon purple-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().total }}</div>
+            <div class="stat-lbl">إجمالي مهامي</div>
+          </div>
+        </div>
+
+        <div class="stat-card s-blue">
+          <div class="stat-icon blue-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().inProgress }}</div>
+            <div class="stat-lbl">جارٍ التنفيذ</div>
+          </div>
+        </div>
+
+        <div class="stat-card s-green">
+          <div class="stat-icon green-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().resolved }}</div>
+            <div class="stat-lbl">تم الحل</div>
+          </div>
+        </div>
+
+        <div class="stat-card s-red">
+          <div class="stat-icon red-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          </div>
+          <div>
+            <div class="stat-num">{{ ticketStats().emergency }}</div>
+            <div class="stat-lbl">طارئ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKETS LIST -->
+      @if (loadingTickets()) {
+        <div class="state-center"><div class="spin"></div><p>جاري التحميل...</p></div>
+      } @else if (tickets().length === 0) {
+        <div class="state-center">
+          <div class="empty-icon">📭</div>
+          <h3>لا توجد مهام مسندة إليك</h3>
+          <p>سيتم إخطارك عند إسناد مهام جديدة</p>
+        </div>
+      } @else {
+        <div class="tickets-grid">
+          @for (t of tickets(); track t.id) {
+            <div class="tcard" (click)="openTicket(t)">
+
+              <!-- priority stripe -->
+              <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
+
+              <div class="tcard-body">
+                <div class="tcard-top">
+                  <div class="tcard-badges">
+                    <span class="chip"
+                      [style.background]="getStatus(t.status).bg"
+                      [style.color]="getStatus(t.status).color">
+                      {{ getStatus(t.status).label }}
+                    </span>
+                    <span class="chip"
+                      [style.background]="getPriority(t.priority).bg"
+                      [style.color]="getPriority(t.priority).color">
+                      {{ getPriority(t.priority).label }}
+                    </span>
+                  </div>
+                  <button class="tcard-eye" (click)="$event.stopPropagation(); openTicket(t)">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+                  </button>
+                </div>
+
+                <p class="tcard-desc">{{ t.description }}</p>
+
+                <div class="tcard-meta">
+                  @if (t.tenantLocation) {
+                    <span class="tcard-loc">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                      {{ t.tenantLocation }}
+                    </span>
+                  }
+                  <span class="tcard-tenant">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+                    {{ t.tenantName }}
+                  </span>
+                </div>
+
+                <div class="tcard-footer">
+                  <span class="tcard-date-lbl">الموعد النهائي</span>
+                  <span class="tcard-date">{{ t.deadline | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- ══════════ PROFILE TAB ══════════ -->
+    @if (activeTab() === 'profile') {
+      <div class="profile-card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
+          <div>
+            <div class="profile-name">{{ auth.currentUser()?.fullName }}</div>
+            <div class="profile-email">{{ auth.currentUser()?.email }}</div>
+            <div class="profile-badge">فني صيانة</div>
+          </div>
+        </div>
+
+        <div class="profile-stats">
+          <div class="pstat">
+            <div class="pstat-num">{{ ticketStats().total }}</div>
+            <div class="pstat-lbl">إجمالي المهام</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-num">{{ ticketStats().resolved }}</div>
+            <div class="pstat-lbl">مهام مكتملة</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-num">{{ ticketStats().inProgress }}</div>
+            <div class="pstat-lbl">جارية</div>
+          </div>
+        </div>
+      </div>
+    }
+
+  </main>
+
+  <!-- ═══════════════════ TICKET MODAL ════════════════════ -->
+  @if (selectedTicket()) {
+    <div class="overlay" (click)="closeTicket()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-hd">
+          <h2>تفاصيل المهمة</h2>
+          <button class="modal-close" (click)="closeTicket()">✕</button>
+        </div>
+        <div class="modal-bd">
+          <div class="modal-badges">
+            <span class="chip lg"
+              [style.background]="getStatus(selectedTicket()!.status).bg"
+              [style.color]="getStatus(selectedTicket()!.status).color">
+              {{ getStatus(selectedTicket()!.status).label }}
+            </span>
+            <span class="chip lg"
+              [style.background]="getPriority(selectedTicket()!.priority).bg"
+              [style.color]="getPriority(selectedTicket()!.priority).color">
+              {{ getPriority(selectedTicket()!.priority).label }}
+            </span>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-lbl">الوصف</div>
+            <div class="modal-val">{{ selectedTicket()!.description }}</div>
+          </div>
+
+          @if (selectedTicket()!.tenantLocation) {
+            <div class="modal-section">
+              <div class="modal-lbl">الموقع</div>
+              <div class="modal-val">{{ selectedTicket()!.tenantLocation }}</div>
+            </div>
+          }
+
+          <div class="modal-section">
+            <div class="modal-lbl">المستأجر</div>
+            <div class="modal-val">{{ selectedTicket()!.tenantName }}</div>
+          </div>
+
+          <div class="modal-dates">
+            <div class="modal-date-item">
+              <div class="modal-lbl">وقت الوصول</div>
+              <div class="modal-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
+            </div>
+            <div class="modal-date-item">
+              <div class="modal-lbl">الموعد النهائي</div>
+              <div class="modal-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
+            </div>
+          </div>
+
+          @if (selectedTicket()?.imageUrls && selectedTicket()!.imageUrls.length > 0) {
+            <div class="modal-section">
+              <div class="modal-lbl">الصور المرفقة</div>
+              <div class="modal-imgs-grid">
+                @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
+                  <img [src]="API_URL + '/' + img" alt="صورة المهمة"
+                    [class.active-thumb]="i === currentImageIndex()"
+                    (click)="openImage(selectedTicket()!.imageUrls, i)" />
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════ IMAGE VIEWER ════════════════════ -->
+  @if (previewImage()) {
+    <div class="img-viewer" (click)="closeImage()">
+      <button class="iv-close" (click)="closeImage()">✕</button>
+      <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">&#8250;</button>
+      <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+      <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">&#8249;</button>
+      <div class="iv-dots" (click)="$event.stopPropagation()">
+        @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
+          <span class="iv-dot" [class.active]="i === currentImageIndex()"
+            (click)="openImage(selectedTicket()!.imageUrls, i)"></span>
+        }
+      </div>
+    </div>
+  }
+</div>

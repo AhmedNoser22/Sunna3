@@ -17,8 +17,7 @@ export class Login implements OnInit {
   error = signal('');
   showPass = signal(false);
   justConfirmed = signal(false);
-  
-  // شلنا القيمة الافتراضية عشان ميحدفش الكل على داشبورد الكلاينت
+
   private redirectUrl: string | null = null;
 
   constructor(
@@ -30,11 +29,11 @@ export class Login implements OnInit {
   ngOnInit() {
     const redirect = this.route.snapshot.queryParamMap.get('redirect');
     const email = this.route.snapshot.queryParamMap.get('email');
-    
+
     if (redirect) {
       this.redirectUrl = redirect.startsWith('/') ? redirect : '/' + redirect;
     }
-    
+
     if (email) {
       this.form.email = email;
       this.justConfirmed.set(true);
@@ -50,10 +49,9 @@ export class Login implements OnInit {
     this.error.set('');
 
     this.auth.login(this.form).subscribe({
-      next: (res: any) => {
+      next: () => {
         this.loading.set(false);
-        
-        // المنطق الجديد: لو مفيش رابط محدد من الـ Guard، وجهه حسب وظيفته
+
         if (this.redirectUrl) {
           this.router.navigateByUrl(this.redirectUrl);
         } else {
@@ -69,10 +67,10 @@ export class Login implements OnInit {
 
   private navigateBasedOnRole() {
     if (this.auth.isManager()) {
-      console.log('Redirecting to Manager Dashboard...');
       this.router.navigate(['/manager-dashboard']);
+    } else if (this.auth.isVendor()) {
+      this.router.navigate(['/vendor-dashboard']);
     } else {
-      console.log('Redirecting to Tenant Dashboard...');
       this.router.navigate(['/dashboard']);
     }
   }

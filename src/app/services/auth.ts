@@ -30,7 +30,7 @@ export interface AuthResponse {
 export class Auth {
   currentUser = signal<AuthResponse | null>(this.loadUser());
 
-  constructor(private api: Api, private router: Router) {}
+  constructor(private api: Api, private router: Router) { }
 
   private loadUser(): AuthResponse | null {
     try {
@@ -90,7 +90,9 @@ export class Auth {
   isManager(): boolean {
     return this.currentUser()?.roles?.includes('Manager') ?? false;
   }
-
+  isVendor(): boolean {
+    return this.currentUser()?.roles?.includes('Vendor') ?? false;
+  }
   getToken(): string | null {
     return localStorage.getItem('token');
   }

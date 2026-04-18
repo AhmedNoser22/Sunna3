@@ -23,6 +23,11 @@ export const tenantGuard: CanActivateFn = () => {
     return false;
   }
 
+  if (auth.isVendor()) {
+    router.navigate(['/vendor-dashboard']);
+    return false;
+  }
+
   router.navigate(['/login']);
   return false;
 };
@@ -32,6 +37,31 @@ export const managerGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (auth.isLoggedIn() && auth.isManager()) return true;
+
+  if (auth.isTenant()) {
+    router.navigate(['/dashboard']);
+    return false;
+  }
+
+  if (auth.isVendor()) {
+    router.navigate(['/vendor-dashboard']);
+    return false;
+  }
+
+  router.navigate(['/login']);
+  return false;
+};
+
+export const vendorGuard: CanActivateFn = () => {
+  const auth = inject(Auth);
+  const router = inject(Router);
+
+  if (auth.isLoggedIn() && auth.isVendor()) return true;
+
+  if (auth.isManager()) {
+    router.navigate(['/manager-dashboard']);
+    return false;
+  }
 
   if (auth.isTenant()) {
     router.navigate(['/dashboard']);
