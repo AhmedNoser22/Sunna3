@@ -37,9 +37,45 @@
         <h1>مرحباً، {{ firstName() }} 👋</h1>
         <p>تابع جميع طلبات الصيانة من مكان واحد</p>
       </div>
-      <a routerLink="/create-ticket" class="btn-new">
-        <span>➕</span> طلب جديد
-      </a>
+      <div class="topbar-actions">
+        <!-- زر الإشعارات -->
+        <div class="notif-wrap">
+          <button class="notif-btn" (click)="toggleNotifications()">
+            🔔
+            @if (unreadCount() > 0) {
+              <span class="notif-badge">{{ unreadCount() }}</span>
+            }
+          </button>
+
+          @if (showNotifications()) {
+            <div class="notif-dropdown" (click)="$event.stopPropagation()">
+              <div class="notif-hd">
+                <span>الإشعارات</span>
+                <span class="notif-count">{{ notifications().length }}</span>
+              </div>
+              @if (notifications().length === 0) {
+                <div class="notif-empty">لا توجد إشعارات</div>
+              } @else {
+                <div class="notif-list">
+                  @for (n of notifications(); track n.id) {
+                    <div class="notif-item" [class.unread]="!n.isRead">
+                      <div class="notif-icon">🔔</div>
+                      <div class="notif-content">
+                        <p>{{ n.message }}</p>
+                        <span class="notif-time">{{ n.createdAt | date:'dd/MM - hh:mm a' }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <a routerLink="/create-ticket" class="btn-new">
+          <span>➕</span> طلب جديد
+        </a>
+      </div>
     </div>
 
     <!-- STATS -->
@@ -76,20 +112,16 @@
 
     <!-- FILTERS -->
     <div class="filters">
-      <button class="f-btn" [class.on]="activeFilter()==='all'"
-        (click)="activeFilter.set('all')">الكل
+      <button class="f-btn" [class.on]="activeFilter()==='all'" (click)="activeFilter.set('all')">الكل
         <span class="f-count">{{ stats().total }}</span>
       </button>
-      <button class="f-btn" [class.on]="activeFilter()==='Pending'"
-        (click)="activeFilter.set('Pending')">انتظار
+      <button class="f-btn" [class.on]="activeFilter()==='Pending'" (click)="activeFilter.set('Pending')">انتظار
         <span class="f-count">{{ stats().pending }}</span>
       </button>
-      <button class="f-btn" [class.on]="activeFilter()==='InProgress'"
-        (click)="activeFilter.set('InProgress')">جارٍ
+      <button class="f-btn" [class.on]="activeFilter()==='InProgress'" (click)="activeFilter.set('InProgress')">جارٍ
         <span class="f-count">{{ stats().inProgress }}</span>
       </button>
-      <button class="f-btn" [class.on]="activeFilter()==='Done'"
-        (click)="activeFilter.set('Done')">منتهية
+      <button class="f-btn" [class.on]="activeFilter()==='Resolved'" (click)="activeFilter.set('Resolved')">منتهية
         <span class="f-count">{{ stats().done }}</span>
       </button>
     </div>
@@ -114,7 +146,7 @@
 
             <div class="tcard-top">
               <div class="tcard-type-badge">
-                <span>{{ problemIconMap[t.description] || '🔧' }}</span>
+                <span>{{ problemIconMap[t.problemType] || '🔧' }}</span>
               </div>
               <span class="tcard-status"
                 [style.background]="getStatus(t.status).bg"
@@ -125,9 +157,9 @@
 
             <p class="tcard-desc">{{ t.description }}</p>
 
-            @if (t.tenantLocation) {
+            @if (t.city || t.governorate) {
               <div class="tcard-loc">
-                <span>📍</span> {{ t.tenantLocation }}
+                <span>📍</span> {{ t.city }}{{ t.governorate ? ' — ' + t.governorate : '' }}
               </div>
             }
 
@@ -182,12 +214,15 @@
             <div class="modal-val">{{ selectedTicket()!.description }}</div>
           </div>
 
-          @if (selectedTicket()!.tenantLocation) {
-            <div class="modal-section">
-              <div class="modal-lbl">📍 الموقع</div>
-              <div class="modal-val">{{ selectedTicket()!.tenantLocation }}</div>
+          <div class="modal-section">
+            <div class="modal-lbl">📍 الموقع</div>
+            <div class="modal-val">
+              {{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}
+              @if (selectedTicket()!.tenantLocation) {
+                <br /><span style="font-size:13px;color:#64748b">{{ selectedTicket()!.tenantLocation }}</span>
+              }
             </div>
-          }
+          </div>
 
           <div class="modal-dates">
             <div class="modal-date-item">
@@ -214,7 +249,6 @@
             </div>
           }
 
-          <!-- ✅ الصور مع التنقل -->
           @if (selectedTicket()?.imageUrls && selectedTicket()!.imageUrls.length > 0) {
             <div class="modal-section">
               <div class="modal-lbl">📸 الصور</div>
@@ -236,35 +270,18 @@
     </div>
   }
 
-  <!-- ✅ Image Viewer مع أسهم التنقل -->
+  <!-- IMAGE VIEWER -->
   @if (previewImage()) {
     <div class="img-viewer" (click)="closeImage()">
-
-      <!-- زر إغلاق -->
-      <button class="iv-btn iv-prev" (click)="closeImage()"></button>
-
-      <!-- سهم يمين (السابق في RTL) -->
-      <button class="iv-btn iv-prev"
-        (click)="$event.stopPropagation(); prevImage()">&#8250;</button>
-
-      <!-- الصورة -->
-      <img [src]="API_URL + '/' + previewImage()"
-           (click)="$event.stopPropagation()" />
-
-      <!-- سهم يسار (التالي في RTL) -->
-      <button class="iv-btn iv-next"
-        (click)="$event.stopPropagation(); nextImage()">&#8249;</button>
-
-      <!-- Dots -->
+      <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">&#8250;</button>
+      <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+      <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">&#8249;</button>
       <div class="iv-dots" (click)="$event.stopPropagation()">
         @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
-          <span class="iv-dot"
-            [class.active]="i === currentImageIndex()"
-            (click)="openImage(selectedTicket()!.imageUrls, i)">
-          </span>
+          <span class="iv-dot" [class.active]="i === currentImageIndex()"
+            (click)="openImage(selectedTicket()!.imageUrls, i)"></span>
         }
       </div>
-
     </div>
   }
 

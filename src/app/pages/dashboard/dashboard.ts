@@ -12,6 +12,8 @@ interface Ticket {
   priority: string;
   problemType: string;
   tenantLocation: string;
+  governorate: string;
+  city: string;
   arrival: string;
   deadline: string;
   createdAt: string;
@@ -19,6 +21,14 @@ interface Ticket {
   vendorName?: string;
   companyId: string;
   imageUrls: string[];
+}
+
+interface Notification {
+  id: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  ticketId?: string;
 }
 
 @Component({
@@ -39,6 +49,11 @@ export class Dashboard implements OnInit {
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
   private _currentImages: string[] = [];
+
+  notifications = signal<Notification[]>([]);
+  showNotifications = signal(false);
+
+  unreadCount = computed(() => this.notifications().filter(n => !n.isRead).length);
 
   openImage(images: string[], index: number) {
     this._currentImages = images;
@@ -66,24 +81,17 @@ export class Dashboard implements OnInit {
     this.currentImageIndex.set(prev);
     this.previewImage.set(imgs[prev]);
   }
-@HostListener('document:keydown', ['$event'])
-handleKeyboard(event: KeyboardEvent) {
-  if (!this.previewImage()) return;
 
-  switch (event.key) {
-    case 'ArrowRight':
-      this.nextImage();
-      break;
-
-    case 'ArrowLeft':
-      this.prevImage();
-      break;
-
-    case 'Escape':
-      this.closeImage();
-      break;
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboard(event: KeyboardEvent) {
+    if (!this.previewImage()) return;
+    switch (event.key) {
+      case 'ArrowRight': this.nextImage(); break;
+      case 'ArrowLeft': this.prevImage(); break;
+      case 'Escape': this.closeImage(); break;
+    }
   }
-}
+
   firstName = computed(() => {
     const name = this.auth.currentUser()?.fullName;
     return name ? name.split(' ')[0] : 'مستخدم';
@@ -98,9 +106,10 @@ handleKeyboard(event: KeyboardEvent) {
 
   statusMap: Record<string, { label: string; color: string; bg: string }> = {
     Pending:    { label: 'قيد الانتظار', color: '#d97706', bg: '#fef3c7' },
+    Assigned:   { label: 'تم التكليف',   color: '#7c3aed', bg: '#ede9fe' },
     InProgress: { label: 'جارٍ التنفيذ', color: '#2563eb', bg: '#dbeafe' },
-    Done:       { label: 'منتهي',        color: '#059669', bg: '#d1fae5' },
-    Cancelled:  { label: 'ملغي',         color: '#6b7280', bg: '#f3f4f6' },
+    Resolved:   { label: 'تم الحل',      color: '#059669', bg: '#d1fae5' },
+    Closed:     { label: 'مغلق',         color: '#6b7280', bg: '#f3f4f6' },
   };
 
   problemIconMap: Record<string, string> = {
@@ -118,23 +127,50 @@ handleKeyboard(event: KeyboardEvent) {
       total:      t.length,
       pending:    t.filter(x => x.status === 'Pending').length,
       inProgress: t.filter(x => x.status === 'InProgress').length,
-      done:       t.filter(x => x.status === 'Done').length,
+      done:       t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
     };
   });
 
   constructor(public auth: Auth, private api: Api) {}
 
-  ngOnInit() { this.loadTickets(); }
+  ngOnInit() {
+    this.loadTickets();
+    this.loadNotifications();
+  }
+
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  }
 
   loadTickets() {
     this.loading.set(true);
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-
-    this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers }).subscribe({
-      next: (data: Ticket[]) => { this.tickets.set(data); this.loading.set(false); },
+    this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers: this.getHeaders() }).subscribe({
+      next: (data) => { this.tickets.set(data); this.loading.set(false); },
       error: (err) => { console.error(err); this.loading.set(false); },
     });
+  }
+
+  loadNotifications() {
+    this.http.get<Notification[]>(`${this.API_URL}/api/Notifications`, { headers: this.getHeaders() }).subscribe({
+      next: (data) => this.notifications.set(data),
+      error: (err) => console.error(err),
+    });
+  }
+
+  toggleNotifications() {
+    this.showNotifications.update(v => !v);
+    if (this.showNotifications()) {
+      this.markAllRead();
+    }
+  }
+
+  markAllRead() {
+    const unread = this.notifications().filter(n => !n.isRead);
+    unread.forEach(n => {
+      this.http.patch(`${this.API_URL}/api/Notifications/${n.id}/read`, {}, { headers: this.getHeaders() }).subscribe();
+    });
+    this.notifications.update(list => list.map(n => ({ ...n, isRead: true })));
   }
 
   getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6', icon: '⚪' }; }

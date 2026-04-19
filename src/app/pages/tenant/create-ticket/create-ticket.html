@@ -21,7 +21,7 @@
           </div>
           <div class="detail-item">
             <span>📍</span>
-            <span>{{ form.tenantLocation }}</span>
+            <span>{{ form.city }} - {{ form.governorate }}</span>
           </div>
         </div>
         <button class="btn-primary" (click)="goToDashboard()">الذهاب للداشبورد 🏠</button>
@@ -98,10 +98,45 @@
             <h2 class="step-title">تفاصيل الطلب</h2>
             <p class="step-sub">حدد الموقع والمواعيد وارفع صور</p>
 
+            <!-- محافظة ومدينة -->
+            <div class="dates-grid">
+              <div class="field">
+                <label>🗺️ المحافظة *</label>
+                <div class="select-wrap">
+                  <select
+                    [ngModel]="form.governorate"
+                    (ngModelChange)="onGovernorateChange($event)"
+                    class="form-select">
+                    <option value="">اختار المحافظة</option>
+                    @for (gov of governorates; track gov) {
+                      <option [value]="gov">{{ gov }}</option>
+                    }
+                  </select>
+                  <span class="select-arrow">▼</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>🏙️ المدينة / المركز *</label>
+                <div class="select-wrap" [class.disabled]="!form.governorate">
+                  <select
+                    [(ngModel)]="form.city"
+                    [disabled]="!form.governorate"
+                    class="form-select">
+                    <option value="">{{ form.governorate ? 'اختار المدينة' : 'اختار المحافظة أولاً' }}</option>
+                    @for (city of cities; track city) {
+                      <option [value]="city">{{ city }}</option>
+                    }
+                  </select>
+                  <span class="select-arrow">▼</span>
+                </div>
+              </div>
+            </div>
+
             <div class="field">
-              <label>📍 موقع الوحدة *</label>
+              <label>📍 تفاصيل الموقع *</label>
               <input type="text" [(ngModel)]="form.tenantLocation"
-                placeholder="مثلاً: الدور 3 - شقة 12 - برج النيل" />
+                placeholder="مثلاً: شارع التحرير - برج النيل - شقة 12 - الدور 3" />
             </div>
 
             <div class="dates-grid">
@@ -161,7 +196,15 @@
                 </span>
               </div>
               <div class="review-row">
-                <span class="review-label">الموقع</span>
+                <span class="review-label">المحافظة</span>
+                <span class="review-val">🗺️ {{form.governorate}}</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">المدينة</span>
+                <span class="review-val">🏙️ {{form.city}}</span>
+              </div>
+              <div class="review-row">
+                <span class="review-label">الموقع التفصيلي</span>
                 <span class="review-val">📍 {{form.tenantLocation}}</span>
               </div>
               <div class="review-row">

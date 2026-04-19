@@ -574,4 +574,51 @@
     padding: 14px 36px;
     font-size: 16px;
   }
+  // ضيف الـ styles دي جوا الـ scss الموجود
+
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &.disabled { opacity: 0.5; }
+
+  .select-arrow {
+    position: absolute;
+    left: 14px;
+    font-size: 10px;
+    color: #94a3b8;
+    pointer-events: none;
+  }
+}
+
+.form-select {
+  width: 100%;
+  appearance: none;
+  padding: 12px 16px;
+  padding-left: 36px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: 'Cairo', sans-serif;
+  color: var(--text-primary);
+  background: var(--gray-50);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+  direction: rtl;
+
+  &:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 3px var(--primary-lighter);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background: #f1f5f9;
+  }
+
+  option { font-family: 'Cairo', sans-serif; }
+}
 }
