@@ -1,288 +1,466 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
 <div class="dash" dir="rtl">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="sb-logo">
-      <div class="sb-logo-icon">ص</div>
-      <span>صُنّاع</span>
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <span class="material-icons-round">home_repair_service</span>
+      </div>
+      <div class="sb-brand-text">
+        <span class="sb-name">صُنّاع</span>
+        <span class="sb-sub">إدارة الصيانة</span>
+      </div>
     </div>
 
     <nav class="sb-nav">
       <a class="sb-link active">
-        <span class="sb-link-icon">📋</span>
+        <span class="material-icons-round">dashboard</span>
         <span>طلباتي</span>
+        <span class="badge">{{ stats().total }}</span>
       </a>
       <a routerLink="/create-ticket" class="sb-link">
-        <span class="sb-link-icon">➕</span>
+        <span class="material-icons-round">add_circle_outline</span>
         <span>طلب جديد</span>
       </a>
     </nav>
 
     <div class="sb-footer">
-      <div class="sb-avatar">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
-      <div class="sb-user-info">
-        <span class="sb-name">{{ auth.currentUser()?.fullName }}</span>
-        <span class="sb-role">مستخدم</span>
+      <div class="sb-av">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
+      <div class="sb-info">
+        <span class="sb-uname">{{ auth.currentUser()?.fullName }}</span>
       </div>
-      <button class="sb-logout" (click)="auth.logout()" title="خروج">⏻</button>
+      <div class="notif-wrap">
+        <button class="icon-btn" (click)="toggleNotifications()">
+          <span class="material-icons-round">notifications</span>
+          @if (unreadCount() > 0) { <span class="notif-dot"></span> }
+        </button>
+        @if (showNotifications()) {
+          <div class="notif-drop" (click)="$event.stopPropagation()">
+            <div class="notif-hd">
+              <span>الإشعارات</span>
+              @if (unreadCount() > 0) { <span class="n-badge">{{ unreadCount() }}</span> }
+            </div>
+            @if (notifications().length === 0) {
+              <div class="notif-empty">
+                <span class="material-icons-round">notifications_none</span>
+                <p>لا توجد إشعارات</p>
+              </div>
+            } @else {
+              <div class="notif-list">
+                @for (n of notifications(); track n.id) {
+                  <div class="notif-item" [class.unread]="!n.isRead">
+                    <p>{{ n.message }}</p>
+                    <span>{{ n.createdAt | date:'dd/MM — hh:mm a' }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <button class="icon-btn danger" (click)="auth.logout()" title="خروج">
+        <span class="material-icons-round">logout</span>
+      </button>
     </div>
   </aside>
 
   <!-- MAIN -->
   <main class="main">
 
-    <!-- TOP BAR -->
     <div class="topbar">
-      <div class="topbar-left">
-        <h1>مرحباً، {{ firstName() }} 👋</h1>
+      <div>
+        <h1>أهلاً، {{ firstName() }} 👋</h1>
         <p>تابع جميع طلبات الصيانة من مكان واحد</p>
       </div>
-      <div class="topbar-actions">
-        <!-- زر الإشعارات -->
-        <div class="notif-wrap">
-          <button class="notif-btn" (click)="toggleNotifications()">
-            🔔
-            @if (unreadCount() > 0) {
-              <span class="notif-badge">{{ unreadCount() }}</span>
-            }
-          </button>
-
-          @if (showNotifications()) {
-            <div class="notif-dropdown" (click)="$event.stopPropagation()">
-              <div class="notif-hd">
-                <span>الإشعارات</span>
-                <span class="notif-count">{{ notifications().length }}</span>
-              </div>
-              @if (notifications().length === 0) {
-                <div class="notif-empty">لا توجد إشعارات</div>
-              } @else {
-                <div class="notif-list">
-                  @for (n of notifications(); track n.id) {
-                    <div class="notif-item" [class.unread]="!n.isRead">
-                      <div class="notif-icon">🔔</div>
-                      <div class="notif-content">
-                        <p>{{ n.message }}</p>
-                        <span class="notif-time">{{ n.createdAt | date:'dd/MM - hh:mm a' }}</span>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <a routerLink="/create-ticket" class="btn-new">
-          <span>➕</span> طلب جديد
-        </a>
-      </div>
+      <a routerLink="/create-ticket" class="btn-primary">
+        <span class="material-icons-round">add</span>
+        طلب جديد
+      </a>
     </div>
 
     <!-- STATS -->
     <div class="stats-row">
-      <div class="stat-card s-purple">
-        <div class="stat-emoji">📋</div>
-        <div>
-          <div class="stat-num">{{ stats().total }}</div>
-          <div class="stat-lbl">إجمالي الطلبات</div>
-        </div>
+      <div class="scard purple">
+        <span class="material-icons-round">folder_open</span>
+        <div><span class="snum">{{ stats().total }}</span><span class="slbl">الإجمالي</span></div>
       </div>
-      <div class="stat-card s-amber">
-        <div class="stat-emoji">⏳</div>
-        <div>
-          <div class="stat-num">{{ stats().pending }}</div>
-          <div class="stat-lbl">قيد الانتظار</div>
-        </div>
+      <div class="scard yellow">
+        <span class="material-icons-round">schedule</span>
+        <div><span class="snum">{{ stats().pending }}</span><span class="slbl">انتظار</span></div>
       </div>
-      <div class="stat-card s-blue">
-        <div class="stat-emoji">⚙️</div>
-        <div>
-          <div class="stat-num">{{ stats().inProgress }}</div>
-          <div class="stat-lbl">جارٍ التنفيذ</div>
-        </div>
+      <div class="scard blue">
+        <span class="material-icons-round">construction</span>
+        <div><span class="snum">{{ stats().inProgress }}</span><span class="slbl">جارٍ التنفيذ</span></div>
       </div>
-      <div class="stat-card s-green">
-        <div class="stat-emoji">✅</div>
-        <div>
-          <div class="stat-num">{{ stats().done }}</div>
-          <div class="stat-lbl">منتهية</div>
-        </div>
+      <div class="scard green">
+        <span class="material-icons-round">task_alt</span>
+        <div><span class="snum">{{ stats().done }}</span><span class="slbl">منتهية</span></div>
       </div>
     </div>
 
     <!-- FILTERS -->
     <div class="filters">
-      <button class="f-btn" [class.on]="activeFilter()==='all'" (click)="activeFilter.set('all')">الكل
-        <span class="f-count">{{ stats().total }}</span>
+      <button class="flt" [class.on]="activeFilter()==='all'" (click)="activeFilter.set('all')">
+        الكل <span>{{ stats().total }}</span>
       </button>
-      <button class="f-btn" [class.on]="activeFilter()==='Pending'" (click)="activeFilter.set('Pending')">انتظار
-        <span class="f-count">{{ stats().pending }}</span>
+      <button class="flt" [class.on]="activeFilter()==='Pending'" (click)="activeFilter.set('Pending')">
+        انتظار <span>{{ stats().pending }}</span>
       </button>
-      <button class="f-btn" [class.on]="activeFilter()==='InProgress'" (click)="activeFilter.set('InProgress')">جارٍ
-        <span class="f-count">{{ stats().inProgress }}</span>
+      <button class="flt" [class.on]="activeFilter()==='vendorAccepted'" (click)="activeFilter.set('vendorAccepted')">
+        جارٍ <span>{{ stats().inProgress }}</span>
       </button>
-      <button class="f-btn" [class.on]="activeFilter()==='Resolved'" (click)="activeFilter.set('Resolved')">منتهية
-        <span class="f-count">{{ stats().done }}</span>
+      <button class="flt" [class.on]="activeFilter()==='Resolved'" (click)="activeFilter.set('Resolved')">
+        منتهية <span>{{ stats().done }}</span>
       </button>
     </div>
 
     <!-- TICKETS -->
     @if (loading()) {
-      <div class="state-center">
-        <div class="spin"></div>
+      <div class="center-state">
+        <div class="loader"></div>
         <p>جاري التحميل...</p>
       </div>
     } @else if (filteredTickets().length === 0) {
-      <div class="state-center">
-        <div class="empty-icon">📭</div>
-        <h3>مفيش طلبات</h3>
+      <div class="center-state">
+        <span class="material-icons-round empty-ico">inbox</span>
+        <h3>لا توجد طلبات</h3>
         <p>ابدأ بإنشاء أول طلب صيانة</p>
-        <a routerLink="/create-ticket" class="btn-new">➕ طلب جديد</a>
+        <a routerLink="/create-ticket" class="btn-primary">
+          <span class="material-icons-round">add</span>طلب جديد
+        </a>
       </div>
     } @else {
       <div class="grid">
         @for (t of filteredTickets(); track t.id) {
           <div class="tcard" (click)="openTicket(t)">
-
-            <div class="tcard-top">
-              <div class="tcard-type-badge">
-                <span>{{ problemIconMap[t.problemType] || '🔧' }}</span>
+            <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
+            <div class="tcard-content">
+              <div class="tcard-top">
+                <div class="problem-icon">
+                  <span class="material-icons-round">{{ problemIconMap[t.problemType] || 'build' }}</span>
+                </div>
+                <span class="status-pill" [style.background]="getStatus(t.status).bg" [style.color]="getStatus(t.status).color">
+                  {{ getStatus(t.status).label }}
+                </span>
               </div>
-              <span class="tcard-status"
-                [style.background]="getStatus(t.status).bg"
-                [style.color]="getStatus(t.status).color">
-                {{ getStatus(t.status).label }}
-              </span>
-            </div>
 
-            <p class="tcard-desc">{{ t.description }}</p>
+              <p class="tcard-desc">{{ t.description }}</p>
 
-            @if (t.city || t.governorate) {
-              <div class="tcard-loc">
-                <span>📍</span> {{ t.city }}{{ t.governorate ? ' — ' + t.governorate : '' }}
+              @if (t.city || t.governorate) {
+                <div class="tcard-loc">
+                  <span class="material-icons-round">place</span>
+                  {{ t.city }}@if (t.governorate) { — {{ t.governorate }}}
+                </div>
+              }
+
+              <div class="tcard-mid">
+                <span class="priority-pill" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">
+                  {{ getPriority(t.priority).label }}
+                </span>
+                <span class="tcard-date">{{ t.createdAt | date:'dd MMM yyyy' }}</span>
               </div>
-            }
 
-            <div class="tcard-meta">
-              <span class="tcard-priority"
-                [style.background]="getPriority(t.priority).bg"
-                [style.color]="getPriority(t.priority).color">
-                {{ getPriority(t.priority).icon }} {{ getPriority(t.priority).label }}
-              </span>
-              <span class="tcard-date">{{ t.createdAt | date:'dd MMM' }}</span>
+              <!-- Actions -->
+              <div class="tcard-actions" (click)="$event.stopPropagation()">
+                @if (t.status === 'Pending') {
+                  <button class="act-btn act-purple" (click)="openApplications(t, $event)">
+                    <span class="material-icons-round">groups</span>
+                    الفنيون المتقدمون
+                  </button>
+                }
+                @if (t.status === 'Resolved') {
+                  <button class="act-btn act-green" (click)="closeTicketAction(t.id, $event)" [disabled]="closingTicketId() === t.id">
+                    <span class="material-icons-round">check_circle</span>
+                    @if (closingTicketId() === t.id) { جاري... } @else { إغلاق الطلب }
+                  </button>
+                }
+                @if ((t.status === 'vendorAccepted' || t.status === 'Resolved' || t.status === 'Closed') && t.vendorId) {
+                  <button class="act-btn act-amber" (click)="openFeedback(t, $event)">
+                    <span class="material-icons-round">rate_review</span>
+                    تقييم الفني
+                  </button>
+                }
+              </div>
+
+              <div class="tcard-dates">
+                <span><span class="material-icons-round">event</span> {{ t.arrival | date:'dd/MM' }}</span>
+                <span><span class="material-icons-round">timer</span> {{ t.deadline | date:'dd/MM' }}</span>
+              </div>
             </div>
-
-            <div class="tcard-footer">
-              <span>📅 {{ t.arrival | date:'dd/MM' }}</span>
-              <span>⏰ {{ t.deadline | date:'dd/MM' }}</span>
-            </div>
-
           </div>
         }
       </div>
     }
-
   </main>
 
-  <!-- MODAL -->
+  <!-- ══ TICKET MODAL ══ -->
   @if (selectedTicket()) {
     <div class="overlay" (click)="closeTicket()">
       <div class="modal" (click)="$event.stopPropagation()">
-
-        <div class="modal-hd">
+        <div class="modal-head">
           <h2>تفاصيل الطلب</h2>
-          <button class="modal-close" (click)="closeTicket()">✕</button>
+          <button class="close-btn" (click)="closeTicket()">
+            <span class="material-icons-round">close</span>
+          </button>
         </div>
-
-        <div class="modal-bd">
-
-          <div class="modal-badges">
-            <span class="modal-status-chip"
-              [style.background]="getStatus(selectedTicket()!.status).bg"
-              [style.color]="getStatus(selectedTicket()!.status).color">
+        <div class="modal-body">
+          <div class="pill-row">
+            <span class="status-pill lg" [style.background]="getStatus(selectedTicket()!.status).bg" [style.color]="getStatus(selectedTicket()!.status).color">
               {{ getStatus(selectedTicket()!.status).label }}
             </span>
-            <span class="modal-priority-chip"
-              [style.background]="getPriority(selectedTicket()!.priority).bg"
-              [style.color]="getPriority(selectedTicket()!.priority).color">
-              {{ getPriority(selectedTicket()!.priority).icon }} {{ getPriority(selectedTicket()!.priority).label }}
+            <span class="priority-pill lg" [style.background]="getPriority(selectedTicket()!.priority).bg" [style.color]="getPriority(selectedTicket()!.priority).color">
+              {{ getPriority(selectedTicket()!.priority).label }}
             </span>
           </div>
 
-          <div class="modal-section">
-            <div class="modal-lbl">📝 الوصف</div>
-            <div class="modal-val">{{ selectedTicket()!.description }}</div>
+          <div class="info-block">
+            <div class="info-label">الوصف</div>
+            <div class="info-val">{{ selectedTicket()!.description }}</div>
           </div>
 
-          <div class="modal-section">
-            <div class="modal-lbl">📍 الموقع</div>
-            <div class="modal-val">
+          <div class="info-block">
+            <div class="info-label">الموقع</div>
+            <div class="info-val">
               {{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}
               @if (selectedTicket()!.tenantLocation) {
-                <br /><span style="font-size:13px;color:#64748b">{{ selectedTicket()!.tenantLocation }}</span>
+                <div class="info-sub">{{ selectedTicket()!.tenantLocation }}</div>
               }
             </div>
           </div>
 
-          <div class="modal-dates">
-            <div class="modal-date-item">
-              <div class="modal-lbl">📅 وقت الوصول</div>
-              <div class="modal-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy - hh:mm a' }}</div>
+          <div class="dates-2col">
+            <div class="date-box">
+              <div class="info-label">وقت الوصول</div>
+              <div class="info-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
             </div>
-            <div class="modal-date-item">
-              <div class="modal-lbl">⏰ الموعد النهائي</div>
-              <div class="modal-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy - hh:mm a' }}</div>
-            </div>
-            <div class="modal-date-item">
-              <div class="modal-lbl">🕒 تاريخ الإنشاء</div>
-              <div class="modal-val">{{ selectedTicket()!.createdAt | date:'dd/MM/yyyy' }}</div>
+            <div class="date-box">
+              <div class="info-label">الموعد النهائي</div>
+              <div class="info-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
             </div>
           </div>
 
           @if (selectedTicket()!.vendorName) {
-            <div class="modal-vendor">
-              <span>👷</span>
-              <div>
-                <div class="modal-lbl">الفني المسؤول</div>
-                <div class="modal-val">{{ selectedTicket()!.vendorName }}</div>
+            <div class="vendor-strip">
+              <div class="vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
+              <div class="vendor-det">
+                <div class="info-label">الفني المسؤول</div>
+                <div class="info-val">{{ selectedTicket()!.vendorName }}</div>
               </div>
+              <button class="outline-btn" (click)="openVendorProfile(selectedTicket()!.vendorId!, $event)">
+                <span class="material-icons-round">person</span>عرض الملف
+              </button>
             </div>
           }
 
-          @if (selectedTicket()?.imageUrls && selectedTicket()!.imageUrls.length > 0) {
-            <div class="modal-section">
-              <div class="modal-lbl">📸 الصور</div>
-              <div class="modal-imgs-grid">
+          @if (selectedTicket()?.imageUrls?.length) {
+            <div class="info-block">
+              <div class="info-label">الصور المرفقة</div>
+              <div class="imgs-grid">
                 @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
-                  <img
-                    [src]="API_URL + '/' + img"
-                    alt="صورة الطلب"
-                    [class.active-thumb]="i === currentImageIndex()"
-                    (click)="openImage(selectedTicket()!.imageUrls, i)"
-                  />
+                  <img [src]="API_URL + '/' + img" [class.active]="i===currentImageIndex()" (click)="openImage(selectedTicket()!.imageUrls, i)" />
                 }
               </div>
             </div>
           }
 
+          <div class="modal-actions">
+            @if (selectedTicket()!.status === 'Pending') {
+              <button class="btn-primary full" (click)="openApplications(selectedTicket()!, $event)">
+                <span class="material-icons-round">groups</span>
+                عرض الفنيين المتقدمين
+              </button>
+            }
+            @if (selectedTicket()!.status === 'Resolved') {
+              <button class="btn-success full" (click)="closeTicketAction(selectedTicket()!.id, $event)" [disabled]="closingTicketId() === selectedTicket()!.id">
+                <span class="material-icons-round">check_circle</span>
+                @if (closingTicketId() === selectedTicket()!.id) { جاري الإغلاق... } @else { تأكيد إغلاق الطلب }
+              </button>
+            }
+            @if ((selectedTicket()!.status === 'vendorAccepted' || selectedTicket()!.status === 'Resolved' || selectedTicket()!.status === 'Closed') && selectedTicket()!.vendorId) {
+              <button class="btn-outline full" (click)="openFeedback(selectedTicket()!, $event)">
+                <span class="material-icons-round">rate_review</span>
+                كتابة تقييم للفني
+              </button>
+            }
+          </div>
         </div>
       </div>
     </div>
   }
 
-  <!-- IMAGE VIEWER -->
-  @if (previewImage()) {
-    <div class="img-viewer" (click)="closeImage()">
-      <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">&#8250;</button>
-      <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
-      <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">&#8249;</button>
-      <div class="iv-dots" (click)="$event.stopPropagation()">
-        @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
-          <span class="iv-dot" [class.active]="i === currentImageIndex()"
-            (click)="openImage(selectedTicket()!.imageUrls, i)"></span>
-        }
+  <!-- ══ APPLICATIONS MODAL ══ -->
+  @if (showApplicationsModal()) {
+    <div class="overlay" (click)="closeApplicationsModal()">
+      <div class="modal modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <h2>الفنيون المتقدمون</h2>
+          <button class="close-btn" (click)="closeApplicationsModal()">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          @if (loadingApplications()) {
+            <div class="center-state compact"><div class="loader"></div><p>جاري التحميل...</p></div>
+          } @else if (applications().length === 0) {
+            <div class="center-state compact">
+              <span class="material-icons-round empty-ico">engineering</span>
+              <p>لم يتقدم أي فني بعد</p>
+            </div>
+          } @else {
+            <div class="apps-list">
+              @for (app of applications(); track app.id) {
+                <div class="app-card">
+                  <div class="app-av">{{ app.vendorName.charAt(0) }}</div>
+                  <div class="app-info">
+                    <div class="app-name">{{ app.vendorName }}</div>
+                    <div class="app-phone">
+                      <span class="material-icons-round">phone</span>{{ app.vendorPhone }}
+                    </div>
+                    <div class="app-date">تقدم في {{ app.appliedAt | date:'dd/MM/yyyy — hh:mm a' }}</div>
+                  </div>
+                  <div class="app-btns">
+                    <button class="outline-btn sm" (click)="openVendorProfile(app.vendorId, $event)">
+                      <span class="material-icons-round">person</span>الملف
+                    </button>
+                    <button class="btn-primary sm" (click)="acceptApplication(app.id)" [disabled]="acceptingId() === app.id">
+                      <span class="material-icons-round">check</span>
+                      @if (acceptingId() === app.id) { جاري... } @else { قبول }
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
       </div>
     </div>
   }
 
+  <!-- ══ VENDOR PROFILE MODAL ══ -->
+  <!-- @if (showVendorProfile()) {
+    <div class="overlay" (click)="closeVendorProfile()">
+      <div class="modal modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <h2>ملف الفني</h2>
+          <button class="close-btn" (click)="closeVendorProfile()">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          @if (loadingVendorProfile()) {
+            <div class="center-state compact"><div class="loader"></div><p>جاري التحميل...</p></div>
+          } @else if (vendorProfile()) {
+            <div class="vp-head">
+              <div class="vp-av">{{ vendorProfile()!.fullName.charAt(0) }}</div>
+              <div>
+                <div class="vp-name">{{ vendorProfile()!.fullName }}</div>
+                <div class="vp-phone">
+                  <span class="material-icons-round">phone</span>{{ vendorProfile()!.phone }}
+                </div>
+              </div>
+            </div>
+
+            <div class="section-lbl">
+              <span class="material-icons-round">history</span>سجل العمل والتقييمات
+            </div>
+
+            @if (vendorProfile()!.ticketHistory.length === 0) {
+              <p class="empty-msg">لا يوجد سجل عمل بعد</p>
+            } @else {
+              <div class="history">
+                @for (ticket of vendorProfile()!.ticketHistory; track ticket.ticketId) {
+                  <div class="hist-item">
+                    <div class="hist-top">
+                      <p class="hist-desc">{{ ticket.description }}</p>
+                      <span class="status-pill" [style.background]="getStatus(ticket.status).bg" [style.color]="getStatus(ticket.status).color">
+                        {{ getStatus(ticket.status).label }}
+                      </span>
+                    </div>
+                    <div class="hist-meta">
+                      <span><span class="material-icons-round">place</span>{{ ticket.city }} — {{ ticket.governorate }}</span>
+                      <span>{{ ticket.createdAt | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    @if (ticket.feedbacks.length > 0) {
+                      <div class="fb-list">
+                        @for (fb of ticket.feedbacks; track fb.id) {
+                          <div class="fb-item">
+                            <div class="fb-who">
+                              <span class="material-icons-round">person</span>{{ fb.tenantName }}
+                            </div>
+                            <p>{{ fb.comment }}</p>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  } -->
+
+  <!-- ══ FEEDBACK MODAL ══ -->
+  @if (showFeedbackModal()) {
+    <div class="overlay" (click)="closeFeedbackModal()">
+      <div class="modal modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <h2>تقييم الفني</h2>
+          <button class="close-btn" (click)="closeFeedbackModal()">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          @if (feedbackSuccess()) {
+            <div class="success-box">
+              <span class="material-icons-round">check_circle</span>
+              <p>تم إرسال التقييم بنجاح!</p>
+            </div>
+          } @else {
+            <p class="hint">شارك رأيك في أداء الفني على هذا الطلب</p>
+            <textarea
+              class="ta"
+              [(ngModel)]="feedbackComment"
+              placeholder="اكتب تعليقك هنا..."
+              rows="5">
+            </textarea>
+            @if (feedbackError()) {
+              <div class="err-box">
+                <span class="material-icons-round">error_outline</span>{{ feedbackError() }}
+              </div>
+            }
+            <button class="btn-primary full" (click)="submitFeedback()" [disabled]="feedbackLoading()">
+              <span class="material-icons-round">send</span>
+              @if (feedbackLoading()) { جاري الإرسال... } @else { إرسال التقييم }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ══ IMAGE VIEWER ══ -->
+  @if (previewImage()) {
+    <div class="img-viewer" (click)="closeImage()">
+      <button class="iv-close" (click)="closeImage()">
+        <span class="material-icons-round">close</span>
+      </button>
+      <button class="iv-nav iv-prev" (click)="$event.stopPropagation(); prevImage()">
+        <span class="material-icons-round">chevron_right</span>
+      </button>
+      <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+      <button class="iv-nav iv-next" (click)="$event.stopPropagation(); nextImage()">
+        <span class="material-icons-round">chevron_left</span>
+      </button>
+      <div class="iv-dots" (click)="$event.stopPropagation()">
+        @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
+          <span class="iv-dot" [class.on]="i===currentImageIndex()" (click)="openImage(selectedTicket()!.imageUrls, i)"></span>
+        }
+      </div>
+    </div>
+  }
 </div>

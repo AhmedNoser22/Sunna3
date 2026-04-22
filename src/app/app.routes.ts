@@ -61,5 +61,13 @@ export const routes: Routes = [
         (m) => m.VendorDashboard
       ),
   },
+  {
+    path: 'vendor-profile/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/vedorprofile/vedorprofile').then(
+        (m) => m.VendorProfile
+      ),
+  },
   { path: '**', redirectTo: '' },
 ];

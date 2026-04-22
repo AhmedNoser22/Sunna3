@@ -1,8 +1,8 @@
 import { Component, signal, OnInit, computed, inject, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Auth } from '../../services/auth';
-import { Api } from '../../services/api';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 interface Ticket {
@@ -19,6 +19,7 @@ interface Ticket {
   createdAt: string;
   tenantName: string;
   vendorName?: string;
+  vendorId?: string;
   companyId: string;
   imageUrls: string[];
 }
@@ -31,10 +32,42 @@ interface Notification {
   ticketId?: string;
 }
 
+interface TicketApplication {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  vendorPhone: string;
+  appliedAt: string;
+}
+
+interface FeedbackItem {
+  id: string;
+  comment: string;
+  tenantName: string;
+  tenantId: string;
+}
+
+interface VendorTicketHistory {
+  ticketId: string;
+  description: string;
+  status: string;
+  governorate: string;
+  city: string;
+  createdAt: string;
+  feedbacks: FeedbackItem[];
+}
+
+interface VendorProfileData {
+  vendorId: string;
+  fullName: string;
+  phone: string;
+  ticketHistory: VendorTicketHistory[];
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe],
+  imports: [CommonModule, RouterLink, DatePipe, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -52,68 +85,53 @@ export class Dashboard implements OnInit {
 
   notifications = signal<Notification[]>([]);
   showNotifications = signal(false);
-
   unreadCount = computed(() => this.notifications().filter(n => !n.isRead).length);
 
-  openImage(images: string[], index: number) {
-    this._currentImages = images;
-    this.currentImageIndex.set(index);
-    this.previewImage.set(images[index]);
-  }
+  applications = signal<TicketApplication[]>([]);
+  loadingApplications = signal(false);
+  showApplicationsModal = signal(false);
+  applicationsTicketId = signal<string | null>(null);
+  acceptingId = signal<string | null>(null);
 
-  closeImage() {
-    this.previewImage.set(null);
-    this._currentImages = [];
-  }
+  // vendorProfile = signal<VendorProfileData | null>(null);
+  // loadingVendorProfile = signal(false);
+  // showVendorProfile = signal(false);
 
-  nextImage() {
-    const imgs = this._currentImages;
-    if (!imgs.length) return;
-    const next = (this.currentImageIndex() + 1) % imgs.length;
-    this.currentImageIndex.set(next);
-    this.previewImage.set(imgs[next]);
-  }
+  showFeedbackModal = signal(false);
+  feedbackComment = signal('');
+  feedbackTicketId = signal<string | null>(null);
+  feedbackVendorId = signal<string | null>(null);
+  feedbackLoading = signal(false);
+  feedbackError = signal('');
+  feedbackSuccess = signal(false);
 
-  prevImage() {
-    const imgs = this._currentImages;
-    if (!imgs.length) return;
-    const prev = (this.currentImageIndex() - 1 + imgs.length) % imgs.length;
-    this.currentImageIndex.set(prev);
-    this.previewImage.set(imgs[prev]);
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  handleKeyboard(event: KeyboardEvent) {
-    if (!this.previewImage()) return;
-    switch (event.key) {
-      case 'ArrowRight': this.nextImage(); break;
-      case 'ArrowLeft': this.prevImage(); break;
-      case 'Escape': this.closeImage(); break;
-    }
-  }
+  closingTicketId = signal<string | null>(null);
 
   firstName = computed(() => {
     const name = this.auth.currentUser()?.fullName;
     return name ? name.split(' ')[0] : 'مستخدم';
   });
 
-  priorityMap: Record<string, { label: string; color: string; bg: string; icon: string }> = {
-    Low:      { label: 'منخفضة', color: '#10b981', bg: '#d1fae5', icon: '🟢' },
-    Medium:   { label: 'متوسطة', color: '#f59e0b', bg: '#fef3c7', icon: '🟡' },
-    High:     { label: 'عالية',  color: '#ef4444', bg: '#fee2e2', icon: '🔴' },
-    Critical: { label: 'حرجة',  color: '#7c3aed', bg: '#ede9fe', icon: '🚨' },
+  priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
+    Low:       { label: 'منخفضة', color: '#15803d', bg: '#dcfce7', dot: '#22c55e' },
+    Medium:    { label: 'متوسطة', color: '#b45309', bg: '#fef9c3', dot: '#eab308' },
+    High:      { label: 'عالية',  color: '#b91c1c', bg: '#fee2e2', dot: '#ef4444' },
+    Critical:  { label: 'حرجة',  color: '#6d28d9', bg: '#ede9fe', dot: '#8b5cf6' },
+    Emergency: { label: 'طارئة', color: '#9a3412', bg: '#ffedd5', dot: '#f97316' },
   };
 
-  statusMap: Record<string, { label: string; color: string; bg: string }> = {
-    Pending:    { label: 'قيد الانتظار', color: '#d97706', bg: '#fef3c7' },
-    Assigned:   { label: 'تم التكليف',   color: '#7c3aed', bg: '#ede9fe' },
-    InProgress: { label: 'جارٍ التنفيذ', color: '#2563eb', bg: '#dbeafe' },
-    Resolved:   { label: 'تم الحل',      color: '#059669', bg: '#d1fae5' },
-    Closed:     { label: 'مغلق',         color: '#6b7280', bg: '#f3f4f6' },
+  statusMap: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+    Pending:        { label: 'قيد الانتظار',  color: '#b45309', bg: '#fef9c3', icon: '⏳' },
+    vendorAccepted: { label: 'جارٍ التنفيذ', color: '#1d4ed8', bg: '#dbeafe', icon: '🔧' },
+    Resolved:       { label: 'تم الإنجاز',   color: '#15803d', bg: '#dcfce7', icon: '✅' },
+    Closed:         { label: 'مغلق',          color: '#4b5563', bg: '#f3f4f6', icon: '🔒' },
   };
 
   problemIconMap: Record<string, string> = {
-    Electrical: '⚡️', Plumbing: '🚿', AC: '❄️', Other: '🔧',
+    Electrical: 'electrical_services',
+    Plumbing:   'plumbing',
+    AC:         'ac_unit',
+    Other:      'build',
   };
 
   filteredTickets = computed(() => {
@@ -126,12 +144,12 @@ export class Dashboard implements OnInit {
     return {
       total:      t.length,
       pending:    t.filter(x => x.status === 'Pending').length,
-      inProgress: t.filter(x => x.status === 'InProgress').length,
+      inProgress: t.filter(x => x.status === 'vendorAccepted').length,
       done:       t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
     };
   });
 
-  constructor(public auth: Auth, private api: Api) {}
+  constructor(public auth: Auth,private router: Router) {}
 
   ngOnInit() {
     this.loadTickets();
@@ -154,27 +172,166 @@ export class Dashboard implements OnInit {
   loadNotifications() {
     this.http.get<Notification[]>(`${this.API_URL}/api/Notifications`, { headers: this.getHeaders() }).subscribe({
       next: (data) => this.notifications.set(data),
-      error: (err) => console.error(err),
+      error: () => {},
     });
   }
 
   toggleNotifications() {
     this.showNotifications.update(v => !v);
-    if (this.showNotifications()) {
-      this.markAllRead();
-    }
+    if (this.showNotifications()) this.markAllRead();
   }
 
   markAllRead() {
-    const unread = this.notifications().filter(n => !n.isRead);
-    unread.forEach(n => {
+    this.notifications().filter(n => !n.isRead).forEach(n => {
       this.http.patch(`${this.API_URL}/api/Notifications/${n.id}/read`, {}, { headers: this.getHeaders() }).subscribe();
     });
     this.notifications.update(list => list.map(n => ({ ...n, isRead: true })));
   }
 
-  getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6', icon: '⚪' }; }
-  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#6b7280', bg: '#f3f4f6' }; }
-  openTicket(t: Ticket)  { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
-  closeTicket()          { this.selectedTicket.set(null); this.closeImage(); }
+  // Applications
+  openApplications(ticket: Ticket, event: Event) {
+    event.stopPropagation();
+    this.applicationsTicketId.set(ticket.id);
+    this.showApplicationsModal.set(true);
+    this.loadApplications(ticket.id);
+  }
+
+  loadApplications(ticketId: string) {
+    this.loadingApplications.set(true);
+    this.applications.set([]);
+    this.http.get<TicketApplication[]>(
+      `${this.API_URL}/api/TicketApplication/${ticketId}`,
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (data) => { this.applications.set(data); this.loadingApplications.set(false); },
+      error: (err) => { console.error(err); this.loadingApplications.set(false); },
+    });
+  }
+
+  acceptApplication(applicationId: string) {
+    this.acceptingId.set(applicationId);
+    this.http.patch(
+      `${this.API_URL}/api/Tickets/${applicationId}/accept`,
+      {},
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: () => {
+        this.acceptingId.set(null);
+        this.showApplicationsModal.set(false);
+        this.loadTickets();
+      },
+      error: (err) => { console.error(err); this.acceptingId.set(null); },
+    });
+  }
+
+  closeApplicationsModal() {
+    this.showApplicationsModal.set(false);
+    this.applications.set([]);
+  }
+openVendorProfile(vendorId: string, event: Event) {
+  event.stopPropagation();
+  this.router.navigate(['/vendor-profile', vendorId]);
+}
+
+  // Vendor Profile
+  // openVendorProfile(vendorId: string, event: Event) {
+  //   event.stopPropagation();
+  //   this.showVendorProfile.set(true);
+  //   this.vendorProfile.set(null);
+  //   this.loadingVendorProfile.set(true);
+  //   this.http.get<VendorProfileData>(
+  //     `${this.API_URL}/api/Vendors/${vendorId}/profile`,
+  //     { headers: this.getHeaders() }
+  //   ).subscribe({
+  //     next: (data) => { this.vendorProfile.set(data); this.loadingVendorProfile.set(false); },
+  //     error: (err) => { console.error(err); this.loadingVendorProfile.set(false); },
+  //   });
+  // }
+
+  // closeVendorProfile() { this.showVendorProfile.set(false); this.vendorProfile.set(null); }
+
+  // Feedback
+  openFeedback(ticket: Ticket, event: Event) {
+    event.stopPropagation();
+    this.feedbackTicketId.set(ticket.id);
+    this.feedbackVendorId.set(ticket.vendorId ?? null);
+    this.feedbackComment.set('');
+    this.feedbackError.set('');
+    this.feedbackSuccess.set(false);
+    this.showFeedbackModal.set(true);
+  }
+
+  submitFeedback() {
+    const comment = this.feedbackComment().trim();
+    if (!comment) { this.feedbackError.set('اكتب تعليق الأول'); return; }
+    if (!this.feedbackVendorId()) { this.feedbackError.set('لا يوجد فني مرتبط بهذا الطلب'); return; }
+    this.feedbackLoading.set(true);
+    this.feedbackError.set('');
+    this.http.post(
+      `${this.API_URL}/api/Feedbacks`,
+      { comment, ticketId: this.feedbackTicketId(), vendorId: this.feedbackVendorId() },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: () => { this.feedbackLoading.set(false); this.feedbackSuccess.set(true); setTimeout(() => this.closeFeedbackModal(), 1800); },
+      error: (err) => { this.feedbackLoading.set(false); this.feedbackError.set(err?.error?.message ?? 'حصل خطأ، حاول تاني'); },
+    });
+  }
+
+  closeFeedbackModal() {
+    this.showFeedbackModal.set(false);
+    this.feedbackComment.set('');
+    this.feedbackSuccess.set(false);
+    this.feedbackError.set('');
+  }
+
+  // Close Ticket
+  closeTicketAction(ticketId: string, event: Event) {
+    event.stopPropagation();
+    this.closingTicketId.set(ticketId);
+    this.http.patch(
+      `${this.API_URL}/api/Tickets/${ticketId}/close`,
+      {},
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: () => { this.closingTicketId.set(null); this.loadTickets(); this.closeTicket(); },
+      error: (err) => { console.error(err); this.closingTicketId.set(null); },
+    });
+  }
+
+  openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
+  closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
+
+  openImage(images: string[], index: number) {
+    this._currentImages = images;
+    this.currentImageIndex.set(index);
+    this.previewImage.set(images[index]);
+  }
+  closeImage() { this.previewImage.set(null); this._currentImages = []; }
+
+  nextImage() {
+    if (!this._currentImages.length) return;
+    const n = (this.currentImageIndex() + 1) % this._currentImages.length;
+    this.currentImageIndex.set(n);
+    this.previewImage.set(this._currentImages[n]);
+  }
+
+  prevImage() {
+    if (!this._currentImages.length) return;
+    const p = (this.currentImageIndex() - 1 + this._currentImages.length) % this._currentImages.length;
+    this.currentImageIndex.set(p);
+    this.previewImage.set(this._currentImages[p]);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboard(event: KeyboardEvent) {
+    if (!this.previewImage()) return;
+    switch (event.key) {
+      case 'ArrowRight': this.nextImage(); break;
+      case 'ArrowLeft':  this.prevImage(); break;
+      case 'Escape':     this.closeImage(); break;
+    }
+  }
+
+  getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
+  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#4b5563', bg: '#f3f4f6', icon: '•' }; }
 }
