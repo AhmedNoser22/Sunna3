@@ -22,7 +22,7 @@ export class ConfirmEmail implements OnInit {
     private auth: Auth,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
     const email = this.route.snapshot.queryParamMap.get('email');
@@ -30,38 +30,39 @@ export class ConfirmEmail implements OnInit {
   }
 
   submit() {
-  if (!this.code || this.code.length < 6) {
-    this.error.set('أدخل الكود المكون من 6 أرقام');
-    return;
-  }
-
-  this.loading.set(true);
-  this.error.set('');
-
-  this.auth.confirmEmail({
-    email: this.email(),
-    code: this.code
-  }).subscribe({
-    next: (res) => {
-      this.loading.set(false);
-      this.success.set(true);
-
-      localStorage.setItem('token', res.token);
-
-      setTimeout(() => {
-        this.router.navigate(['/create-ticket']);
-      }, 1200);
-    },
-    error: (err) => {
-      this.loading.set(false);
-      this.error.set(err?.error || 'الكود غير صحيح');
+    if (!this.code || this.code.length < 6) {
+      this.error.set('أدخل الكود المكون من 6 أرقام');
+      return;
     }
-  });
-}
+
+    this.loading.set(true);
+    this.error.set('');
+
+    this.auth.confirmEmail({
+      email: this.email(),
+      code: this.code
+    }).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        this.success.set(true);
+
+        localStorage.setItem('token', res.token);
+
+        setTimeout(() => {
+          this.router.navigate(['/create-ticket']);
+        }, 1200);
+      },
+      error: (err) => {
+        this.loading.set(false);
+        this.error.set(err?.error || 'الكود غير صحيح');
+      }
+    });
+  }
+  
   resend() {
-  this.auth.resendCode(this.email()).subscribe({
-    next: () => alert('تم إرسال الكود'),
-    error: () => alert('حصل خطأ'),
-  });
-}
+    this.auth.resendCode(this.email()).subscribe({
+      next: () => alert('تم إرسال الكود'),
+      
+    });
+  }
 }
