@@ -24,6 +24,8 @@ export interface AuthResponse {
   email: string;
   fullName: string;
   roles: string[];
+  phone?: string;
+  profileImageUrl?: string;
 }
 
 @Injectable({ providedIn: 'root' })

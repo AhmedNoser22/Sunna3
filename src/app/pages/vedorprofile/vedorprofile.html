@@ -15,114 +15,121 @@
   </div>
 
   @if (loading()) {
-    <div class="center-state">
-      <div class="loader"></div>
-      <p>جاري تحميل الملف الشخصي...</p>
-    </div>
+  <div class="center-state">
+    <div class="loader"></div>
+    <p>جاري تحميل الملف الشخصي...</p>
+  </div>
   } @else if (error()) {
-    <div class="center-state">
-      <span class="material-icons-round err-ico">error_outline</span>
-      <h3>{{ error() }}</h3>
-      <button class="btn-primary" (click)="goBack()">
-        <span class="material-icons-round">arrow_forward</span>رجوع
-      </button>
-    </div>
+  <div class="center-state">
+    <span class="material-icons-round err-ico">error_outline</span>
+    <h3>{{ error() }}</h3>
+    <button class="btn-primary" (click)="goBack()">
+      <span class="material-icons-round">arrow_forward</span>رجوع
+    </button>
+  </div>
   } @else if (profile()) {
 
-    <div class="vp-content">
+  <div class="vp-content">
 
-      <!-- Hero Card -->
-      <div class="hero-card">
-        <div class="hero-left">
-          <div class="hero-av">{{ profile()!.fullName.charAt(0) }}</div>
-          <div>
-            <h1 class="hero-name">{{ profile()!.fullName }}</h1>
-            <div class="hero-badge">
-              <span class="material-icons-round">engineering</span>
-              فني صيانة
-            </div>
-            <div class="hero-phone">
-              <span class="material-icons-round">phone</span>
-              {{ profile()!.phone}}
-            </div>
-          </div>
+    <!-- Hero Card -->
+    <div class="hero-card">
+      <div class="hero-left">
+        <div class="hero-av">
+          @if (profile()!.imageUrl) {
+          <img [src]="'http://localhost:5001/' + profile()!.imageUrl"
+            style="width:100%;height:100%;object-fit:cover;border-radius:22px;" />
+          } @else {
+          {{ profile()!.fullName.charAt(0) }}
+          }
         </div>
-        <div class="hero-stats">
-          <div class="hstat">
-            <span class="hstat-n">{{ stats().total }}</span>
-            <span class="hstat-l">إجمالي المهام</span>
+        <div>
+          <h1 class="hero-name">{{ profile()!.fullName }}</h1>
+          <div class="hero-badge">
+            <span class="material-icons-round">engineering</span>
+            فني صيانة
           </div>
-          <div class="hstat-div"></div>
-          <div class="hstat">
-            <span class="hstat-n">{{ stats().done }}</span>
-            <span class="hstat-l">مكتملة</span>
-          </div>
-          <div class="hstat-div"></div>
-          <div class="hstat">
-            <span class="hstat-n">{{ stats().feedbacks }}</span>
-            <span class="hstat-l">التقييمات</span>
+          <div class="hero-phone">
+            <span class="material-icons-round">phone</span>
+            {{ profile()!.phone}}
           </div>
         </div>
       </div>
-
-      <!-- History -->
-      <div class="section">
-        <div class="section-hd">
-          <span class="material-icons-round">history</span>
-          سجل العمل والتقييمات
-          <span class="count-pill">{{ profile()!.ticketHistory.length }}</span>
+      <div class="hero-stats">
+        <div class="hstat">
+          <span class="hstat-n">{{ stats().total }}</span>
+          <span class="hstat-l">إجمالي المهام</span>
         </div>
+        <div class="hstat-div"></div>
+        <div class="hstat">
+          <span class="hstat-n">{{ stats().done }}</span>
+          <span class="hstat-l">مكتملة</span>
+        </div>
+        <div class="hstat-div"></div>
+        <div class="hstat">
+          <span class="hstat-n">{{ stats().feedbacks }}</span>
+          <span class="hstat-l">التقييمات</span>
+        </div>
+      </div>
+    </div>
 
-        @if (profile()!.ticketHistory.length === 0) {
-          <div class="empty-box">
-            <span class="material-icons-round">assignment_late</span>
-            <p>لا يوجد سجل عمل بعد</p>
-          </div>
-        } @else {
-          <div class="hist-list">
-            @for (ticket of profile()!.ticketHistory; track ticket.ticketId) {
-              <div class="hist-card">
-                <div class="hist-top">
-                  <div class="hist-main">
-                    <!-- <p class="hist-desc">{{ ticket.description }}</p> -->
-                    <div class="hist-meta">
-                      <span>
-                        <span class="material-icons-round">place</span>
-                        {{ ticket.city }} — {{ ticket.governorate }}
-                      </span>
-                      <span>
-                        <span class="material-icons-round">calendar_today</span>
-                       {{ ticket.createdAt }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+    <!-- History -->
+    <div class="section">
+      <div class="section-hd">
+        <span class="material-icons-round">history</span>
+        سجل العمل والتقييمات
+        <span class="count-pill">{{ profile()!.ticketHistory.length }}</span>
+      </div>
 
-                @if (ticket.feedbacks.length > 0) {
-                  <div class="fb-section">
-                    <div class="fb-title">
-                      <span class="material-icons-round">rate_review</span>
-                      التقييمات ({{ ticket.feedbacks.length }})
-                    </div>
-                    <div class="fb-list">
-                      @for (fb of ticket.feedbacks; track fb.id) {
-                        <div class="fb-card">
-                          <div class="fb-head">
-                            <div class="fb-av">{{ fb.tenantName.charAt(0) }}</div>
-                            <span class="fb-name">{{ fb.tenantName }}</span>
-                          </div>
-                          <p class="fb-text">{{ fb.comment }}</p>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
+      @if (profile()!.ticketHistory.length === 0) {
+      <div class="empty-box">
+        <span class="material-icons-round">assignment_late</span>
+        <p>لا يوجد سجل عمل بعد</p>
+      </div>
+      } @else {
+      <div class="hist-list">
+        @for (ticket of profile()!.ticketHistory; track ticket.ticketId) {
+        <div class="hist-card">
+          <div class="hist-top">
+            <div class="hist-main">
+              <!-- <p class="hist-desc">{{ ticket.description }}</p> -->
+              <div class="hist-meta">
+                <span>
+                  <span class="material-icons-round">place</span>
+                  {{ ticket.city }} — {{ ticket.governorate }}
+                </span>
+                <span>
+                  <span class="material-icons-round">calendar_today</span>
+                  {{ ticket.createdAt }}
+                </span>
               </div>
-            }
+            </div>
           </div>
+
+          @if (ticket.feedbacks.length > 0) {
+          <div class="fb-section">
+            <div class="fb-title">
+              <span class="material-icons-round">rate_review</span>
+              التقييمات ({{ ticket.feedbacks.length }})
+            </div>
+            <div class="fb-list">
+              @for (fb of ticket.feedbacks; track fb.id) {
+              <div class="fb-card">
+                <div class="fb-head">
+                  <div class="fb-av">{{ fb.tenantName.charAt(0) }}</div>
+                  <span class="fb-name">{{ fb.tenantName }}</span>
+                </div>
+                <p class="fb-text">{{ fb.comment }}</p>
+              </div>
+              }
+            </div>
+          </div>
+          }
+        </div>
         }
       </div>
-
+      }
     </div>
+
+  </div>
   }
 </div>

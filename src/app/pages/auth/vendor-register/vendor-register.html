@@ -32,7 +32,7 @@
       <div class="success-state">
         <div class="success-icon">🎉</div>
         <h2>تم التسجيل بنجاح!</h2>
-        <p>أهلاً بيك في منظومة صُنّاع. سيتم تحويلك لصفحة الدخول...</p>
+        <p>أهلاً بيك في منظومة صُنّاع. سيتم تحويلك للداشبورد...</p>
         <div class="success-loader"></div>
       </div>
     }
@@ -43,15 +43,35 @@
       <p class="auth-sub">أكمّل بياناتك وانضم للمنظومة</p>
 
       <div class="auth-form">
+
+        <!-- صورة البروفايل -->
+        <div class="avatar-upload-section">
+          <div class="avatar-preview" (click)="imgInput.click()">
+            @if (imagePreview()) {
+              <img [src]="imagePreview()" alt="صورتك" class="avatar-img" />
+              <button class="remove-img" (click)="$event.stopPropagation(); removeImage()">✕</button>
+            } @else {
+              <div class="avatar-placeholder">
+                <span class="avatar-icon">📷</span>
+                <span class="avatar-hint">صورة البروفايل</span>
+              </div>
+            }
+          </div>
+          <input
+            #imgInput
+            type="file"
+            accept="image/*"
+            style="display:none"
+            (change)="onImageSelected($event)"
+          />
+          <p class="avatar-label">اختياري – اضغط لرفع صورتك</p>
+        </div>
+
         <div class="field">
           <label>الاسم الكامل</label>
           <div class="input-wrap">
             <span class="input-icon">👤</span>
-            <input
-              type="text"
-              [(ngModel)]="form.fullName"
-              placeholder="محمد أحمد"
-            />
+            <input type="text" [(ngModel)]="form.fullName" placeholder="محمد أحمد" />
           </div>
         </div>
 
@@ -59,11 +79,21 @@
           <label>البريد الإلكتروني</label>
           <div class="input-wrap">
             <span class="input-icon">✉️</span>
+            <input type="email" [(ngModel)]="form.email" placeholder="example@email.com" dir="ltr" />
+          </div>
+        </div>
+
+        <!-- رقم الهاتف -->
+        <div class="field">
+          <label>رقم الهاتف</label>
+          <div class="input-wrap">
+            <span class="input-icon">📞</span>
             <input
-              type="email"
-              [(ngModel)]="form.email"
-              placeholder="example@email.com"
+              type="tel"
+              [(ngModel)]="form.PhoneNumber"
+              placeholder="01xxxxxxxxx"
               dir="ltr"
+              maxlength="13"
             />
           </div>
         </div>
@@ -115,11 +145,6 @@
             إنشاء الحساب 🚀
           }
         </button>
-
-        <div class="auth-footer">
-          <span>عندك حساب بالفعل؟</span>
-          <a routerLink="/login">سجّل دخولك</a>
-        </div>
       </div>
     }
   </div>

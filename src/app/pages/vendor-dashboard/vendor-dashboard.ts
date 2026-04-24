@@ -39,13 +39,10 @@ export class VendorDashboard implements OnInit {
   readonly API_URL = 'http://localhost:5001';
 
   activeTab = signal<ActiveTab>('my-tasks');
-
   myTickets = signal<Ticket[]>([]);
   loadingMyTickets = signal(true);
-
   newTickets = signal<Ticket[]>([]);
   loadingNewTickets = signal(false);
-
   selectedTicket = signal<Ticket | null>(null);
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
@@ -55,10 +52,9 @@ export class VendorDashboard implements OnInit {
   filterCities = signal<string[]>([]);
   selectedGovernorate = signal('');
   selectedCity = signal('');
-
   newTicketsStatusFilter = signal<'pending' | 'all'>('all');
   completingId = signal<string | null>(null);
-  applyingId  = signal<string | null>(null);
+  applyingId = signal<string | null>(null);
 
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
     Low:       { label: 'منخفضة', color: '#15803d', bg: '#dcfce7', dot: '#22c55e' },
@@ -101,11 +97,52 @@ export class VendorDashboard implements OnInit {
   });
 
   constructor(public auth: Auth) {}
-  ngOnInit() { this.loadMyTickets(); }
+
+  ngOnInit() {
+    this.loadMyTickets();
+    this.loadCurrentUserProfile(); // ✅ الإضافة الوحيدة
+  }
 
   private headers(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  }
+
+  // ✅ Method جديدة تجيب الصورة من الـ DB
+  private loadCurrentUserProfile() {
+    const vendorId = this.getVendorId();
+    if (!vendorId) return;
+
+    this.http.get<any>(
+      `${this.API_URL}/api/Vendors/${vendorId}/profile`,
+      { headers: this.headers() }
+    ).subscribe({
+      next: (profile) => {
+        const current = this.auth.currentUser();
+        if (!current) return;
+
+        const updated = {
+          ...current,
+          profileImageUrl: profile.imageUrl ?? current.profileImageUrl ?? null,
+          phone: profile.phone ?? current.phone ?? null,
+        };
+
+        localStorage.setItem('user', JSON.stringify(updated));
+        this.auth.currentUser.set(updated);
+      },
+      error: () => {} // مش مشكلة لو فشل
+    });
+  }
+
+  private getVendorId(): string {
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub ?? '';
+    } catch {
+      return '';
+    }
   }
 
   loadMyTickets() {
@@ -175,10 +212,10 @@ export class VendorDashboard implements OnInit {
   callTenant(phone: string) { window.open(`tel:${phone}`, '_self'); }
 
   getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
-  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
+  getStatus(v: string) { return this.statusMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
 
-  openTicket(t: Ticket)  { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
-  closeTicket()          { this.selectedTicket.set(null); this.closeImage(); }
+  openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
+  closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
 
   openImage(images: string[], index: number) {
     this._currentImages = images;
@@ -190,12 +227,15 @@ export class VendorDashboard implements OnInit {
   nextImage() {
     if (!this._currentImages.length) return;
     const n = (this.currentImageIndex() + 1) % this._currentImages.length;
-    this.currentImageIndex.set(n); this.previewImage.set(this._currentImages[n]);
+    this.currentImageIndex.set(n);
+    this.previewImage.set(this._currentImages[n]);
   }
+
   prevImage() {
     if (!this._currentImages.length) return;
     const p = (this.currentImageIndex() - 1 + this._currentImages.length) % this._currentImages.length;
-    this.currentImageIndex.set(p); this.previewImage.set(this._currentImages[p]);
+    this.currentImageIndex.set(p);
+    this.previewImage.set(this._currentImages[p]);
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -203,8 +243,8 @@ export class VendorDashboard implements OnInit {
     if (!this.previewImage()) return;
     switch (event.key) {
       case 'ArrowRight': this.nextImage(); break;
-      case 'ArrowLeft':  this.prevImage(); break;
-      case 'Escape':     this.closeImage(); break;
+      case 'ArrowLeft': this.prevImage(); break;
+      case 'Escape': this.closeImage(); break;
     }
   }
 

@@ -25,6 +25,7 @@ interface VendorProfileData {
   vendorId: string;
   fullName: string;
   phone: string;
+  imageUrl?: string;
   ticketHistory: VendorTicketHistory[];
 }
 

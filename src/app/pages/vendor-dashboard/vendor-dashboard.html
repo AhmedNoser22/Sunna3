@@ -49,7 +49,13 @@
     </nav>
 
     <div class="sb-footer">
-      <div class="sb-av">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
+      <div class="sb-av">
+        @if (auth.currentUser()?.profileImageUrl) {
+        <img [src]="API_URL + '/' + auth.currentUser()!.profileImageUrl" alt="avatar" class="sb-av-img" />
+        } @else {
+        {{ auth.currentUser()?.fullName?.charAt(0) }}
+        }
+      </div>
       <div class="sb-info">
         <span class="sb-uname">{{ auth.currentUser()?.fullName }}</span>
         <span class="sb-role">فني صيانة</span>
@@ -246,27 +252,216 @@
     </div>
     }
     }
-
-    <!-- الملف الشخصي -->
     @if (activeTab() === 'profile') {
-    <div class="profile-card">
-      <div class="pc-head">
-        <div class="pc-av">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
-        <div>
-          <div class="pc-name">{{ auth.currentUser()?.fullName }}</div>
-          <div class="pc-email">{{ auth.currentUser()?.email }}</div>
-          <span class="pc-badge">
-            <span class="material-icons-round">engineering</span>فني صيانة
-          </span>
+    <div class="profile-page">
+
+      <!-- Profile Header -->
+      <div class="prof-header">
+        <div class="prof-av-wrap">
+          @if (auth.currentUser()?.profileImageUrl) {
+          <img [src]="API_URL + '/' + auth.currentUser()!.profileImageUrl" alt="avatar" class="prof-av-img" />
+          } @else {
+          <div class="prof-av-initials">
+            {{ auth.currentUser()?.fullName?.charAt(0) }}
+          </div>
+          }
+          <div class="prof-online-dot"></div>
+        </div>
+
+        <div class="prof-header-info">
+          <div class="prof-name-row">
+            <h2 class="prof-name">{{ auth.currentUser()?.fullName }}</h2>
+            <span class="prof-badge">
+              <span class="material-icons-round">verified</span>
+              معتمد
+            </span>
+          </div>
+          <div class="prof-meta">
+            <span><span class="material-icons-round">alternate_email</span><span dir="ltr">{{ auth.currentUser()?.email
+                }}</span></span>
+            @if (auth.currentUser()?.phone) {
+            <span><span class="material-icons-round">phone_iphone</span><span dir="ltr">{{ auth.currentUser()?.phone
+                }}</span></span>
+            }
+            <span><span class="material-icons-round">engineering</span>فني صيانة معتمد</span>
+          </div>
         </div>
       </div>
-      <div class="pc-stats">
-        <div class="pst"><span class="pst-n">{{ myTaskStats().total }}</span><span class="pst-l">الإجمالي</span></div>
-        <div class="pst"><span class="pst-n">{{ myTaskStats().resolved }}</span><span class="pst-l">مكتملة</span></div>
-        <div class="pst"><span class="pst-n">{{ myTaskStats().inProgress }}</span><span class="pst-l">جارية</span></div>
+
+      <!-- Grid -->
+      <div class="prof-grid">
+
+        <!-- بيانات الحساب -->
+        <div class="prof-section">
+          <div class="prof-section-head">
+            <div class="psh-icon purple"><span class="material-icons-round">manage_accounts</span></div>
+            <div>
+              <div class="psh-title">بيانات الحساب</div>
+              <div class="psh-sub">معلوماتك الشخصية</div>
+            </div>
+          </div>
+          <div class="prof-fields">
+            <div class="prof-field">
+              <div class="pf-icon"><span class="material-icons-round">badge</span></div>
+              <div class="pf-content">
+                <span class="pf-label">الاسم الكامل</span>
+                <span class="pf-value">{{ auth.currentUser()?.fullName }}</span>
+              </div>
+            </div>
+            <div class="prof-field">
+              <div class="pf-icon"><span class="material-icons-round">mail_outline</span></div>
+              <div class="pf-content">
+                <span class="pf-label">البريد الإلكتروني</span>
+                <span class="pf-value dir-ltr">{{ auth.currentUser()?.email }}</span>
+              </div>
+            </div>
+            @if (auth.currentUser()?.phone) {
+            <div class="prof-field">
+              <div class="pf-icon"><span class="material-icons-round">phone_iphone</span></div>
+              <div class="pf-content">
+                <span class="pf-label">رقم الهاتف</span>
+                <span class="pf-value dir-ltr">{{ auth.currentUser()?.phone }}</span>
+              </div>
+            </div>
+            }
+            <div class="prof-field">
+              <div class="pf-icon"><span class="material-icons-round">work_outline</span></div>
+              <div class="pf-content">
+                <span class="pf-label">الدور الوظيفي</span>
+                <span class="pf-value">فني صيانة معتمد</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- الأداء -->
+        <div class="prof-section">
+          <div class="prof-section-head">
+            <div class="psh-icon blue"><span class="material-icons-round">insights</span></div>
+            <div>
+              <div class="psh-title">الأداء الوظيفي</div>
+              <div class="psh-sub">نسب الإنجاز والكفاءة</div>
+            </div>
+          </div>
+          <div class="prof-perf">
+            <div class="perf-bar-wrap">
+              <div class="perf-bar-label">
+                <span>نسبة الإنجاز</span>
+                <span class="perf-pct green">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved /
+                  myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
+              </div>
+              <div class="perf-track">
+                <div class="perf-fill green"
+                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'">
+                </div>
+              </div>
+            </div>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar-label">
+                <span>جارٍ التنفيذ</span>
+                <span class="perf-pct blue">{{ myTaskStats().inProgress }}</span>
+              </div>
+              <div class="perf-track">
+                <div class="perf-fill blue"
+                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'">
+                </div>
+              </div>
+            </div>
+            <div class="perf-bar-wrap">
+              <div class="perf-bar-label">
+                <span>المهام الطارئة</span>
+                <span class="perf-pct red">{{ myTaskStats().emergency }}</span>
+              </div>
+              <div class="perf-track">
+                <div class="perf-fill red"
+                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'">
+                </div>
+              </div>
+            </div>
+            <div class="completion-ring-wrap">
+              <svg class="completion-ring" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="33" fill="none" stroke="#ede9fe" stroke-width="7" />
+                <circle cx="40" cy="40" r="33" fill="none" stroke="url(#ringGrad)" stroke-width="7"
+                  stroke-linecap="round" [attr.stroke-dasharray]="207"
+                  [attr.stroke-dashoffset]="myTaskStats().total > 0 ? 207 - (207 * myTaskStats().resolved / myTaskStats().total) : 207"
+                  transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 0.8s" />
+                <defs>
+                  <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#10b981" />
+                    <stop offset="100%" stop-color="#34d399" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="ring-center">
+                <span class="ring-num">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) *
+                  100 | number:'1.0-0') : 0 }}%</span>
+                <span class="ring-lbl">إنجاز</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- إحصائيات -->
+        <div class="prof-section full-span">
+          <div class="prof-section-head">
+            <div class="psh-icon orange"><span class="material-icons-round">bar_chart</span></div>
+            <div>
+              <div class="psh-title">إحصائيات تفصيلية</div>
+              <div class="psh-sub">توزيع المهام حسب الحالة</div>
+            </div>
+          </div>
+          <div class="stat-cards-row">
+            <div class="stat-detail-card purple">
+              <div class="sdc-icon"><span class="material-icons-round">folder_open</span></div>
+              <div class="sdc-num">{{ myTaskStats().total }}</div>
+              <div class="sdc-lbl">إجمالي</div>
+              <div class="sdc-bar">
+                <div class="sdc-fill" style="width:100%"></div>
+              </div>
+            </div>
+            <div class="stat-detail-card blue">
+              <div class="sdc-icon"><span class="material-icons-round">construction</span></div>
+              <div class="sdc-num">{{ myTaskStats().inProgress }}</div>
+              <div class="sdc-lbl">جارٍ التنفيذ</div>
+              <div class="sdc-bar">
+                <div class="sdc-fill"
+                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'">
+                </div>
+              </div>
+            </div>
+            <div class="stat-detail-card green">
+              <div class="sdc-icon"><span class="material-icons-round">task_alt</span></div>
+              <div class="sdc-num">{{ myTaskStats().resolved }}</div>
+              <div class="sdc-lbl">مكتملة</div>
+              <div class="sdc-bar">
+                <div class="sdc-fill"
+                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'">
+                </div>
+              </div>
+            </div>
+            <div class="stat-detail-card red">
+              <div class="sdc-icon"><span class="material-icons-round">priority_high</span></div>
+              <div class="sdc-num">{{ myTaskStats().emergency }}</div>
+              <div class="sdc-lbl">طارئة</div>
+              <div class="sdc-bar">
+                <div class="sdc-fill"
+                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <button class="prof-logout" (click)="auth.logout()">
+        <span class="material-icons-round">logout</span>
+        تسجيل الخروج
+      </button>
+
     </div>
     }
+
   </main>
 
   <!-- TICKET MODAL -->

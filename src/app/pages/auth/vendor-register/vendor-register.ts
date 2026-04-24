@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment.development';
+import { Auth, AuthResponse } from '../../../services/auth';
 
 @Component({
   selector: 'app-vendor-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './vendor-register.html',
   styleUrl: './vendor-register.scss',
 })
@@ -16,15 +17,19 @@ export class VendorRegister implements OnInit {
   private API = environment.apiUrl;
 
   token = signal('');
-  tokenValid = signal<boolean | null>(null); // null = جارٍ التحقق
+  tokenValid = signal<boolean | null>(null);
   checking = signal(true);
 
   form = {
+    PhoneNumber: '',
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
   };
+
+  ImageUrl = signal<File | null>(null);
+  imagePreview = signal<string | null>(null);
 
   loading = signal(false);
   error = signal('');
@@ -35,7 +40,8 @@ export class VendorRegister implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private auth: Auth
   ) { }
 
   ngOnInit() {
@@ -48,19 +54,36 @@ export class VendorRegister implements OnInit {
       return;
     }
 
-    // التحقق من صلاحية التوكن
-    this.http
-      .get(`${this.API}/api/Invitation/validate/${t}`)
-      .subscribe({
-        next: () => {
-          this.tokenValid.set(true);
-          this.checking.set(false);
-        },
-        error: () => {
-          this.tokenValid.set(false);
-          this.checking.set(false);
-        },
-      });
+    this.http.get(`${this.API}/api/Invitation/validate/${t}`).subscribe({
+      next: () => {
+        this.tokenValid.set(true);
+        this.checking.set(false);
+      },
+      error: () => {
+        this.tokenValid.set(false);
+        this.checking.set(false);
+      },
+
+    });
+  }
+
+  onImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.ImageUrl.set(file);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview.set(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImage() {
+    this.ImageUrl.set(null);
+    this.imagePreview.set(null);
   }
 
   submit() {
@@ -68,7 +91,8 @@ export class VendorRegister implements OnInit {
       !this.form.fullName ||
       !this.form.email ||
       !this.form.password ||
-      !this.form.confirmPassword
+      !this.form.confirmPassword ||
+      !this.form.PhoneNumber
     ) {
       this.error.set('من فضلك إملأ كل الحقول');
       return;
@@ -84,52 +108,51 @@ export class VendorRegister implements OnInit {
       return;
     }
 
+    const phoneRegex = /^(\+20|0)?1[0125]\d{8}$/;
+    if (!phoneRegex.test(this.form.PhoneNumber)) {
+      this.error.set('رقم الهاتف غير صحيح');
+      return;
+    }
+
     this.loading.set(true);
     this.error.set('');
 
-    const body = {
-      token: this.token(),
-      fullName: this.form.fullName,
-      email: this.form.email,
-      password: this.form.password,
-    };
+    const formData = new FormData();
+    formData.append('fullName', this.form.fullName);
+    formData.append('email', this.form.email);
+    formData.append('password', this.form.password);
+    formData.append('PhoneNumber', this.form.PhoneNumber);
+    formData.append('Token', this.token());
+
+    if (this.ImageUrl()) {
+      formData.append('ImageUrl', this.ImageUrl()!); // ✅ اسم صح يطابق الباك
+    }
 
     this.http
-      .post(`${this.API}/api/Invitation/register-vendor`, body)
+      .post(`${this.API}/api/Invitation/register-vendor`, formData)
       .subscribe({
         next: (res: any) => {
           this.loading.set(false);
 
-          // 👇 خد التوكن من الباك
-          const token = res.token;
+          const userData: AuthResponse = {
+            token: res.token,
+            email: this.form.email,
+            fullName: this.form.fullName,
+            roles: ['Vendor'],
+            phone: this.form.PhoneNumber,           // ✅ ضيف
+            profileImageUrl: res.profileImageUrl ?? null,  // ✅ ضيف
+          };
 
-          if (token) {
-            localStorage.setItem('token', token);
-
-            // 👇 ده أهم سطر
-            localStorage.setItem(
-              'user',
-              JSON.stringify({
-                token: token,
-                email: this.form.email,
-                fullName: this.form.fullName,
-                roles: ['Vendor'], // 👈 عشان الـ guard
-              })
-            );
-          }
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('user', JSON.stringify(userData));
+          this.auth.currentUser.set(userData);
 
           this.success.set(true);
-
-          // 👇 ادخل على الداشبورد مباشرة
-          setTimeout(() => {
-            this.router.navigate(['/vendor-dashboard']);
-          }, 1000);
+          setTimeout(() => this.router.navigate(['/vendor-dashboard']), 1000);
         },
         error: (err: any) => {
           this.loading.set(false);
-          this.error.set(
-            err?.error?.message ?? 'حدث خطأ، حاول تاني'
-          );
+          this.error.set(err?.error?.message ?? 'حدث خطأ، حاول تاني');
         },
       });
   }

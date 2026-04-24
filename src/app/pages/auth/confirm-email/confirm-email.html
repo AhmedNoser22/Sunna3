@@ -23,10 +23,12 @@
       </div>
 
       <h2 class="as-headline">
-        خطوة واحدة
-        <span>وتبدأ شغلك</span>
+        تأكيد حسابك
+        <span>خطوة أخيرة قبل البدء</span>
       </h2>
-      <p class="as-sub">بعتنا كود تأكيد على إيميلك — ادخله وحسابك يكون جاهز فورًا</p>
+      <p class="as-sub">
+        أرسلنا رمز تحقق إلى بريدك الإلكتروني. أدخل الرمز لإكمال تفعيل حسابك.
+      </p>
     </div>
 
     <div class="as-features">
@@ -38,10 +40,11 @@
           </svg>
         </div>
         <div class="asf-text">
-          <div class="asf-title">تحقق آمن</div>
-          <div class="asf-desc">الكود صالح لمدة محدودة لحماية حسابك</div>
+          <div class="asf-title">حماية الحساب</div>
+          <div class="asf-desc">رمز التحقق صالح لفترة محدودة لضمان أمان حسابك</div>
         </div>
       </div>
+
       <div class="as-feat">
         <div class="asf-icon">
           <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
@@ -49,8 +52,8 @@
           </svg>
         </div>
         <div class="asf-text">
-          <div class="asf-title">مرة وخلاص</div>
-          <div class="asf-desc">التحقق مرة واحدة بس وما تعملوش تاني</div>
+          <div class="asf-title">تفعيل سريع</div>
+          <div class="asf-desc">بمجرد إدخال الرمز سيتم تفعيل حسابك فورًا</div>
         </div>
       </div>
     </div>
@@ -67,15 +70,15 @@
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
           </div>
-          <h2>تم التأكيد بنجاح!</h2>
-          <p>حسابك اتأكد وجاهز للاستخدام — هيتم تحويلك تلقائيًا</p>
+          <h2>تم تفعيل الحساب</h2>
+          <p>تم تأكيد بريدك الإلكتروني بنجاح. سيتم تحويلك الآن.</p>
         </div>
 
       } @else {
 
         <div class="auth-box-head">
-          <h1>تأكيد الإيميل</h1>
-          <p>تم ارسال الكود الي بريدك</p>
+          <h1>تأكيد البريد الإلكتروني</h1>
+          <p>أدخل رمز التحقق المرسل إلى بريدك الإلكتروني</p>
         </div>
 
         @if (email()) {
@@ -92,7 +95,7 @@
 
         <div class="auth-form">
           <div class="field">
-            <label>كود التأكيد</label>
+            <label>رمز التحقق</label>
             <input
               type="text"
               [(ngModel)]="code"
@@ -111,17 +114,17 @@
           }
 
           <button class="submit-btn" (click)="submit()" [disabled]="loading()">
-            @if (loading()) { <span class="spinner"></span> جاري التأكيد... }
-            @else { تأكيد الكود }
+            @if (loading()) { <span class="spinner"></span> جاري التحقق... }
+            @else { تأكيد الرمز }
           </button>
 
           <button class="resend-btn" (click)="resend()">
-            إعادة إرسال الكود
+            إعادة إرسال الرمز
           </button>
 
           <div class="auth-footer">
-            <span>محتاج تسجّل من جديد؟</span>
-            <a routerLink="/register">تسجيل</a>
+            <span>هل تحتاج إلى إنشاء حساب جديد؟</span>
+            <a routerLink="/register">تسجيل حساب</a>
           </div>
         </div>
       }

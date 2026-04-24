@@ -91,6 +91,85 @@ h1 {
   gap: 16px;
 }
 
+// ─── Avatar Upload ────────────────────────────────────────
+.avatar-upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.avatar-preview {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 2.5px dashed #c4b5fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #f5f3ff;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+  overflow: visible;
+
+  &:hover {
+    border-color: #7c3aed;
+    background: #ede9fe;
+  }
+}
+
+.avatar-img {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.remove-img {
+  position: absolute;
+  top: -4px; left: -4px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 2;
+  transition: background 0.2s;
+
+  &:hover { background: #b91c1c; }
+}
+
+.avatar-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.avatar-icon {
+  font-size: 26px;
+}
+
+.avatar-hint {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.avatar-label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+// ─── Fields ───────────────────────────────────────────────
 .field {
   display: flex;
   flex-direction: column;
