@@ -22,7 +22,8 @@ interface Ticket {
   vendorName?: string;
   vendorId?: string;
   companyId: string;
-  imageUrls: string[];
+  beforeImageUrls: string[];
+  afterImageUrls: string[];
 }
 
 interface Vendor {
@@ -58,7 +59,7 @@ export class Dashboard implements OnInit {
   sortOrder = signal<'newest' | 'oldest'>('newest');
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
-  private _currentImages: string[] = [];
+_currentImages: string[] = [];
 
   invitePhone = signal('');
   inviteLoading = signal(false);

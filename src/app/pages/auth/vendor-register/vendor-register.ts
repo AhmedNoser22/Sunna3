@@ -125,7 +125,7 @@ export class VendorRegister implements OnInit {
     formData.append('Token', this.token());
 
     if (this.ImageUrl()) {
-      formData.append('ImageUrl', this.ImageUrl()!); // ✅ اسم صح يطابق الباك
+      formData.append('Image', this.ImageUrl()!);
     }
 
     this.http

@@ -9,11 +9,9 @@
         <div class="sb-logo-icon">
           <svg viewBox="0 0 36 36" class="logo-svg">
             <rect width="36" height="36" rx="12" fill="url(#grad)" />
-
             <path
               d="M25.4 10.6C24.1 9.3 22.3 8.5 20.4 8.5C17.5 8.5 15.1 10.5 14.4 13.2L8.5 19.1V27.5H16.9L22.8 21.6C25.5 20.9 27.5 18.5 27.5 15.6C27.5 13.7 26.7 11.9 25.4 10.6ZM14.9 25.5H10.5V21.1L15.9 15.7C16.2 16.6 16.9 17.3 17.8 17.6L14.9 20.5V25.5ZM21.5 18.5C20.4 18.5 19.5 17.6 19.5 16.5C19.5 15.4 20.4 14.5 21.5 14.5C22.6 14.5 23.5 15.4 23.5 16.5C23.5 17.6 22.6 18.5 21.5 18.5Z"
               fill="white" />
-
             <defs>
               <linearGradient id="grad" x1="0" y1="0" x2="36" y2="36">
                 <stop offset="0%" stop-color="#7c3aed" />
@@ -39,7 +37,7 @@
         <span class="material-icons-round">search</span>
         <span>الطلبات المتاحة</span>
         @if (newTicketsStats().pending > 0) {
-        <span class="sb-badge red">{{ newTicketsStats().pending }}</span>
+          <span class="sb-badge red">{{ newTicketsStats().pending }}</span>
         }
       </button>
       <button class="sb-link" [class.active]="activeTab()==='profile'" (click)="switchTab('profile')">
@@ -51,9 +49,9 @@
     <div class="sb-footer">
       <div class="sb-av">
         @if (auth.currentUser()?.profileImageUrl) {
-        <img [src]="API_URL + '/' + auth.currentUser()!.profileImageUrl" alt="avatar" class="sb-av-img" />
+          <img [src]="API_URL + '/' + auth.currentUser()!.profileImageUrl" alt="avatar" class="sb-av-img" />
         } @else {
-        {{ auth.currentUser()?.fullName?.charAt(0) }}
+          {{ auth.currentUser()?.fullName?.charAt(0) }}
         }
       </div>
       <div class="sb-info">
@@ -77,491 +75,576 @@
       </div>
     </div>
 
-    <!-- مهامي -->
+    <!-- ══════════ مهامي ══════════ -->
     @if (activeTab() === 'my-tasks') {
-    <div class="stats-row">
-      <div class="scard purple">
-        <div class="sc-icon"><span class="material-icons-round">folder_open</span></div>
-        <div class="sc-body"><span class="snum">{{ myTaskStats().total }}</span><span class="slbl">إجمالي مهامي</span>
+      <div class="stats-row">
+        <div class="scard purple">
+          <div class="sc-icon"><span class="material-icons-round">folder_open</span></div>
+          <div class="sc-body"><span class="snum">{{ myTaskStats().total }}</span><span class="slbl">إجمالي مهامي</span></div>
+        </div>
+        <div class="scard blue">
+          <div class="sc-icon"><span class="material-icons-round">construction</span></div>
+          <div class="sc-body"><span class="snum">{{ myTaskStats().inProgress }}</span><span class="slbl">جارٍ التنفيذ</span></div>
+        </div>
+        <div class="scard green">
+          <div class="sc-icon"><span class="material-icons-round">task_alt</span></div>
+          <div class="sc-body"><span class="snum">{{ myTaskStats().resolved }}</span><span class="slbl">مكتملة</span></div>
+        </div>
+        <div class="scard red">
+          <div class="sc-icon"><span class="material-icons-round">priority_high</span></div>
+          <div class="sc-body"><span class="snum">{{ myTaskStats().emergency }}</span><span class="slbl">طارئة</span></div>
         </div>
       </div>
-      <div class="scard blue">
-        <div class="sc-icon"><span class="material-icons-round">construction</span></div>
-        <div class="sc-body"><span class="snum">{{ myTaskStats().inProgress }}</span><span class="slbl">جارٍ
-            التنفيذ</span></div>
-      </div>
-      <div class="scard green">
-        <div class="sc-icon"><span class="material-icons-round">task_alt</span></div>
-        <div class="sc-body"><span class="snum">{{ myTaskStats().resolved }}</span><span class="slbl">مكتملة</span>
-        </div>
-      </div>
-      <div class="scard red">
-        <div class="sc-icon"><span class="material-icons-round">priority_high</span></div>
-        <div class="sc-body"><span class="snum">{{ myTaskStats().emergency }}</span><span class="slbl">طارئة</span>
-        </div>
-      </div>
-    </div>
 
-    @if (loadingMyTickets()) {
-    <div class="center-state">
-      <div class="loader"></div>
-      <p>جاري التحميل...</p>
-    </div>
-    } @else if (myTickets().length === 0) {
-    <div class="center-state">
-      <span class="material-icons-round empty-ico">assignment_late</span>
-      <h3>لا توجد مهام مسندة</h3>
-      <p>اذهب للطلبات المتاحة وتقدّم على طلب</p>
-    </div>
-    } @else {
-    <div class="grid">
-      @for (t of myTickets(); track t.id) {
-      <div class="tcard" (click)="openTicket(t)">
-        <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
-        <div class="tcard-body">
-          <div class="tcard-top">
-            <div class="chips">
-              <span class="chip" [style.background]="getStatus(t.status).bg"
-                [style.color]="getStatus(t.status).color">{{ getStatus(t.status).label }}</span>
-              <span class="chip" [style.background]="getPriority(t.priority).bg"
-                [style.color]="getPriority(t.priority).color">{{ getPriority(t.priority).label }}</span>
+      @if (loadingMyTickets()) {
+        <div class="center-state">
+          <div class="loader"></div>
+          <p>جاري التحميل...</p>
+        </div>
+      } @else if (myTickets().length === 0) {
+        <div class="center-state">
+          <span class="material-icons-round empty-ico">assignment_late</span>
+          <h3>لا توجد مهام مسندة</h3>
+          <p>اذهب للطلبات المتاحة وتقدّم على طلب</p>
+        </div>
+      } @else {
+        <div class="grid">
+          @for (t of myTickets(); track t.id) {
+            <div class="tcard" (click)="openTicket(t)">
+              <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
+              <div class="tcard-body">
+                <div class="tcard-top">
+                  <div class="chips">
+                    <span class="chip" [style.background]="getStatus(t.status).bg" [style.color]="getStatus(t.status).color">{{ getStatus(t.status).label }}</span>
+                    <span class="chip" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">{{ getPriority(t.priority).label }}</span>
+                  </div>
+                  @if (t.status === 'vendorAccepted') {
+                    <button class="done-btn" (click)="openTicket(t); $event.stopPropagation()">
+                      <span class="material-icons-round">add_a_photo</span>
+                      إنهاء
+                    </button>
+                  }
+                </div>
+                <p class="tcard-desc">{{ t.description }}</p>
+                <div class="tcard-info">
+                  @if (t.governorate) {
+                    <span><span class="material-icons-round">place</span>{{ t.city }} — {{ t.governorate }}</span>
+                  }
+                  <span><span class="material-icons-round">person</span>{{ t.tenantName }}</span>
+                </div>
+                <div class="tcard-foot">
+                  <span class="dlbl">الموعد النهائي</span>
+                  <span class="dval">{{ t.deadline | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
             </div>
-            @if (t.status === 'vendorAccepted') {
-            <button class="done-btn" (click)="completeTicket(t.id, $event)" [disabled]="completingId()===t.id">
-              <span class="material-icons-round">check</span>
-              @if (completingId()===t.id) { جاري... } @else { إنهاء }
-            </button>
-            }
-          </div>
-          <p class="tcard-desc">{{ t.description }}</p>
-          <div class="tcard-info">
-            @if (t.governorate) { <span><span class="material-icons-round">place</span>{{ t.city }} — {{ t.governorate
-              }}</span> }
-            <span><span class="material-icons-round">person</span>{{ t.tenantName }}</span>
-          </div>
-          <div class="tcard-foot">
-            <span class="dlbl">الموعد النهائي</span>
-            <span class="dval">{{ t.deadline | date:'dd/MM/yyyy' }}</span>
-          </div>
-        </div>
-      </div>
-      }
-    </div>
-    }
-    }
-
-    <!-- الطلبات المتاحة -->
-    @if (activeTab() === 'new-tickets') {
-    <div class="stats-row two">
-      <div class="scard yellow">
-        <div class="sc-icon"><span class="material-icons-round">schedule</span></div>
-        <div class="sc-body"><span class="snum">{{ newTicketsStats().pending }}</span><span class="slbl">في
-            الانتظار</span></div>
-      </div>
-      <div class="scard purple">
-        <div class="sc-icon"><span class="material-icons-round">list_alt</span></div>
-        <div class="sc-body"><span class="snum">{{ newTicketsStats().total }}</span><span class="slbl">إجمالي
-            النتائج</span></div>
-      </div>
-    </div>
-
-    <div class="filter-panel">
-      <div class="fp-top">
-        <span class="fp-title">
-          <span class="material-icons-round">tune</span>فلترة حسب المنطقة
-        </span>
-        @if (selectedGovernorate()) {
-        <button class="clear-btn" (click)="clearFilters()">
-          <span class="material-icons-round">close</span>مسح الفلتر
-        </button>
-        }
-      </div>
-      <div class="sel-row">
-        <div class="sel-wrap">
-          <span class="sel-ico material-icons-round">map</span>
-          <select [ngModel]="selectedGovernorate()" (ngModelChange)="onGovernorateChange($event)" class="sel">
-            <option value="">كل المحافظات</option>
-            @for (gov of governorates; track gov) { <option [value]="gov">{{ gov }}</option> }
-          </select>
-        </div>
-        <div class="sel-wrap" [class.dim]="!selectedGovernorate()">
-          <span class="sel-ico material-icons-round">location_city</span>
-          <select [ngModel]="selectedCity()" (ngModelChange)="onCityChange($event)" [disabled]="!selectedGovernorate()"
-            class="sel">
-            <option value="">{{ selectedGovernorate() ? 'كل المدن' : 'اختار المحافظة أولاً' }}</option>
-            @for (city of filterCities(); track city) { <option [value]="city">{{ city }}</option> }
-          </select>
-        </div>
-      </div>
-      <div class="tab-row">
-        <button class="tab-btn" [class.on]="newTicketsStatusFilter()==='all'"
-          (click)="newTicketsStatusFilter.set('all')">
-          الكل <span>{{ newTicketsStats().total }}</span>
-        </button>
-        <button class="tab-btn" [class.on]="newTicketsStatusFilter()==='pending'"
-          (click)="newTicketsStatusFilter.set('pending')">
-          انتظار <span>{{ newTicketsStats().pending }}</span>
-        </button>
-      </div>
-    </div>
-
-    @if (loadingNewTickets()) {
-    <div class="center-state">
-      <div class="loader"></div>
-      <p>جاري التحميل...</p>
-    </div>
-    } @else if (filteredNewTickets().length === 0) {
-    <div class="center-state">
-      <span class="material-icons-round empty-ico">search_off</span>
-      <h3>لا توجد طلبات</h3>
-      <p>جرب تغيير المحافظة أو المدينة</p>
-    </div>
-    } @else {
-    <div class="grid">
-      @for (t of filteredNewTickets(); track t.id) {
-      <div class="tcard tcard-avail" (click)="openTicket(t)">
-        <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
-        <div class="tcard-body">
-          <div class="tcard-top">
-            <div class="chips">
-              <span class="chip" [style.background]="getStatus(t.status).bg"
-                [style.color]="getStatus(t.status).color">{{ getStatus(t.status).label }}</span>
-              <span class="chip" [style.background]="getPriority(t.priority).bg"
-                [style.color]="getPriority(t.priority).color">{{ getPriority(t.priority).label }}</span>
-            </div>
-            @if (t.status === 'Pending') {
-            <button class="quick-apply" (click)="applyToTicket(t.id, $event)" [disabled]="applyingId()===t.id"
-              title="تقدم الآن">
-              <span class="material-icons-round">{{ applyingId()===t.id ? 'hourglass_empty' : 'add_task' }}</span>
-            </button>
-            }
-          </div>
-          <p class="tcard-desc">{{ t.description }}</p>
-          <div class="tcard-info">
-            @if (t.governorate) { <span><span class="material-icons-round">place</span>{{ t.city }} — {{ t.governorate
-              }}</span> }
-            <span><span class="material-icons-round">person</span>{{ t.tenantName }}</span>
-          </div>
-          <div class="tcard-foot">
-            <span class="dlbl">الموعد النهائي</span>
-            <span class="dval">{{ t.deadline | date:'dd/MM/yyyy' }}</span>
-          </div>
-        </div>
-      </div>
-      }
-    </div>
-    }
-    }
-    @if (activeTab() === 'profile') {
-    <div class="profile-page">
-
-      <!-- Profile Header -->
-      <div class="prof-header">
-        <div class="prof-av-wrap">
-          @if (auth.currentUser()?.profileImageUrl) {
-          <img [src]="API_URL + '/' + auth.currentUser()!.profileImageUrl" alt="avatar" class="prof-av-img" />
-          } @else {
-          <div class="prof-av-initials">
-            {{ auth.currentUser()?.fullName?.charAt(0) }}
-          </div>
           }
-          <div class="prof-online-dot"></div>
         </div>
-
-        <div class="prof-header-info">
-          <div class="prof-name-row">
-            <h2 class="prof-name">{{ auth.currentUser()?.fullName }}</h2>
-            <span class="prof-badge">
-              <span class="material-icons-round">verified</span>
-              معتمد
-            </span>
-          </div>
-          <div class="prof-meta">
-            <span><span class="material-icons-round">alternate_email</span><span dir="ltr">{{ auth.currentUser()?.email
-                }}</span></span>
-            @if (auth.currentUser()?.phone) {
-            <span><span class="material-icons-round">phone_iphone</span><span dir="ltr">{{ auth.currentUser()?.phone
-                }}</span></span>
-            }
-            <span><span class="material-icons-round">engineering</span>فني صيانة معتمد</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Grid -->
-      <div class="prof-grid">
-
-        <!-- بيانات الحساب -->
-        <div class="prof-section">
-          <div class="prof-section-head">
-            <div class="psh-icon purple"><span class="material-icons-round">manage_accounts</span></div>
-            <div>
-              <div class="psh-title">بيانات الحساب</div>
-              <div class="psh-sub">معلوماتك الشخصية</div>
-            </div>
-          </div>
-          <div class="prof-fields">
-            <div class="prof-field">
-              <div class="pf-icon"><span class="material-icons-round">badge</span></div>
-              <div class="pf-content">
-                <span class="pf-label">الاسم الكامل</span>
-                <span class="pf-value">{{ auth.currentUser()?.fullName }}</span>
-              </div>
-            </div>
-            <div class="prof-field">
-              <div class="pf-icon"><span class="material-icons-round">mail_outline</span></div>
-              <div class="pf-content">
-                <span class="pf-label">البريد الإلكتروني</span>
-                <span class="pf-value dir-ltr">{{ auth.currentUser()?.email }}</span>
-              </div>
-            </div>
-            @if (auth.currentUser()?.phone) {
-            <div class="prof-field">
-              <div class="pf-icon"><span class="material-icons-round">phone_iphone</span></div>
-              <div class="pf-content">
-                <span class="pf-label">رقم الهاتف</span>
-                <span class="pf-value dir-ltr">{{ auth.currentUser()?.phone }}</span>
-              </div>
-            </div>
-            }
-            <div class="prof-field">
-              <div class="pf-icon"><span class="material-icons-round">work_outline</span></div>
-              <div class="pf-content">
-                <span class="pf-label">الدور الوظيفي</span>
-                <span class="pf-value">فني صيانة معتمد</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- الأداء -->
-        <div class="prof-section">
-          <div class="prof-section-head">
-            <div class="psh-icon blue"><span class="material-icons-round">insights</span></div>
-            <div>
-              <div class="psh-title">الأداء الوظيفي</div>
-              <div class="psh-sub">نسب الإنجاز والكفاءة</div>
-            </div>
-          </div>
-          <div class="prof-perf">
-            <div class="perf-bar-wrap">
-              <div class="perf-bar-label">
-                <span>نسبة الإنجاز</span>
-                <span class="perf-pct green">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved /
-                  myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
-              </div>
-              <div class="perf-track">
-                <div class="perf-fill green"
-                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'">
-                </div>
-              </div>
-            </div>
-            <div class="perf-bar-wrap">
-              <div class="perf-bar-label">
-                <span>جارٍ التنفيذ</span>
-                <span class="perf-pct blue">{{ myTaskStats().inProgress }}</span>
-              </div>
-              <div class="perf-track">
-                <div class="perf-fill blue"
-                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'">
-                </div>
-              </div>
-            </div>
-            <div class="perf-bar-wrap">
-              <div class="perf-bar-label">
-                <span>المهام الطارئة</span>
-                <span class="perf-pct red">{{ myTaskStats().emergency }}</span>
-              </div>
-              <div class="perf-track">
-                <div class="perf-fill red"
-                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'">
-                </div>
-              </div>
-            </div>
-            <div class="completion-ring-wrap">
-              <svg class="completion-ring" viewBox="0 0 80 80">
-                <circle cx="40" cy="40" r="33" fill="none" stroke="#ede9fe" stroke-width="7" />
-                <circle cx="40" cy="40" r="33" fill="none" stroke="url(#ringGrad)" stroke-width="7"
-                  stroke-linecap="round" [attr.stroke-dasharray]="207"
-                  [attr.stroke-dashoffset]="myTaskStats().total > 0 ? 207 - (207 * myTaskStats().resolved / myTaskStats().total) : 207"
-                  transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 0.8s" />
-                <defs>
-                  <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#10b981" />
-                    <stop offset="100%" stop-color="#34d399" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div class="ring-center">
-                <span class="ring-num">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) *
-                  100 | number:'1.0-0') : 0 }}%</span>
-                <span class="ring-lbl">إنجاز</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- إحصائيات -->
-        <div class="prof-section full-span">
-          <div class="prof-section-head">
-            <div class="psh-icon orange"><span class="material-icons-round">bar_chart</span></div>
-            <div>
-              <div class="psh-title">إحصائيات تفصيلية</div>
-              <div class="psh-sub">توزيع المهام حسب الحالة</div>
-            </div>
-          </div>
-          <div class="stat-cards-row">
-            <div class="stat-detail-card purple">
-              <div class="sdc-icon"><span class="material-icons-round">folder_open</span></div>
-              <div class="sdc-num">{{ myTaskStats().total }}</div>
-              <div class="sdc-lbl">إجمالي</div>
-              <div class="sdc-bar">
-                <div class="sdc-fill" style="width:100%"></div>
-              </div>
-            </div>
-            <div class="stat-detail-card blue">
-              <div class="sdc-icon"><span class="material-icons-round">construction</span></div>
-              <div class="sdc-num">{{ myTaskStats().inProgress }}</div>
-              <div class="sdc-lbl">جارٍ التنفيذ</div>
-              <div class="sdc-bar">
-                <div class="sdc-fill"
-                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'">
-                </div>
-              </div>
-            </div>
-            <div class="stat-detail-card green">
-              <div class="sdc-icon"><span class="material-icons-round">task_alt</span></div>
-              <div class="sdc-num">{{ myTaskStats().resolved }}</div>
-              <div class="sdc-lbl">مكتملة</div>
-              <div class="sdc-bar">
-                <div class="sdc-fill"
-                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'">
-                </div>
-              </div>
-            </div>
-            <div class="stat-detail-card red">
-              <div class="sdc-icon"><span class="material-icons-round">priority_high</span></div>
-              <div class="sdc-num">{{ myTaskStats().emergency }}</div>
-              <div class="sdc-lbl">طارئة</div>
-              <div class="sdc-bar">
-                <div class="sdc-fill"
-                  [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <button class="prof-logout" (click)="auth.logout()">
-        <span class="material-icons-round">logout</span>
-        تسجيل الخروج
-      </button>
-
-    </div>
+      }
     }
 
+    <!-- ══════════ الطلبات المتاحة ══════════ -->
+    @if (activeTab() === 'new-tickets') {
+      <div class="stats-row two">
+        <div class="scard yellow">
+          <div class="sc-icon"><span class="material-icons-round">schedule</span></div>
+          <div class="sc-body"><span class="snum">{{ newTicketsStats().pending }}</span><span class="slbl">في الانتظار</span></div>
+        </div>
+        <div class="scard purple">
+          <div class="sc-icon"><span class="material-icons-round">list_alt</span></div>
+          <div class="sc-body"><span class="snum">{{ newTicketsStats().total }}</span><span class="slbl">إجمالي النتائج</span></div>
+        </div>
+      </div>
+
+      <div class="filter-panel">
+        <div class="fp-top">
+          <span class="fp-title">
+            <span class="material-icons-round">tune</span>فلترة حسب المنطقة
+          </span>
+          @if (selectedGovernorate()) {
+            <button class="clear-btn" (click)="clearFilters()">
+              <span class="material-icons-round">close</span>مسح الفلتر
+            </button>
+          }
+        </div>
+        <div class="sel-row">
+          <div class="sel-wrap">
+            <span class="sel-ico material-icons-round">map</span>
+            <select [ngModel]="selectedGovernorate()" (ngModelChange)="onGovernorateChange($event)" class="sel">
+              <option value="">كل المحافظات</option>
+              @for (gov of governorates; track gov) { <option [value]="gov">{{ gov }}</option> }
+            </select>
+          </div>
+          <div class="sel-wrap" [class.dim]="!selectedGovernorate()">
+            <span class="sel-ico material-icons-round">location_city</span>
+            <select [ngModel]="selectedCity()" (ngModelChange)="onCityChange($event)" [disabled]="!selectedGovernorate()" class="sel">
+              <option value="">{{ selectedGovernorate() ? 'كل المدن' : 'اختار المحافظة أولاً' }}</option>
+              @for (city of filterCities(); track city) { <option [value]="city">{{ city }}</option> }
+            </select>
+          </div>
+        </div>
+        <div class="tab-row">
+          <button class="tab-btn" [class.on]="newTicketsStatusFilter()==='all'" (click)="newTicketsStatusFilter.set('all')">
+            الكل <span>{{ newTicketsStats().total }}</span>
+          </button>
+          <button class="tab-btn" [class.on]="newTicketsStatusFilter()==='pending'" (click)="newTicketsStatusFilter.set('pending')">
+            انتظار <span>{{ newTicketsStats().pending }}</span>
+          </button>
+        </div>
+      </div>
+
+      @if (loadingNewTickets()) {
+        <div class="center-state">
+          <div class="loader"></div>
+          <p>جاري التحميل...</p>
+        </div>
+      } @else if (filteredNewTickets().length === 0) {
+        <div class="center-state">
+          <span class="material-icons-round empty-ico">search_off</span>
+          <h3>لا توجد طلبات</h3>
+          <p>جرب تغيير المحافظة أو المدينة</p>
+        </div>
+      } @else {
+        <div class="grid">
+          @for (t of filteredNewTickets(); track t.id) {
+            <div class="tcard tcard-avail" (click)="openTicket(t)">
+              <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
+              <div class="tcard-body">
+                <div class="tcard-top">
+                  <div class="chips">
+                    <span class="chip" [style.background]="getStatus(t.status).bg" [style.color]="getStatus(t.status).color">{{ getStatus(t.status).label }}</span>
+                    <span class="chip" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">{{ getPriority(t.priority).label }}</span>
+                  </div>
+                  @if (t.status === 'Pending') {
+                    <button class="quick-apply" (click)="applyToTicket(t.id, $event)" [disabled]="applyingId()===t.id" title="تقدم الآن">
+                      <span class="material-icons-round">{{ applyingId()===t.id ? 'hourglass_empty' : 'add_task' }}</span>
+                    </button>
+                  }
+                </div>
+                <p class="tcard-desc">{{ t.description }}</p>
+                <div class="tcard-info">
+                  @if (t.governorate) {
+                    <span><span class="material-icons-round">place</span>{{ t.city }} — {{ t.governorate }}</span>
+                  }
+                  <span><span class="material-icons-round">person</span>{{ t.tenantName }}</span>
+                </div>
+                <div class="tcard-foot">
+                  <span class="dlbl">الموعد النهائي</span>
+                  <span class="dval">{{ t.deadline | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- ══════════ الملف الشخصي ══════════ -->
+    @if (activeTab() === 'profile') {
+      <div class="profile-page">
+        <div class="prof-header">
+          <div class="prof-av-wrap">
+            @if (auth.currentUser()?.profileImageUrl) {
+              <img [src]="API_URL + '/' + auth.currentUser()!.profileImageUrl" alt="avatar" class="prof-av-img" />
+            } @else {
+              <div class="prof-av-initials">{{ auth.currentUser()?.fullName?.charAt(0) }}</div>
+            }
+            <div class="prof-online-dot"></div>
+          </div>
+          <div class="prof-header-info">
+            <div class="prof-name-row">
+              <h2 class="prof-name">{{ auth.currentUser()?.fullName }}</h2>
+              <span class="prof-badge">
+                <span class="material-icons-round">verified</span>معتمد
+              </span>
+            </div>
+            <div class="prof-meta">
+              <span><span class="material-icons-round">alternate_email</span><span dir="ltr">{{ auth.currentUser()?.email }}</span></span>
+              @if (auth.currentUser()?.phone) {
+                <span><span class="material-icons-round">phone_iphone</span><span dir="ltr">{{ auth.currentUser()?.phone }}</span></span>
+              }
+              <span><span class="material-icons-round">engineering</span>فني صيانة معتمد</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="prof-grid">
+          <div class="prof-section">
+            <div class="prof-section-head">
+              <div class="psh-icon purple"><span class="material-icons-round">manage_accounts</span></div>
+              <div>
+                <div class="psh-title">بيانات الحساب</div>
+                <div class="psh-sub">معلوماتك الشخصية</div>
+              </div>
+            </div>
+            <div class="prof-fields">
+              <div class="prof-field">
+                <div class="pf-icon"><span class="material-icons-round">badge</span></div>
+                <div class="pf-content">
+                  <span class="pf-label">الاسم الكامل</span>
+                  <span class="pf-value">{{ auth.currentUser()?.fullName }}</span>
+                </div>
+              </div>
+              <div class="prof-field">
+                <div class="pf-icon"><span class="material-icons-round">mail_outline</span></div>
+                <div class="pf-content">
+                  <span class="pf-label">البريد الإلكتروني</span>
+                  <span class="pf-value dir-ltr">{{ auth.currentUser()?.email }}</span>
+                </div>
+              </div>
+              @if (auth.currentUser()?.phone) {
+                <div class="prof-field">
+                  <div class="pf-icon"><span class="material-icons-round">phone_iphone</span></div>
+                  <div class="pf-content">
+                    <span class="pf-label">رقم الهاتف</span>
+                    <span class="pf-value dir-ltr">{{ auth.currentUser()?.phone }}</span>
+                  </div>
+                </div>
+              }
+              <div class="prof-field">
+                <div class="pf-icon"><span class="material-icons-round">work_outline</span></div>
+                <div class="pf-content">
+                  <span class="pf-label">الدور الوظيفي</span>
+                  <span class="pf-value">فني صيانة معتمد</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prof-section">
+            <div class="prof-section-head">
+              <div class="psh-icon blue"><span class="material-icons-round">insights</span></div>
+              <div>
+                <div class="psh-title">الأداء الوظيفي</div>
+                <div class="psh-sub">نسب الإنجاز والكفاءة</div>
+              </div>
+            </div>
+            <div class="prof-perf">
+              <div class="perf-bar-wrap">
+                <div class="perf-bar-label">
+                  <span>نسبة الإنجاز</span>
+                  <span class="perf-pct green">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
+                </div>
+                <div class="perf-track"><div class="perf-fill green" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+              </div>
+              <div class="perf-bar-wrap">
+                <div class="perf-bar-label">
+                  <span>جارٍ التنفيذ</span>
+                  <span class="perf-pct blue">{{ myTaskStats().inProgress }}</span>
+                </div>
+                <div class="perf-track"><div class="perf-fill blue" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+              </div>
+              <div class="perf-bar-wrap">
+                <div class="perf-bar-label">
+                  <span>المهام الطارئة</span>
+                  <span class="perf-pct red">{{ myTaskStats().emergency }}</span>
+                </div>
+                <div class="perf-track"><div class="perf-fill red" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+              </div>
+              <div class="completion-ring-wrap">
+                <svg class="completion-ring" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="33" fill="none" stroke="#ede9fe" stroke-width="7" />
+                  <circle cx="40" cy="40" r="33" fill="none" stroke="url(#ringGrad)" stroke-width="7"
+                    stroke-linecap="round" [attr.stroke-dasharray]="207"
+                    [attr.stroke-dashoffset]="myTaskStats().total > 0 ? 207 - (207 * myTaskStats().resolved / myTaskStats().total) : 207"
+                    transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 0.8s" />
+                  <defs>
+                    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#10b981" />
+                      <stop offset="100%" stop-color="#34d399" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="ring-center">
+                  <span class="ring-num">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
+                  <span class="ring-lbl">إنجاز</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="prof-section full-span">
+            <div class="prof-section-head">
+              <div class="psh-icon orange"><span class="material-icons-round">bar_chart</span></div>
+              <div>
+                <div class="psh-title">إحصائيات تفصيلية</div>
+                <div class="psh-sub">توزيع المهام حسب الحالة</div>
+              </div>
+            </div>
+            <div class="stat-cards-row">
+              <div class="stat-detail-card purple">
+                <div class="sdc-icon"><span class="material-icons-round">folder_open</span></div>
+                <div class="sdc-num">{{ myTaskStats().total }}</div>
+                <div class="sdc-lbl">إجمالي</div>
+                <div class="sdc-bar"><div class="sdc-fill" style="width:100%"></div></div>
+              </div>
+              <div class="stat-detail-card blue">
+                <div class="sdc-icon"><span class="material-icons-round">construction</span></div>
+                <div class="sdc-num">{{ myTaskStats().inProgress }}</div>
+                <div class="sdc-lbl">جارٍ التنفيذ</div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+              </div>
+              <div class="stat-detail-card green">
+                <div class="sdc-icon"><span class="material-icons-round">task_alt</span></div>
+                <div class="sdc-num">{{ myTaskStats().resolved }}</div>
+                <div class="sdc-lbl">مكتملة</div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+              </div>
+              <div class="stat-detail-card red">
+                <div class="sdc-icon"><span class="material-icons-round">priority_high</span></div>
+                <div class="sdc-num">{{ myTaskStats().emergency }}</div>
+                <div class="sdc-lbl">طارئة</div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="prof-logout" (click)="auth.logout()">
+          <span class="material-icons-round">logout</span>
+          تسجيل الخروج
+        </button>
+      </div>
+    }
   </main>
 
-  <!-- TICKET MODAL -->
+  <!-- ══════════════════════════════════════════════════════
+       TICKET MODAL
+  ══════════════════════════════════════════════════════ -->
   @if (selectedTicket()) {
-  <div class="overlay" (click)="closeTicket()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal-head">
-        <h2>{{ activeTab()==='new-tickets' ? 'تفاصيل الطلب' : 'تفاصيل المهمة' }}</h2>
-        <button class="close-btn" (click)="closeTicket()"><span class="material-icons-round">close</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="chips">
-          <span class="chip lg" [style.background]="getStatus(selectedTicket()!.status).bg"
-            [style.color]="getStatus(selectedTicket()!.status).color">{{ getStatus(selectedTicket()!.status).label
-            }}</span>
-          <span class="chip lg" [style.background]="getPriority(selectedTicket()!.priority).bg"
-            [style.color]="getPriority(selectedTicket()!.priority).color">{{
-            getPriority(selectedTicket()!.priority).label }}</span>
-        </div>
-        <div class="info-block">
-          <div class="info-label">الوصف</div>
-          <div class="info-val">{{ selectedTicket()!.description }}</div>
-        </div>
-        <div class="info-block">
-          <div class="info-label">الموقع</div>
-          <div class="info-val">
-            {{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}
-            @if (selectedTicket()!.tenantLocation) { <div class="info-sub">{{ selectedTicket()!.tenantLocation }}</div>
+    <div class="overlay" (click)="closeTicket()">
+      <div class="modal" (click)="$event.stopPropagation()">
+
+        <!-- ─── STEP 1: تفاصيل التيكيت ─── -->
+        @if (modalStep() === 'details') {
+          <div class="modal-head">
+            <h2>{{ activeTab()==='new-tickets' ? 'تفاصيل الطلب' : 'تفاصيل المهمة' }}</h2>
+            <button class="close-btn" (click)="closeTicket()">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+
+            <!-- الحالة والأولوية -->
+            <div class="chips">
+              <span class="chip lg"
+                [style.background]="getStatus(selectedTicket()!.status).bg"
+                [style.color]="getStatus(selectedTicket()!.status).color">
+                {{ getStatus(selectedTicket()!.status).label }}
+              </span>
+              <span class="chip lg"
+                [style.background]="getPriority(selectedTicket()!.priority).bg"
+                [style.color]="getPriority(selectedTicket()!.priority).color">
+                {{ getPriority(selectedTicket()!.priority).label }}
+              </span>
+            </div>
+
+            <!-- الوصف -->
+            <div class="info-block">
+              <div class="info-label">الوصف</div>
+              <div class="info-val">{{ selectedTicket()!.description }}</div>
+            </div>
+
+            <!-- الموقع -->
+            <div class="info-block">
+              <div class="info-label">الموقع</div>
+              <div class="info-val">
+                {{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}
+                @if (selectedTicket()!.tenantLocation) {
+                  <div class="info-sub">{{ selectedTicket()!.tenantLocation }}</div>
+                }
+              </div>
+            </div>
+
+            <!-- المستأجر -->
+            <div class="info-block">
+              <div class="info-label">المستأجر</div>
+              <div class="info-val">{{ selectedTicket()!.tenantName }}</div>
+            </div>
+
+            <!-- التواصل -->
+            @if (selectedTicket()!.tenantPhone) {
+              <div class="contact-row">
+                <button class="contact-btn wa" (click)="openWhatsApp(selectedTicket()!.tenantPhone!)">
+                  <span class="material-icons-round">chat</span>واتساب
+                </button>
+                <button class="contact-btn call" (click)="callTenant(selectedTicket()!.tenantPhone!)">
+                  <span class="material-icons-round">call</span>اتصال
+                </button>
+              </div>
             }
-          </div>
-        </div>
-        <div class="info-block">
-          <div class="info-label">المستأجر</div>
-          <div class="info-val">{{ selectedTicket()!.tenantName }}</div>
-        </div>
-        @if (selectedTicket()!.tenantPhone) {
-        <div class="contact-row">
-          <button class="contact-btn wa" (click)="openWhatsApp(selectedTicket()!.tenantPhone!)">
-            <span class="material-icons-round">chat</span>واتساب
-          </button>
-          <button class="contact-btn call" (click)="callTenant(selectedTicket()!.tenantPhone!)">
-            <span class="material-icons-round">call</span>اتصال
-          </button>
-        </div>
-        }
-        <div class="dates-2col">
-          <div>
-            <div class="info-label">وقت الوصول</div>
-            <div class="info-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
-          </div>
-          <div>
-            <div class="info-label">الموعد النهائي</div>
-            <div class="info-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
-          </div>
-        </div>
-        @if (activeTab()==='new-tickets' && selectedTicket()!.status==='Pending') {
-        <button class="apply-btn" (click)="applyToTicket(selectedTicket()!.id, $event)"
-          [disabled]="applyingId()===selectedTicket()!.id">
-          <span class="material-icons-round">add_task</span>
-          @if (applyingId()===selectedTicket()!.id) { جاري التقدم... } @else { التقدم على هذا الطلب }
-        </button>
-        }
-        @if (activeTab()==='my-tasks' && selectedTicket()!.status==='vendorAccepted') {
-        <button class="apply-btn complete" (click)="completeTicket(selectedTicket()!.id, $event)"
-          [disabled]="completingId()===selectedTicket()!.id">
-          <span class="material-icons-round">check_circle</span>
-          @if (completingId()===selectedTicket()!.id) { جاري... } @else { إنهاء وتسليم الطلب }
-        </button>
-        }
-        @if (selectedTicket()?.imageUrls?.length) {
-        <div class="info-block">
-          <div class="info-label">الصور المرفقة</div>
-          <div class="imgs-grid">
-            @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
-            <img [src]="API_URL + '/' + img" [class.active]="i===currentImageIndex()"
-              (click)="openImage(selectedTicket()!.imageUrls, i)" />
+
+            <!-- التواريخ -->
+            <div class="dates-2col">
+              <div>
+                <div class="info-label">وقت الوصول</div>
+                <div class="info-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
+              </div>
+              <div>
+                <div class="info-label">الموعد النهائي</div>
+                <div class="info-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
+              </div>
+            </div>
+
+            <!-- ══ الصور: تابين قبل / بعد ══ -->
+            <div class="imgs-section">
+              <div class="imgs-tabs">
+                <button class="imgs-tab-btn" [class.on]="imagesTab()==='before'" (click)="imagesTab.set('before')">
+                  <span class="material-icons-round">photo_library</span>
+                  صور قبل الشغل
+                  @if (selectedTicket()!.beforeImageUrls?.length) {
+                    <span class="imgs-count">{{ selectedTicket()!.beforeImageUrls.length }}</span>
+                  }
+                </button>
+                <button class="imgs-tab-btn" [class.on]="imagesTab()==='after'" (click)="imagesTab.set('after')">
+                  <span class="material-icons-round">task_alt</span>
+                  صور بعد الشغل
+                  @if (selectedTicket()!.afterImageUrls?.length) {
+                    <span class="imgs-count">{{ selectedTicket()!.afterImageUrls.length }}</span>
+                  }
+                </button>
+              </div>
+
+              @if (imagesTab() === 'before') {
+                @if (selectedTicket()!.beforeImageUrls?.length) {
+                  <div class="imgs-grid">
+                    @for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {
+                      <img [src]="API_URL + '/' + img"
+                           [class.active]="i===currentImageIndex()"
+                           (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />
+                    }
+                  </div>
+                } @else {
+                  <div class="imgs-empty">
+                    <span class="material-icons-round">image_not_supported</span>
+                    لا توجد صور قبل الشغل
+                  </div>
+                }
+              }
+
+              @if (imagesTab() === 'after') {
+                @if (selectedTicket()!.afterImageUrls?.length) {
+                  <div class="imgs-grid">
+                    @for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {
+                      <img [src]="API_URL + '/' + img"
+                           (click)="openImage(selectedTicket()!.afterImageUrls, i)" />
+                    }
+                  </div>
+                } @else {
+                  <div class="imgs-empty">
+                    <span class="material-icons-round">hourglass_empty</span>
+                    لم يتم رفع صور بعد الشغل بعد
+                  </div>
+                }
+              }
+            </div>
+
+            <!-- زرار التقدم (للطلبات المتاحة) -->
+            @if (activeTab()==='new-tickets' && selectedTicket()!.status==='Pending') {
+              <button class="apply-btn" (click)="applyToTicket(selectedTicket()!.id, $event)"
+                [disabled]="applyingId()===selectedTicket()!.id">
+                <span class="material-icons-round">add_task</span>
+                @if (applyingId()===selectedTicket()!.id) { جاري التقدم... } @else { التقدم على هذا الطلب }
+              </button>
             }
+
+            <!-- زرار الانتقال لرفع صور الإنجاز -->
+            @if (activeTab()==='my-tasks' && selectedTicket()!.status==='vendorAccepted') {
+              <button class="apply-btn complete" (click)="goToCompleteForm()">
+                <span class="material-icons-round">add_a_photo</span>
+                إنهاء المهمة ورفع صور الإنجاز
+              </button>
+            }
+
           </div>
-        </div>
         }
+
+        <!-- ─── STEP 2: رفع صور بعد الشغل ─── -->
+        @if (modalStep() === 'complete-form') {
+          <div class="modal-head">
+            <div class="modal-head-right">
+              <button class="back-btn" (click)="backToDetails()" title="رجوع">
+                <span class="material-icons-round">arrow_forward_ios</span>
+              </button>
+              <h2>رفع صور ما بعد الشغل</h2>
+            </div>
+            <button class="close-btn" (click)="closeTicket()">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+
+            <div class="complete-hint">
+              <span class="material-icons-round">info</span>
+              ارفع صوراً توضح إنجاز العمل — ستُحفظ كـ "صور بعد الشغل" وتُرسل للمستأجر للمراجعة
+            </div>
+
+            <label class="upload-zone" for="after-imgs-input">
+              <span class="material-icons-round">cloud_upload</span>
+              <span>اضغط لإضافة الصور</span>
+              <span class="upload-sub">JPG · PNG · WEBP — يمكن اختيار أكثر من صورة</span>
+              <input id="after-imgs-input" type="file" accept="image/*" multiple hidden
+                (change)="onAfterImagesSelected($event)" />
+            </label>
+
+            @if (afterImagePreviews().length) {
+              <div class="after-preview-grid">
+                @for (item of afterImagePreviews(); track item.previewUrl; let i = $index) {
+                  <div class="after-preview-item">
+                    <img [src]="item.previewUrl" [alt]="item.file.name" />
+                    <button class="remove-preview-btn" (click)="removeAfterImage(i)" title="حذف">
+                      <span class="material-icons-round">close</span>
+                    </button>
+                  </div>
+                }
+                <label class="after-add-more" for="after-imgs-input" title="إضافة المزيد">
+                  <span class="material-icons-round">add_photo_alternate</span>
+                </label>
+              </div>
+            }
+
+            <button class="apply-btn complete"
+              [disabled]="!afterImagePreviews().length || completingId()===selectedTicket()!.id"
+              (click)="submitComplete()">
+              <span class="material-icons-round">
+                {{ completingId()===selectedTicket()!.id ? 'hourglass_empty' : 'check_circle' }}
+              </span>
+              @if (completingId()===selectedTicket()!.id) {
+                جاري الحفظ والإنهاء...
+              } @else {
+                تأكيد الإنجاز وإرسال الصور
+              }
+            </button>
+
+          </div>
+        }
+
       </div>
     </div>
-  </div>
   }
 
-  <!-- IMAGE VIEWER -->
+  <!-- ══════════ IMAGE VIEWER ══════════ -->
   @if (previewImage()) {
-  <div class="img-viewer" (click)="closeImage()">
-    <button class="iv-close" (click)="closeImage()"><span class="material-icons-round">close</span></button>
-    <button class="iv-nav iv-prev" (click)="$event.stopPropagation(); prevImage()"><span
-        class="material-icons-round">chevron_right</span></button>
-    <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
-    <button class="iv-nav iv-next" (click)="$event.stopPropagation(); nextImage()"><span
-        class="material-icons-round">chevron_left</span></button>
-    <div class="iv-dots" (click)="$event.stopPropagation()">
-      @for (img of selectedTicket()!.imageUrls; track img; let i = $index) {
-      <span class="iv-dot" [class.on]="i===currentImageIndex()"
-        (click)="openImage(selectedTicket()!.imageUrls, i)"></span>
-      }
+    <div class="img-viewer" (click)="closeImage()">
+      <button class="iv-close" (click)="closeImage()">
+        <span class="material-icons-round">close</span>
+      </button>
+      <button class="iv-nav iv-prev" (click)="$event.stopPropagation(); prevImage()">
+        <span class="material-icons-round">chevron_right</span>
+      </button>
+      <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+      <button class="iv-nav iv-next" (click)="$event.stopPropagation(); nextImage()">
+        <span class="material-icons-round">chevron_left</span>
+      </button>
+      <div class="iv-dots" (click)="$event.stopPropagation()">
+        @for (img of _currentImages; track img; let i = $index) {
+          <span class="iv-dot" [class.on]="i===currentImageIndex()"
+            (click)="openImage(_currentImages, i)"></span>
+        }
+      </div>
     </div>
-  </div>
   }
+
 </div>

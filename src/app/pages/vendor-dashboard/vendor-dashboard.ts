@@ -22,10 +22,17 @@ interface Ticket {
   tenantName: string;
   tenantPhone?: string;
   vendorName?: string;
-  imageUrls: string[];
+  beforeImageUrls: string[];
+  afterImageUrls: string[];
+}
+
+interface AfterImagePreview {
+  file: File;
+  previewUrl: string;
 }
 
 type ActiveTab = 'my-tasks' | 'new-tickets' | 'profile';
+type ModalStep = 'details' | 'complete-form';
 
 @Component({
   selector: 'app-vendor-dashboard',
@@ -44,16 +51,25 @@ export class VendorDashboard implements OnInit {
   newTickets = signal<Ticket[]>([]);
   loadingNewTickets = signal(false);
   selectedTicket = signal<Ticket | null>(null);
+
+  // ── Modal stepper ──
+  modalStep = signal<ModalStep>('details');
+  imagesTab = signal<'before' | 'after'>('before');
+
+  // ── صور بعد الشغل ──
+  afterImagePreviews = signal<AfterImagePreview[]>([]);
+  completingId = signal<string | null>(null);
+
+  // ── Image viewer ──
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
-  private _currentImages: string[] = [];
+ _currentImages: string[] = [];
 
   readonly governorates = GOVERNORATES;
   filterCities = signal<string[]>([]);
   selectedGovernorate = signal('');
   selectedCity = signal('');
   newTicketsStatusFilter = signal<'pending' | 'all'>('all');
-  completingId = signal<string | null>(null);
   applyingId = signal<string | null>(null);
 
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
@@ -100,7 +116,7 @@ export class VendorDashboard implements OnInit {
 
   ngOnInit() {
     this.loadMyTickets();
-    this.loadCurrentUserProfile(); // ✅ الإضافة الوحيدة
+    this.loadCurrentUserProfile();
   }
 
   private headers(): HttpHeaders {
@@ -108,11 +124,9 @@ export class VendorDashboard implements OnInit {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
-  // ✅ Method جديدة تجيب الصورة من الـ DB
   private loadCurrentUserProfile() {
     const vendorId = this.getVendorId();
     if (!vendorId) return;
-
     this.http.get<any>(
       `${this.API_URL}/api/Vendors/${vendorId}/profile`,
       { headers: this.headers() }
@@ -120,17 +134,15 @@ export class VendorDashboard implements OnInit {
       next: (profile) => {
         const current = this.auth.currentUser();
         if (!current) return;
-
         const updated = {
           ...current,
           profileImageUrl: profile.imageUrl ?? current.profileImageUrl ?? null,
           phone: profile.phone ?? current.phone ?? null,
         };
-
         localStorage.setItem('user', JSON.stringify(updated));
         this.auth.currentUser.set(updated);
       },
-      error: () => {} // مش مشكلة لو فشل
+      error: () => {}
     });
   }
 
@@ -140,11 +152,10 @@ export class VendorDashboard implements OnInit {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.sub ?? '';
-    } catch {
-      return '';
-    }
+    } catch { return ''; }
   }
 
+  // ── Load ──────────────────────────────────────────────────
   loadMyTickets() {
     this.loadingMyTickets.set(true);
     this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers: this.headers() }).subscribe({
@@ -164,6 +175,7 @@ export class VendorDashboard implements OnInit {
     });
   }
 
+  // ── Tabs / Filters ────────────────────────────────────────
   switchTab(tab: ActiveTab) {
     this.activeTab.set(tab);
     if (tab === 'new-tickets' && this.newTickets().length === 0) this.loadNewTickets();
@@ -185,6 +197,74 @@ export class VendorDashboard implements OnInit {
     this.loadNewTickets();
   }
 
+  // ── Modal ─────────────────────────────────────────────────
+  openTicket(t: Ticket) {
+    this.selectedTicket.set(t);
+    this.modalStep.set('details');
+    this.imagesTab.set('before');
+    this.currentImageIndex.set(0);
+    this._clearAfterPreviews();
+  }
+
+  closeTicket() {
+    this.selectedTicket.set(null);
+    this._clearAfterPreviews();
+    this.closeImage();
+  }
+
+  goToCompleteForm() { this.modalStep.set('complete-form'); }
+  backToDetails()    { this.modalStep.set('details'); }
+
+  // ── After Images ──────────────────────────────────────────
+  onAfterImagesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+    const added: AfterImagePreview[] = Array.from(input.files).map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    this.afterImagePreviews.update(prev => [...prev, ...added]);
+    input.value = '';
+  }
+
+  removeAfterImage(index: number) {
+    this.afterImagePreviews.update(prev => {
+      URL.revokeObjectURL(prev[index].previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
+
+  private _clearAfterPreviews() {
+    this.afterImagePreviews().forEach(p => URL.revokeObjectURL(p.previewUrl));
+    this.afterImagePreviews.set([]);
+  }
+
+  // ── Submit Complete ───────────────────────────────────────
+  submitComplete() {
+    const ticket = this.selectedTicket();
+    if (!ticket || !this.afterImagePreviews().length) return;
+
+    this.completingId.set(ticket.id);
+
+    const formData = new FormData();
+    this.afterImagePreviews().forEach(p => formData.append('Images', p.file));
+
+    this.http.patch(
+      `${this.API_URL}/api/Tickets/${ticket.id}/complete`,
+      formData,
+      { headers: new HttpHeaders({ Authorization: `Bearer ${localStorage.getItem('token')}` }) }
+    ).subscribe({
+      next: () => {
+        this.completingId.set(null);
+        this._clearAfterPreviews();
+        this.loadMyTickets();
+        this.closeTicket();
+      },
+      error: e => { console.error(e); this.completingId.set(null); },
+    });
+  }
+
+  // ── Apply ─────────────────────────────────────────────────
   applyToTicket(ticketId: string, event: Event) {
     event.stopPropagation();
     this.applyingId.set(ticketId);
@@ -194,15 +274,7 @@ export class VendorDashboard implements OnInit {
     });
   }
 
-  completeTicket(ticketId: string, event: Event) {
-    event.stopPropagation();
-    this.completingId.set(ticketId);
-    this.http.patch(`${this.API_URL}/api/Tickets/${ticketId}/complete`, {}, { headers: this.headers() }).subscribe({
-      next: () => { this.completingId.set(null); this.loadMyTickets(); this.closeTicket(); },
-      error: e => { console.error(e); this.completingId.set(null); },
-    });
-  }
-
+  // ── Contact ───────────────────────────────────────────────
   openWhatsApp(phone: string) {
     const cleaned = phone?.replace(/\D/g, '');
     const intl = cleaned?.startsWith('0') ? '2' + cleaned : cleaned;
@@ -211,17 +283,17 @@ export class VendorDashboard implements OnInit {
 
   callTenant(phone: string) { window.open(`tel:${phone}`, '_self'); }
 
+  // ── Helpers ───────────────────────────────────────────────
   getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
-  getStatus(v: string) { return this.statusMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
+  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
 
-  openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
-  closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
-
+  // ── Image Viewer ──────────────────────────────────────────
   openImage(images: string[], index: number) {
     this._currentImages = images;
     this.currentImageIndex.set(index);
     this.previewImage.set(images[index]);
   }
+
   closeImage() { this.previewImage.set(null); this._currentImages = []; }
 
   nextImage() {
@@ -243,8 +315,8 @@ export class VendorDashboard implements OnInit {
     if (!this.previewImage()) return;
     switch (event.key) {
       case 'ArrowRight': this.nextImage(); break;
-      case 'ArrowLeft': this.prevImage(); break;
-      case 'Escape': this.closeImage(); break;
+      case 'ArrowLeft':  this.prevImage(); break;
+      case 'Escape':     this.closeImage(); break;
     }
   }
 

@@ -21,7 +21,8 @@ interface Ticket {
   vendorName?: string;
   vendorId?: string;
   companyId: string;
-  imageUrls: string[];
+  beforeImageUrls: string[];
+  afterImageUrls: string[];
 }
 
 interface Notification {
@@ -81,7 +82,7 @@ export class Dashboard implements OnInit {
   activeFilter = signal('all');
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
-  private _currentImages: string[] = [];
+ _currentImages: string[] = [];
 
   notifications = signal<Notification[]>([]);
   showNotifications = signal(false);
