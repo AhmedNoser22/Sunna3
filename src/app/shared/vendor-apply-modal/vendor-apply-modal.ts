@@ -25,8 +25,13 @@ export class VendorApplyModal {
     specialty: '',
     customSpecialty: '',
     yearsExperience: null as number | null,
-    bio: ''
+    bio: '',
+    agreedToTerms: false
   };
+  idCardFront = signal<File | null>(null);
+  idCardBack = signal<File | null>(null);
+  frontPreview = signal<string | null>(null);
+  backPreview = signal<string | null>(null);
 
   specialties = [
     'سباكة',
@@ -36,57 +41,61 @@ export class VendorApplyModal {
     'نقاشة',
     'أخري'
   ];
-
+  onIdCardSelected(side: 'front' | 'back', event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (side === 'front') {
+        this.idCardFront.set(file);
+        this.frontPreview.set(reader.result as string);
+      } else {
+        this.idCardBack.set(file);
+        this.backPreview.set(reader.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
   onBackdrop(event: MouseEvent) {
     if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
       this.close.emit();
     }
   }
-
   submit() {
     if (!this.form.fullName || !this.form.phone || !this.form.specialty) {
-      this.error.set('بياناتك ناقصة يا هندسة، كمل النجوم الحمرا *');
+      this.error.set('بياناتك ناقصة، كمل الحقول المطلوبة *');
       return;
     }
-    if (this.form.specialty === 'أخري' && !this.form.customSpecialty.trim()) {
-      this.error.set('اكتب تخصصك في الخانة اللي ظهرت دي *');
+    if (!this.idCardFront() || !this.idCardBack()) {
+      this.error.set('ارفع صورة وجه وظهر البطاقة *');
+      return;
+    }
+    if (!this.form.agreedToTerms) {
+      this.error.set('الموافقة على الشروط والأحكام *');
       return;
     }
 
     this.loading.set(true);
     this.error.set(null);
 
-    const payload = {
-      fullName: this.form.fullName,
-      phoneNumber: this.form.phone,
-      specialization: this.form.specialty === 'أخري'
-      ? this.form.customSpecialty.trim()
-      : this.form.specialty,
-      yearsOfExperience: this.form.yearsExperience ?? 0,
-      bio: this.form.bio || null
-    };
+    const fd = new FormData();
+    fd.append('FullName', this.form.fullName);
+    fd.append('PhoneNumber', this.form.phone);
+    fd.append('Specialization', this.form.specialty === 'أخري' ? this.form.customSpecialty.trim() : this.form.specialty);
+    fd.append('YearsOfExperience', String(this.form.yearsExperience ?? 0));
+    if (this.form.bio) fd.append('Bio', this.form.bio);
+    fd.append('IdCardFront', this.idCardFront()!);
+    fd.append('IdCardBack', this.idCardBack()!);
 
     const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    });
+    const headers = new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
 
-    this.http
-      .post(`${environment.apiUrl}/api/vendors/profile`, payload, { headers })
-      .subscribe({
-        next: () => {
-          this.submitted.set(true);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          const msg =
-            err?.error?.message ||
-            err?.error?.title ||
-            'حصل مشكلة في الإرسال، جرب تاني';
-          this.error.set(msg);
-          this.loading.set(false);
-        }
-      });
+    this.http.post(`${environment.apiUrl}/api/vendors/profile`, fd, { headers }).subscribe({
+      next: () => { this.submitted.set(true); this.loading.set(false); },
+      error: (err) => {
+        this.error.set(err?.error?.message ?? 'حصل مشكلة في الإرسال');
+        this.loading.set(false);
+      }
+    });
   }
 }

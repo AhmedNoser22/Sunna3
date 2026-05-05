@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Auth } from '../../services/auth';
 import { EGYPT_DATA, GOVERNORATES } from '../../data';
+import { NotificationBell } from "../notification-bell/notification-bell";
+import { NotificationService } from '../../services/notification-service';
 
 interface Ticket {
   id: string;
@@ -37,12 +39,13 @@ type ModalStep = 'details' | 'complete-form';
 @Component({
   selector: 'app-vendor-dashboard',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [CommonModule, DatePipe, FormsModule, NotificationBell],
   templateUrl: './vendor-dashboard.html',
   styleUrl: './vendor-dashboard.scss',
 })
 export class VendorDashboard implements OnInit {
   private http = inject(HttpClient);
+  private ns   = inject(NotificationService);   // ← أضفناه
   readonly API_URL = 'http://localhost:5001';
 
   activeTab = signal<ActiveTab>('my-tasks');
@@ -52,18 +55,15 @@ export class VendorDashboard implements OnInit {
   loadingNewTickets = signal(false);
   selectedTicket = signal<Ticket | null>(null);
 
-  // ── Modal stepper ──
   modalStep = signal<ModalStep>('details');
   imagesTab = signal<'before' | 'after'>('before');
 
-  // ── صور بعد الشغل ──
   afterImagePreviews = signal<AfterImagePreview[]>([]);
   completingId = signal<string | null>(null);
 
-  // ── Image viewer ──
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
- _currentImages: string[] = [];
+  _currentImages: string[] = [];
 
   readonly governorates = GOVERNORATES;
   filterCities = signal<string[]>([]);
@@ -117,6 +117,10 @@ export class VendorDashboard implements OnInit {
   ngOnInit() {
     this.loadMyTickets();
     this.loadCurrentUserProfile();
+
+    // ── connect SignalR ──────────────────────────────────────
+    const token = localStorage.getItem('token');
+    if (token) this.ns.connect(token);
   }
 
   private headers(): HttpHeaders {
@@ -155,7 +159,6 @@ export class VendorDashboard implements OnInit {
     } catch { return ''; }
   }
 
-  // ── Load ──────────────────────────────────────────────────
   loadMyTickets() {
     this.loadingMyTickets.set(true);
     this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers: this.headers() }).subscribe({
@@ -175,7 +178,6 @@ export class VendorDashboard implements OnInit {
     });
   }
 
-  // ── Tabs / Filters ────────────────────────────────────────
   switchTab(tab: ActiveTab) {
     this.activeTab.set(tab);
     if (tab === 'new-tickets' && this.newTickets().length === 0) this.loadNewTickets();
@@ -197,7 +199,6 @@ export class VendorDashboard implements OnInit {
     this.loadNewTickets();
   }
 
-  // ── Modal ─────────────────────────────────────────────────
   openTicket(t: Ticket) {
     this.selectedTicket.set(t);
     this.modalStep.set('details');
@@ -215,7 +216,6 @@ export class VendorDashboard implements OnInit {
   goToCompleteForm() { this.modalStep.set('complete-form'); }
   backToDetails()    { this.modalStep.set('details'); }
 
-  // ── After Images ──────────────────────────────────────────
   onAfterImagesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
@@ -239,7 +239,6 @@ export class VendorDashboard implements OnInit {
     this.afterImagePreviews.set([]);
   }
 
-  // ── Submit Complete ───────────────────────────────────────
   submitComplete() {
     const ticket = this.selectedTicket();
     if (!ticket || !this.afterImagePreviews().length) return;
@@ -264,7 +263,6 @@ export class VendorDashboard implements OnInit {
     });
   }
 
-  // ── Apply ─────────────────────────────────────────────────
   applyToTicket(ticketId: string, event: Event) {
     event.stopPropagation();
     this.applyingId.set(ticketId);
@@ -274,7 +272,6 @@ export class VendorDashboard implements OnInit {
     });
   }
 
-  // ── Contact ───────────────────────────────────────────────
   openWhatsApp(phone: string) {
     const cleaned = phone?.replace(/\D/g, '');
     const intl = cleaned?.startsWith('0') ? '2' + cleaned : cleaned;
@@ -283,11 +280,9 @@ export class VendorDashboard implements OnInit {
 
   callTenant(phone: string) { window.open(`tel:${phone}`, '_self'); }
 
-  // ── Helpers ───────────────────────────────────────────────
   getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
   getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
 
-  // ── Image Viewer ──────────────────────────────────────────
   openImage(images: string[], index: number) {
     this._currentImages = images;
     this.currentImageIndex.set(index);

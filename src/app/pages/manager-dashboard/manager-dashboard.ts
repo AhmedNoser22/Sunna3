@@ -6,6 +6,8 @@ import { RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../services/auth';
+import { NotificationBell } from "../notification-bell/notification-bell";
+import { NotificationService } from '../../services/notification-service';
 
 interface Ticket {
   id: string;
@@ -34,32 +36,44 @@ interface Vendor {
   yearsExperience: number;
   bio?: string;
   createdAt: string;
+  idCardFront?: string;
+  idCardBack?: string;
 }
 
-type ActiveTab = 'tickets' | 'vendors' | 'invitations';
+type ActiveTab = 'tickets' | 'vendors' | 'invitations' | 'review';
 
 @Component({
   selector: 'app-manager-dashboard',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [CommonModule, DatePipe, FormsModule, NotificationBell],
   templateUrl: './manager-dashboard.html',
   styleUrl: './manager-dashboard.scss',
 })
 export class Dashboard implements OnInit {
   private http = inject(HttpClient);
+  private ns   = inject(NotificationService);
   readonly API_URL = 'http://localhost:5001';
 
   activeTab = signal<ActiveTab>('tickets');
   tickets = signal<Ticket[]>([]);
   vendors = signal<Vendor[]>([]);
+  reviewTickets = signal<Ticket[]>([]);
   loadingTickets = signal(true);
   loadingVendors = signal(true);
+  loadingReview = signal(false);
   selectedTicket = signal<Ticket | null>(null);
   selectedVendor = signal<Vendor | null>(null);
   sortOrder = signal<'newest' | 'oldest'>('newest');
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
-_currentImages: string[] = [];
+  _currentImages: string[] = [];
+
+  // Review action states
+  approvingId = signal<string | null>(null);
+  rejectingId = signal<string | null>(null);
+  rejectReason = signal('');
+  showRejectModal = signal(false);
+  pendingRejectTicketId = signal<string | null>(null);
 
   invitePhone = signal('');
   inviteLoading = signal(false);
@@ -75,18 +89,20 @@ _currentImages: string[] = [];
   specialtyFilter = signal('all');
 
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-    Low: { label: 'منخفضة', color: '#059669', bg: '#d1fae5', dot: '#10b981' },
-    Medium: { label: 'متوسطة', color: '#b45309', bg: '#fef3c7', dot: '#f59e0b' },
-    High: { label: 'عالية', color: '#dc2626', bg: '#fee2e2', dot: '#ef4444' },
-    Emergency: { label: 'طارئة', color: '#7c3aed', bg: '#ede9fe', dot: '#8b5cf6' },
+    Low:       { label: 'منخفضة', color: '#059669', bg: '#d1fae5', dot: '#10b981' },
+    Medium:    { label: 'متوسطة', color: '#b45309', bg: '#fef3c7', dot: '#f59e0b' },
+    High:      { label: 'عالية',  color: '#dc2626', bg: '#fee2e2', dot: '#ef4444' },
+    Emergency: { label: 'طارئة',  color: '#7c3aed', bg: '#ede9fe', dot: '#8b5cf6' },
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string }> = {
-    Pending: { label: 'انتظار', color: '#b45309', bg: '#fef3c7' },
-    Assigned: { label: 'محدد له فني', color: '#1d4ed8', bg: '#dbeafe' },
-    InProgress: { label: 'جارٍ التنفيذ', color: '#0369a1', bg: '#e0f2fe' },
-    Resolved: { label: 'تم الحل', color: '#059669', bg: '#d1fae5' },
-    Closed: { label: 'مغلق', color: '#6b7280', bg: '#f3f4f6' },
+    Pending:    { label: 'انتظار',          color: '#b45309', bg: '#fef3c7' },
+    Assigned:   { label: 'محدد له فني',     color: '#1d4ed8', bg: '#dbeafe' },
+    InProgress: { label: 'جارٍ التنفيذ',    color: '#0369a1', bg: '#e0f2fe' },
+    Resolved:   { label: 'تم الحل',         color: '#059669', bg: '#d1fae5' },
+    Closed:     { label: 'مغلق',            color: '#6b7280', bg: '#f3f4f6' },
+    Review:     { label: 'قيد المراجعة',    color: '#7c3aed', bg: '#ede9fe' },
+    Rejected:   { label: 'مرفوض',           color: '#dc2626', bg: '#fee2e2' },
   };
 
   specialties = ['كهرباء', 'سباكة', 'تكييف', 'نجارة', 'دهانات', 'أعمال عامة'];
@@ -100,7 +116,6 @@ _currentImages: string[] = [];
     let list = this.tickets();
     const s = this.statusFilter();
     const p = this.priorityFilter();
-    const q = this.searchQuery().trim().toLowerCase();
     if (s !== 'all') list = list.filter(t => t.status === s);
     if (p !== 'all') list = list.filter(t => t.priority === p);
     list = [...list].sort((a, b) => {
@@ -114,7 +129,7 @@ _currentImages: string[] = [];
   filteredVendors = computed(() => {
     let list = this.vendors();
     const sp = this.specialtyFilter();
-    const q = this.searchQuery().trim().toLowerCase();
+    const q  = this.searchQuery().trim().toLowerCase();
     if (sp !== 'all') list = list.filter(v => v.specialty === sp);
     if (q) list = list.filter(v =>
       v.fullName.toLowerCase().includes(q) ||
@@ -126,11 +141,11 @@ _currentImages: string[] = [];
   ticketStats = computed(() => {
     const t = this.tickets();
     return {
-      total: t.length,
-      pending: t.filter(x => x.status === 'Pending').length,
+      total:      t.length,
+      pending:    t.filter(x => x.status === 'Pending').length,
       inProgress: t.filter(x => x.status === 'InProgress').length,
-      resolved: t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
-      emergency: t.filter(x => x.priority === 'Emergency').length,
+      resolved:   t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
+      emergency:  t.filter(x => x.priority === 'Emergency').length,
     };
   });
 
@@ -139,11 +154,18 @@ _currentImages: string[] = [];
     return { total: v.length };
   });
 
-  constructor(public auth: Auth) { }
+  reviewStats = computed(() => {
+    const t = this.reviewTickets();
+    return { total: t.length };
+  });
+
+  constructor(public auth: Auth) {}
 
   ngOnInit() {
     this.loadTickets();
     this.loadVendors();
+    const token = localStorage.getItem('token');
+    if (token) this.ns.connect(token);
   }
 
   private headers(): HttpHeaders {
@@ -171,12 +193,69 @@ _currentImages: string[] = [];
       });
   }
 
+  loadReviewTickets() {
+    this.loadingReview.set(true);
+    this.http
+      .get<Ticket[]>(`${this.API_URL}/api/Tickets/ManagerReview`, { headers: this.headers() })
+      .subscribe({
+        next: d => { this.reviewTickets.set(d); this.loadingReview.set(false); },
+        error: e => { console.error(e); this.loadingReview.set(false); },
+      });
+  }
+
+  approveTicket(ticketId: string) {
+    this.approvingId.set(ticketId);
+    this.http
+      .patch(`${this.API_URL}/api/Tickets/${ticketId}/approve`, {}, { headers: this.headers() })
+      .subscribe({
+        next: () => {
+          this.approvingId.set(null);
+          this.loadReviewTickets();
+          this.loadTickets();
+          if (this.selectedTicket()?.id === ticketId) this.closeTicket();
+        },
+        error: e => { console.error(e); this.approvingId.set(null); },
+      });
+  }
+
+  openRejectModal(ticketId: string) {
+    this.pendingRejectTicketId.set(ticketId);
+    this.rejectReason.set('');
+    this.showRejectModal.set(true);
+  }
+
+  closeRejectModal() {
+    this.showRejectModal.set(false);
+    this.pendingRejectTicketId.set(null);
+    this.rejectReason.set('');
+  }
+
+  confirmReject() {
+    const ticketId = this.pendingRejectTicketId();
+    if (!ticketId) return;
+    this.rejectingId.set(ticketId);
+    this.http
+      .patch(
+        `${this.API_URL}/api/Tickets/${ticketId}/reject`,
+        { reason: this.rejectReason() },
+        { headers: this.headers() }
+      )
+      .subscribe({
+        next: () => {
+          this.rejectingId.set(null);
+          this.closeRejectModal();
+          this.loadReviewTickets();
+          this.loadTickets();
+          if (this.selectedTicket()?.id === ticketId) this.closeTicket();
+        },
+        error: e => { console.error(e); this.rejectingId.set(null); },
+      });
+  }
+
+  // ─── Invitations ──────────────────────────────────────
   sendInvitation() {
     const phone = this.invitePhone().trim();
-    if (!phone) {
-      this.inviteError.set('من فضلك ادخل رقم الهاتف');
-      return;
-    }
+    if (!phone) { this.inviteError.set('من فضلك ادخل رقم الهاتف'); return; }
 
     this.inviteLoading.set(true);
     this.inviteError.set('');
@@ -216,12 +295,9 @@ _currentImages: string[] = [];
   openWhatsApp() {
     const link = this.generatedLink();
     if (!link) return;
-
     let phone = this.lastInvitedPhone().replace(/\D/g, '');
     if (phone.startsWith('0')) phone = '2' + phone;
-
-    const msg = encodeURIComponent(link);
-    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(link)}`, '_blank');
   }
 
   resetInvite() {
@@ -233,6 +309,7 @@ _currentImages: string[] = [];
     this.copiedLink.set(false);
   }
 
+  // ─── Helpers ──────────────────────────────────────────
   getPriority(v: string) {
     return this.priorityMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' };
   }
@@ -252,6 +329,7 @@ _currentImages: string[] = [];
     this.priorityFilter.set('all');
     this.specialtyFilter.set('all');
     this.searchQuery.set('');
+    if (tab === 'review') this.loadReviewTickets();
   }
 
   openImage(images: string[], index: number) {
@@ -280,8 +358,8 @@ _currentImages: string[] = [];
   handleKey(e: KeyboardEvent) {
     if (!this.previewImage()) return;
     if (e.key === 'ArrowRight') this.nextImage();
-    if (e.key === 'ArrowLeft') this.prevImage();
-    if (e.key === 'Escape') this.closeImage();
+    if (e.key === 'ArrowLeft')  this.prevImage();
+    if (e.key === 'Escape')     this.closeImage();
   }
 
   trackById(_: number, item: any) { return item.id; }

@@ -101,6 +101,13 @@
           <span class="slbl">الإجمالي</span>
         </div>
       </div>
+      <div class="scard violet">
+        <div class="sc-icon"><span class="material-icons-round">manage_search</span></div>
+        <div class="sc-body">
+          <span class="snum">{{ stats().review }}</span>
+          <span class="slbl">قيد المراجعة</span>
+        </div>
+      </div>
       <div class="scard yellow">
         <div class="sc-icon"><span class="material-icons-round">schedule</span></div>
         <div class="sc-body">
@@ -128,6 +135,14 @@
     <div class="filters">
       <button class="flt" [class.on]="activeFilter()==='all'" (click)="activeFilter.set('all')">
         الكل <span>{{ stats().total }}</span>
+      </button>
+      <button class="flt review-flt" [class.on]="activeFilter()==='Review'" (click)="activeFilter.set('Review')">
+        <span class="material-icons-round" style="font-size:14px">manage_search</span>
+        مراجعة <span>{{ stats().review }}</span>
+      </button>
+      <button class="flt rejected-flt" [class.on]="activeFilter()==='Rejected'" (click)="activeFilter.set('Rejected')">
+        <span class="material-icons-round" style="font-size:14px">cancel</span>
+        مرفوض <span>{{ stats().rejected }}</span>
       </button>
       <button class="flt" [class.on]="activeFilter()==='Pending'" (click)="activeFilter.set('Pending')">
         انتظار <span>{{ stats().pending }}</span>
@@ -158,11 +173,14 @@
     } @else {
     <div class="grid">
       @for (t of filteredTickets(); track t.id) {
-      <div class="tcard" (click)="openTicket(t)">
+      <div class="tcard" [class.tcard-review]="t.status === 'Review'"
+           [class.tcard-rejected]="t.status === 'Rejected'"
+           (click)="openTicket(t)">
         <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
         <div class="tcard-content">
           <div class="tcard-top">
-            <div class="problem-icon">
+            <div class="problem-icon" [class.problem-icon-review]="t.status === 'Review'"
+                 [class.problem-icon-rejected]="t.status === 'Rejected'">
               <span class="material-icons-round">{{ problemIconMap[t.problemType] || 'build' }}</span>
             </div>
             <span class="status-pill" [style.background]="getStatus(t.status).bg"
@@ -170,6 +188,22 @@
               {{ getStatus(t.status).label }}
             </span>
           </div>
+
+          <!-- بانر خاص بالطلب قيد المراجعة -->
+          @if (t.status === 'Review') {
+          <div class="review-banner">
+            <span class="material-icons-round">info</span>
+            طلبك بيتراجع من المدير، هيتم إشعارك بالقرار قريباً
+          </div>
+          }
+
+          <!-- بانر خاص بالطلب المرفوض -->
+          @if (t.status === 'Rejected') {
+          <div class="rejected-banner">
+            <span class="material-icons-round">cancel</span>
+            تم رفض هذا الطلب من قِبل المدير
+          </div>
+          }
 
           <p class="tcard-desc">{{ t.description }}</p>
 
@@ -243,6 +277,28 @@
           </span>
         </div>
 
+        <!-- بانر المراجعة داخل المودال -->
+        @if (selectedTicket()!.status === 'Review') {
+        <div class="modal-review-notice">
+          <span class="material-icons-round">manage_search</span>
+          <div>
+            <div class="mrn-title">طلبك قيد مراجعة المدير</div>
+            <div class="mrn-sub">الطلب وصلنا وبيتراجع دلوقتي، هيتم إشعارك بالقرار قريباً.</div>
+          </div>
+        </div>
+        }
+
+        <!-- بانر الرفض داخل المودال -->
+        @if (selectedTicket()!.status === 'Rejected') {
+        <div class="modal-rejected-notice">
+          <span class="material-icons-round">cancel</span>
+          <div>
+            <div class="mrn-title">تم رفض هذا الطلب</div>
+            <div class="mrn-sub">للأسف الطلب ده اترفض من المدير. ممكن تتواصل معاه أو ترفع طلب جديد.</div>
+          </div>
+        </div>
+        }
+
         <div class="info-block">
           <div class="info-label">الوصف</div>
           <div class="info-val">{{ selectedTicket()!.description }}</div>
@@ -282,7 +338,7 @@
         </div>
         }
 
-        <!-- ══ صور قبل الشغل ══ -->
+        <!-- صور قبل الشغل -->
         @if (selectedTicket()!.beforeImageUrls?.length) {
           <div class="info-block">
             <div class="info-label">
@@ -299,7 +355,7 @@
           </div>
         }
 
-        <!-- ══ صور بعد الشغل ══ -->
+        <!-- صور بعد الشغل -->
         @if (selectedTicket()!.afterImageUrls?.length) {
           <div class="info-block">
             <div class="info-label">
@@ -315,7 +371,6 @@
           </div>
         }
 
-        <!-- لو مفيش صور خالص -->
         @if (!selectedTicket()!.beforeImageUrls?.length && !selectedTicket()!.afterImageUrls?.length) {
           <div class="info-block">
             <div class="info-label">الصور المرفقة</div>

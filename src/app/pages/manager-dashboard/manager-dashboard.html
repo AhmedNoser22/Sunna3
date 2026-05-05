@@ -34,6 +34,20 @@
         <span class="sb-badge">{{ ticketStats().total }}</span>
       </button>
 
+      <button class="sb-link" [class.active]="activeTab() === 'review'" (click)="switchTab('review')">
+        <span class="sb-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd" />
+          </svg>
+        </span>
+        <span>مراجعة الطلبات</span>
+        @if (reviewStats().total > 0) {
+          <span class="sb-badge review-badge">{{ reviewStats().total }}</span>
+        }
+      </button>
+
       <button class="sb-link" [class.active]="activeTab() === 'vendors'" (click)="switchTab('vendors')">
         <span class="sb-icon">
           <svg viewBox="0 0 20 20" fill="currentColor">
@@ -80,6 +94,7 @@
         <h1>مرحباً، {{ firstName() }} 👋</h1>
         <p>لوحة تحكم المدير — إدارة الطلبات والفنيين</p>
       </div>
+       <app-notification-bell />
     </div>
 
     <!-- ══════════ TICKETS TAB ══════════ -->
@@ -264,6 +279,106 @@
           }
         </tbody>
       </table>
+    </div>
+    }
+    }
+
+    <!-- ══════════ REVIEW TAB ══════════ -->
+    @if (activeTab() === 'review') {
+
+    <div class="review-header-bar">
+      <div class="review-header-info">
+        <div class="review-header-icon">🔍</div>
+        <div>
+          <h2>مراجعة الطلبات الجديدة</h2>
+          <p>الطلبات دي اتبعتت من المستأجرين وبتستنى موافقتك عشان تظهر للفنيين</p>
+        </div>
+      </div>
+      <button class="refresh-btn" (click)="loadReviewTickets()" [disabled]="loadingReview()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+          <path fill-rule="evenodd"
+            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            clip-rule="evenodd" />
+        </svg>
+        تحديث
+      </button>
+    </div>
+
+    @if (loadingReview()) {
+    <div class="state-center">
+      <div class="spin"></div>
+      <p>جاري التحميل...</p>
+    </div>
+    } @else if (reviewTickets().length === 0) {
+    <div class="state-center">
+      <div class="empty-icon">✅</div>
+      <h3>مفيش طلبات قيد المراجعة</h3>
+      <p>كل الطلبات اتراجعت</p>
+    </div>
+    } @else {
+    <div class="review-grid">
+      @for (t of reviewTickets(); track t.id) {
+      <div class="review-card">
+        <div class="review-card-header">
+          <div class="review-card-meta">
+            <span class="chip" [style.background]="getPriority(t.priority).bg"
+              [style.color]="getPriority(t.priority).color">
+              <span class="priority-dot" [style.background]="getPriority(t.priority).dot"></span>
+              {{ getPriority(t.priority).label }}
+            </span>
+            <span class="review-date">{{ t.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <button class="review-detail-btn" (click)="openTicket(t)">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path fill-rule="evenodd"
+                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                clip-rule="evenodd" />
+            </svg>
+            التفاصيل
+          </button>
+        </div>
+
+           <div class="review-info-item">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+            {{ t.tenantName }}
+          </div>
+        <div class="review-card-actions">
+          <button
+            class="approve-btn"
+            (click)="approveTicket(t.id)"
+            [disabled]="approvingId() === t.id || rejectingId() === t.id">
+            @if (approvingId() === t.id) {
+            <span class="btn-spin"></span>
+            <span>جاري القبول...</span>
+            } @else {
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+              <path fill-rule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clip-rule="evenodd" />
+            </svg>
+            <span>قبول الطلب</span>
+            }
+          </button>
+          <button
+            class="reject-btn"
+            (click)="openRejectModal(t.id)"
+            [disabled]="approvingId() === t.id || rejectingId() === t.id">
+            @if (rejectingId() === t.id) {
+            <span class="btn-spin"></span>
+            <span>جاري الرفض...</span>
+            } @else {
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+              <path fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+            <span>رفض الطلب</span>
+            }
+          </button>
+        </div>
+      </div>
+      }
     </div>
     }
     }
@@ -518,7 +633,7 @@
         </div>
         }
 
-        <!-- ══ صور قبل الشغل ══ -->
+        <!-- صور قبل الشغل -->
         @if (selectedTicket()!.beforeImageUrls?.length) {
           <div class="modal-section">
             <div class="modal-lbl">
@@ -537,7 +652,7 @@
           </div>
         }
 
-        <!-- ══ صور بعد الشغل ══ -->
+        <!-- صور بعد الشغل -->
         @if (selectedTicket()!.afterImageUrls?.length) {
           <div class="modal-section">
             <div class="modal-lbl">
@@ -555,12 +670,39 @@
           </div>
         }
 
-        <!-- لو مفيش صور خالص -->
         @if (!selectedTicket()!.beforeImageUrls?.length && !selectedTicket()!.afterImageUrls?.length) {
           <div class="modal-section">
             <div class="modal-lbl">الصور المرفقة</div>
             <div style="color:#94a3b8;font-size:13px;padding:8px 0;">لا توجد صور مرفقة</div>
           </div>
+        }
+
+        <!-- أزرار المراجعة لو الطلب في حالة Review -->
+        @if (selectedTicket()!.status === 'Review') {
+        <div class="modal-review-actions">
+          <button
+            class="approve-btn full"
+            (click)="approveTicket(selectedTicket()!.id)"
+            [disabled]="approvingId() === selectedTicket()!.id">
+            @if (approvingId() === selectedTicket()!.id) {
+            <span class="btn-spin"></span>جاري القبول...
+            } @else {
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            قبول الطلب
+            }
+          </button>
+          <button
+            class="reject-btn full"
+            (click)="openRejectModal(selectedTicket()!.id)"
+            [disabled]="rejectingId() === selectedTicket()!.id">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+            رفض الطلب
+          </button>
+        </div>
         }
 
       </div>
@@ -606,6 +748,77 @@
           <div class="modal-val">{{ selectedVendor()!.bio }}</div>
         </div>
         }
+
+        @if (selectedVendor()!.idCardFront || selectedVendor()!.idCardBack) {
+        <div class="modal-section">
+          <div class="modal-lbl">
+            <span style="display:flex;align-items:center;gap:6px">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                <path fill-rule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clip-rule="evenodd"/>
+              </svg>
+              بطاقة الهوية
+            </span>
+          </div>
+          <div class="id-cards-preview-grid">
+            @if (selectedVendor()!.idCardFront) {
+            <div class="id-card-preview-item">
+              <span class="id-card-label">الوجه</span>
+              <img [src]="API_URL + selectedVendor()!.idCardFront" alt="وجه البطاقة"
+                (click)="openImage([selectedVendor()!.idCardFront!], 0)" />
+            </div>
+            }
+            @if (selectedVendor()!.idCardBack) {
+            <div class="id-card-preview-item">
+              <span class="id-card-label">الظهر</span>
+              <img [src]="API_URL + selectedVendor()!.idCardBack" alt="ظهر البطاقة"
+                (click)="openImage([selectedVendor()!.idCardBack!], 0)" />
+            </div>
+            }
+          </div>
+        </div>
+        } @else {
+        <div class="modal-section">
+          <div class="modal-lbl">بطاقة الهوية</div>
+          <div style="color:#94a3b8;font-size:13px;padding:8px 0;">لم يتم رفع صور البطاقة</div>
+        </div>
+        }
+
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ═══════════════════ REJECT MODAL ════════════════════ -->
+  @if (showRejectModal()) {
+  <div class="overlay" (click)="closeRejectModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-hd">
+        <h2>رفض الطلب</h2>
+        <button class="modal-close" (click)="closeRejectModal()">✕</button>
+      </div>
+      <div class="modal-bd">
+        <div class="reject-modal-icon">❌</div>
+        <p class="reject-modal-hint">هل أنت متأكد من رفض هذا الطلب؟ سيتم إشعار المستأجر بالرفض.</p>
+        <div class="modal-section">
+          <div class="modal-lbl">سبب الرفض (اختياري)</div>
+          <textarea
+            class="reject-reason-ta"
+            placeholder="اكتب سبب الرفض هنا..."
+            [value]="rejectReason()"
+            (input)="rejectReason.set($any($event.target).value)"
+            rows="3">
+          </textarea>
+        </div>
+        <div class="reject-modal-actions">
+          <button class="reject-btn full" (click)="confirmReject()" [disabled]="rejectingId() !== null">
+            @if (rejectingId() !== null) {
+            <span class="btn-spin"></span>جاري الرفض...
+            } @else {
+            تأكيد الرفض
+            }
+          </button>
+          <button class="cancel-modal-btn" (click)="closeRejectModal()">إلغاء</button>
+        </div>
       </div>
     </div>
   </div>
@@ -616,7 +829,7 @@
   <div class="img-viewer" (click)="closeImage()">
     <button class="iv-close" (click)="closeImage()">✕</button>
     <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">&#8250;</button>
-    <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+    <img [src]="previewImage()!.startsWith('http') ? previewImage() : API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
     <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">&#8249;</button>
     <div class="iv-dots" (click)="$event.stopPropagation()">
       @for (img of _currentImages; track img; let i = $index) {

@@ -145,6 +145,10 @@ $bg:  #f4f3ff;
 }
 
 .topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
   h1 { font-size: 26px; font-weight: 900; color: #1e1b4b; }
   p  { font-size: 13px; color: #9ca3af; margin-top: 3px; }
 }

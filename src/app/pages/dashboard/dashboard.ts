@@ -82,7 +82,7 @@ export class Dashboard implements OnInit {
   activeFilter = signal('all');
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
- _currentImages: string[] = [];
+  _currentImages: string[] = [];
 
   notifications = signal<Notification[]>([]);
   showNotifications = signal(false);
@@ -93,10 +93,6 @@ export class Dashboard implements OnInit {
   showApplicationsModal = signal(false);
   applicationsTicketId = signal<string | null>(null);
   acceptingId = signal<string | null>(null);
-
-  // vendorProfile = signal<VendorProfileData | null>(null);
-  // loadingVendorProfile = signal(false);
-  // showVendorProfile = signal(false);
 
   showFeedbackModal = signal(false);
   feedbackComment = signal('');
@@ -122,10 +118,12 @@ export class Dashboard implements OnInit {
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string; icon: string }> = {
-    Pending:        { label: 'قيد الانتظار',  color: '#b45309', bg: '#fef9c3', icon: '⏳' },
-    vendorAccepted: { label: 'جارٍ التنفيذ', color: '#1d4ed8', bg: '#dbeafe', icon: '🔧' },
-    Resolved:       { label: 'تم الإنجاز',   color: '#15803d', bg: '#dcfce7', icon: '✅' },
-    Closed:         { label: 'مغلق',          color: '#4b5563', bg: '#f3f4f6', icon: '🔒' },
+    Review:         { label: 'قيد مراجعة المدير', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
+    Rejected:       { label: 'مرفوض من المدير',   color: '#dc2626', bg: '#fee2e2', icon: '❌' },
+    Pending:        { label: 'قيد الانتظار',       color: '#b45309', bg: '#fef9c3', icon: '⏳' },
+    vendorAccepted: { label: 'جارٍ التنفيذ',       color: '#1d4ed8', bg: '#dbeafe', icon: '🔧' },
+    Resolved:       { label: 'تم الإنجاز',         color: '#15803d', bg: '#dcfce7', icon: '✅' },
+    Closed:         { label: 'مغلق',               color: '#4b5563', bg: '#f3f4f6', icon: '🔒' },
   };
 
   problemIconMap: Record<string, string> = {
@@ -144,13 +142,15 @@ export class Dashboard implements OnInit {
     const t = this.tickets();
     return {
       total:      t.length,
+      review:     t.filter(x => x.status === 'Review').length,
+      rejected:   t.filter(x => x.status === 'Rejected').length,
       pending:    t.filter(x => x.status === 'Pending').length,
       inProgress: t.filter(x => x.status === 'vendorAccepted').length,
       done:       t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
     };
   });
 
-  constructor(public auth: Auth,private router: Router) {}
+  constructor(public auth: Auth, private router: Router) {}
 
   ngOnInit() {
     this.loadTickets();
@@ -229,27 +229,11 @@ export class Dashboard implements OnInit {
     this.showApplicationsModal.set(false);
     this.applications.set([]);
   }
-openVendorProfile(vendorId: string, event: Event) {
-  event.stopPropagation();
-  this.router.navigate(['/vendor-profile', vendorId]);
-}
 
-  // Vendor Profile
-  // openVendorProfile(vendorId: string, event: Event) {
-  //   event.stopPropagation();
-  //   this.showVendorProfile.set(true);
-  //   this.vendorProfile.set(null);
-  //   this.loadingVendorProfile.set(true);
-  //   this.http.get<VendorProfileData>(
-  //     `${this.API_URL}/api/Vendors/${vendorId}/profile`,
-  //     { headers: this.getHeaders() }
-  //   ).subscribe({
-  //     next: (data) => { this.vendorProfile.set(data); this.loadingVendorProfile.set(false); },
-  //     error: (err) => { console.error(err); this.loadingVendorProfile.set(false); },
-  //   });
-  // }
-
-  // closeVendorProfile() { this.showVendorProfile.set(false); this.vendorProfile.set(null); }
+  openVendorProfile(vendorId: string, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/vendor-profile', vendorId]);
+  }
 
   // Feedback
   openFeedback(ticket: Ticket, event: Event) {

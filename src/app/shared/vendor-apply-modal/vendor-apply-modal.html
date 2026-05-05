@@ -61,7 +61,41 @@
     @if (error()) {
     <div class="error-msg">{{ error() }}</div>
     }
+    <!-- بطاقة الهوية -->
+    <div class="id-cards-section">
+      <label class="section-label">بطاقة الهوية *</label>
+      <div class="id-cards-grid">
+        <div class="id-card-upload">
+          <label for="id-front">
+            @if (frontPreview()) {
+            <img [src]="frontPreview()!" alt="وجه البطاقة" />
+            } @else {
+            <span>📷 وجه البطاقة</span>
+            }
+          </label>
+          <input id="id-front" type="file" accept="image/*" hidden (change)="onIdCardSelected('front', $event)" />
+        </div>
+        <div class="id-card-upload">
+          <label for="id-back">
+            @if (backPreview()) {
+            <img [src]="backPreview()!" alt="ظهر البطاقة" />
+            } @else {
+            <span>📷 ظهر البطاقة</span>
+            }
+          </label>
+          <input id="id-back" type="file" accept="image/*" hidden (change)="onIdCardSelected('back', $event)" />
+        </div>
+      </div>
+    </div>
 
+    <!-- الموافقة على الشروط -->
+    <div class="terms-row">
+      <input type="checkbox" id="terms" [(ngModel)]="form.agreedToTerms" />
+      <label for="terms">
+        أوافق على <a href="#" target="_blank">شروط الاستخدام وسياسة الخصوصية</a>
+        — مراجعة بياناتي من قبل المدير
+      </label>
+    </div>
     <button class="btn-primary submit-btn" (click)="submit()" [disabled]="loading()">
       @if (loading()) {
       <span class="spinner"></span>

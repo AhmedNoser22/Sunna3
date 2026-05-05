@@ -1,7 +1,9 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { Api } from './api';
+import { NotificationService } from './notification-service';
+
 
 export interface RegisterDto {
   fullName: string;
@@ -31,9 +33,11 @@ export interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class Auth {
   currentUser = signal<AuthResponse | null>(this.loadUser());
-
-  constructor(private api: Api, private router: Router) { }
-
+    private notificationService = inject(NotificationService);
+  constructor(private api: Api, private router: Router) {
+    const token = localStorage.getItem('token');
+    if (token) this.notificationService.connect(token);
+  }
   private loadUser(): AuthResponse | null {
     try {
       const raw = localStorage.getItem('user');
@@ -54,6 +58,7 @@ export class Auth {
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data));
           this.currentUser.set(data);
+          this.notificationService.connect(data.token);
         }
       })
     );
@@ -65,6 +70,7 @@ export class Auth {
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(res));
         this.currentUser.set(res);
+        this.notificationService.connect(res.token);
       })
     );
   }
@@ -76,6 +82,7 @@ export class Auth {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    this.notificationService.disconnect();
     this.currentUser.set(null);
     this.router.navigate(['/']);
   }
