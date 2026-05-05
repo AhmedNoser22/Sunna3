@@ -2,7 +2,7 @@ import {
   Component, signal, OnInit, computed, inject, HostListener
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../services/auth';
@@ -40,7 +40,16 @@ interface Vendor {
   idCardBack?: string;
 }
 
-type ActiveTab = 'tickets' | 'vendors' | 'invitations' | 'review';
+interface Tenant {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  createdAt: string;
+}
+
+type ActiveTab = 'tickets' | 'vendors' | 'invitations' | 'review' | 'users';
+type UsersSubTab = 'tenants' | 'vendors';
 
 @Component({
   selector: 'app-manager-dashboard',
@@ -55,12 +64,19 @@ export class Dashboard implements OnInit {
   readonly API_URL = 'http://localhost:5001';
 
   activeTab = signal<ActiveTab>('tickets');
+  usersSubTab = signal<UsersSubTab>('tenants');
+
   tickets = signal<Ticket[]>([]);
   vendors = signal<Vendor[]>([]);
   reviewTickets = signal<Ticket[]>([]);
+  tenants = signal<Tenant[]>([]);
+  allVendors = signal<Vendor[]>([]);
+
   loadingTickets = signal(true);
   loadingVendors = signal(true);
   loadingReview = signal(false);
+  loadingUsers = signal(false);
+
   selectedTicket = signal<Ticket | null>(null);
   selectedVendor = signal<Vendor | null>(null);
   sortOrder = signal<'newest' | 'oldest'>('newest');
@@ -68,7 +84,6 @@ export class Dashboard implements OnInit {
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
 
-  // Review action states
   approvingId = signal<string | null>(null);
   rejectingId = signal<string | null>(null);
   rejectReason = signal('');
@@ -82,11 +97,13 @@ export class Dashboard implements OnInit {
   generatedLink = signal('');
   copiedLink = signal(false);
   private lastInvitedPhone = signal('');
+  private router = inject(Router);
 
   statusFilter = signal('all');
   priorityFilter = signal('all');
   searchQuery = signal('');
   specialtyFilter = signal('all');
+  usersSearchQuery = signal('');
 
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
     Low:       { label: 'منخفضة', color: '#059669', bg: '#d1fae5', dot: '#10b981' },
@@ -96,13 +113,13 @@ export class Dashboard implements OnInit {
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string }> = {
-    Pending:    { label: 'انتظار',          color: '#b45309', bg: '#fef3c7' },
-    Assigned:   { label: 'محدد له فني',     color: '#1d4ed8', bg: '#dbeafe' },
-    InProgress: { label: 'جارٍ التنفيذ',    color: '#0369a1', bg: '#e0f2fe' },
-    Resolved:   { label: 'تم الحل',         color: '#059669', bg: '#d1fae5' },
-    Closed:     { label: 'مغلق',            color: '#6b7280', bg: '#f3f4f6' },
-    Review:     { label: 'قيد المراجعة',    color: '#7c3aed', bg: '#ede9fe' },
-    Rejected:   { label: 'مرفوض',           color: '#dc2626', bg: '#fee2e2' },
+    Pending:    { label: 'انتظار',       color: '#b45309', bg: '#fef3c7' },
+    Assigned:   { label: 'محدد له فني',  color: '#1d4ed8', bg: '#dbeafe' },
+    InProgress: { label: 'جارٍ التنفيذ', color: '#0369a1', bg: '#e0f2fe' },
+    Resolved:   { label: 'تم الحل',      color: '#059669', bg: '#d1fae5' },
+    Closed:     { label: 'مغلق',         color: '#6b7280', bg: '#f3f4f6' },
+    Review:     { label: 'قيد المراجعة', color: '#7c3aed', bg: '#ede9fe' },
+    Rejected:   { label: 'مرفوض',        color: '#dc2626', bg: '#fee2e2' },
   };
 
   specialties = ['كهرباء', 'سباكة', 'تكييف', 'نجارة', 'دهانات', 'أعمال عامة'];
@@ -138,6 +155,26 @@ export class Dashboard implements OnInit {
     return list;
   });
 
+  filteredTenants = computed(() => {
+    const q = this.usersSearchQuery().trim().toLowerCase();
+    if (!q) return this.tenants();
+    return this.tenants().filter(t =>
+      t.fullName.toLowerCase().includes(q) ||
+      t.email.toLowerCase().includes(q) ||
+      t.phone?.includes(q)
+    );
+  });
+
+  filteredAllVendors = computed(() => {
+    const q = this.usersSearchQuery().trim().toLowerCase();
+    if (!q) return this.allVendors();
+    return this.allVendors().filter(v =>
+      v.fullName.toLowerCase().includes(q) ||
+      v.specialty?.toLowerCase().includes(q) ||
+      v.phone?.includes(q)
+    );
+  });
+
   ticketStats = computed(() => {
     const t = this.tickets();
     return {
@@ -149,15 +186,12 @@ export class Dashboard implements OnInit {
     };
   });
 
-  vendorStats = computed(() => {
-    const v = this.vendors();
-    return { total: v.length };
-  });
-
-  reviewStats = computed(() => {
-    const t = this.reviewTickets();
-    return { total: t.length };
-  });
+  vendorStats = computed(() => ({ total: this.vendors().length }));
+  reviewStats = computed(() => ({ total: this.reviewTickets().length }));
+  usersStats  = computed(() => ({
+    tenants: this.tenants().length,
+    vendors: this.allVendors().length,
+  }));
 
   constructor(public auth: Auth) {}
 
@@ -175,47 +209,50 @@ export class Dashboard implements OnInit {
 
   loadTickets() {
     this.loadingTickets.set(true);
-    this.http
-      .get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers: this.headers() })
-      .subscribe({
-        next: d => { this.tickets.set(d); this.loadingTickets.set(false); },
-        error: e => { console.error(e); this.loadingTickets.set(false); },
-      });
+    this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers: this.headers() }).subscribe({
+      next: d => { this.tickets.set(d); this.loadingTickets.set(false); },
+      error: e => { console.error(e); this.loadingTickets.set(false); },
+    });
   }
 
   loadVendors() {
     this.loadingVendors.set(true);
-    this.http
-      .get<Vendor[]>(`${this.API_URL}/api/Vendors`, { headers: this.headers() })
-      .subscribe({
-        next: d => { this.vendors.set(d); this.loadingVendors.set(false); },
-        error: e => { console.error(e); this.loadingVendors.set(false); },
-      });
+    this.http.get<Vendor[]>(`${this.API_URL}/api/Vendors`, { headers: this.headers() }).subscribe({
+      next: d => { this.vendors.set(d); this.loadingVendors.set(false); },
+      error: e => { console.error(e); this.loadingVendors.set(false); },
+    });
   }
 
   loadReviewTickets() {
     this.loadingReview.set(true);
-    this.http
-      .get<Ticket[]>(`${this.API_URL}/api/Tickets/ManagerReview`, { headers: this.headers() })
-      .subscribe({
-        next: d => { this.reviewTickets.set(d); this.loadingReview.set(false); },
-        error: e => { console.error(e); this.loadingReview.set(false); },
-      });
+    this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets/ManagerReview`, { headers: this.headers() }).subscribe({
+      next: d => { this.reviewTickets.set(d); this.loadingReview.set(false); },
+      error: e => { console.error(e); this.loadingReview.set(false); },
+    });
+  }
+
+  loadUsers() {
+    this.loadingUsers.set(true);
+    this.http.get<Tenant[]>(`${this.API_URL}/api/Manager/tenants`, { headers: this.headers() }).subscribe({
+      next: d => { this.tenants.set(d); },
+      error: e => console.error(e),
+    });
+    this.http.get<Vendor[]>(`${this.API_URL}/api/Manager/vendors`, { headers: this.headers() }).subscribe({
+      next: d => { this.allVendors.set(d); this.loadingUsers.set(false); },
+      error: e => { console.error(e); this.loadingUsers.set(false); },
+    });
   }
 
   approveTicket(ticketId: string) {
     this.approvingId.set(ticketId);
-    this.http
-      .patch(`${this.API_URL}/api/Tickets/${ticketId}/approve`, {}, { headers: this.headers() })
-      .subscribe({
-        next: () => {
-          this.approvingId.set(null);
-          this.loadReviewTickets();
-          this.loadTickets();
-          if (this.selectedTicket()?.id === ticketId) this.closeTicket();
-        },
-        error: e => { console.error(e); this.approvingId.set(null); },
-      });
+    this.http.patch(`${this.API_URL}/api/Tickets/${ticketId}/approve`, {}, { headers: this.headers() }).subscribe({
+      next: () => {
+        this.approvingId.set(null);
+        this.loadReviewTickets(); this.loadTickets();
+        if (this.selectedTicket()?.id === ticketId) this.closeTicket();
+      },
+      error: e => { console.error(e); this.approvingId.set(null); },
+    });
   }
 
   openRejectModal(ticketId: string) {
@@ -234,53 +271,36 @@ export class Dashboard implements OnInit {
     const ticketId = this.pendingRejectTicketId();
     if (!ticketId) return;
     this.rejectingId.set(ticketId);
-    this.http
-      .patch(
-        `${this.API_URL}/api/Tickets/${ticketId}/reject`,
-        { reason: this.rejectReason() },
-        { headers: this.headers() }
-      )
-      .subscribe({
-        next: () => {
-          this.rejectingId.set(null);
-          this.closeRejectModal();
-          this.loadReviewTickets();
-          this.loadTickets();
-          if (this.selectedTicket()?.id === ticketId) this.closeTicket();
-        },
-        error: e => { console.error(e); this.rejectingId.set(null); },
-      });
+    this.http.patch(
+      `${this.API_URL}/api/Tickets/${ticketId}/reject`,
+      { reason: this.rejectReason() },
+      { headers: this.headers() }
+    ).subscribe({
+      next: () => {
+        this.rejectingId.set(null);
+        this.closeRejectModal();
+        this.loadReviewTickets(); this.loadTickets();
+        if (this.selectedTicket()?.id === ticketId) this.closeTicket();
+      },
+      error: e => { console.error(e); this.rejectingId.set(null); },
+    });
   }
 
-  // ─── Invitations ──────────────────────────────────────
   sendInvitation() {
     const phone = this.invitePhone().trim();
     if (!phone) { this.inviteError.set('من فضلك ادخل رقم الهاتف'); return; }
-
     this.inviteLoading.set(true);
-    this.inviteError.set('');
-    this.inviteSuccess.set('');
-    this.generatedLink.set('');
-
-    this.http
-      .post<{ link: string }>(
-        `${this.API_URL}/api/Invitation/create`,
-        { phone },
-        { headers: this.headers() }
-      )
-      .subscribe({
-        next: res => {
-          this.inviteLoading.set(false);
-          this.lastInvitedPhone.set(phone);
-          this.generatedLink.set(res.link);
-          this.inviteSuccess.set('تم إنشاء رابط الدعوة بنجاح! انسخه وابعته على الواتس 📲');
-          this.invitePhone.set('');
-        },
-        error: err => {
-          this.inviteLoading.set(false);
-          this.inviteError.set(err?.error?.message ?? 'حدث خطأ أثناء إنشاء الدعوة');
-        },
-      });
+    this.inviteError.set(''); this.inviteSuccess.set(''); this.generatedLink.set('');
+    this.http.post<{ link: string }>(`${this.API_URL}/api/Invitation/create`, { phone }, { headers: this.headers() }).subscribe({
+      next: res => {
+        this.inviteLoading.set(false);
+        this.lastInvitedPhone.set(phone);
+        this.generatedLink.set(res.link);
+        this.inviteSuccess.set('تم إنشاء رابط الدعوة بنجاح! انسخه وابعته على الواتس 📲');
+        this.invitePhone.set('');
+      },
+      error: err => { this.inviteLoading.set(false); this.inviteError.set(err?.error?.message ?? 'حدث خطأ أثناء إنشاء الدعوة'); },
+    });
   }
 
   copyLink() {
@@ -301,57 +321,49 @@ export class Dashboard implements OnInit {
   }
 
   resetInvite() {
-    this.generatedLink.set('');
-    this.inviteSuccess.set('');
-    this.inviteError.set('');
-    this.invitePhone.set('');
-    this.lastInvitedPhone.set('');
-    this.copiedLink.set(false);
+    this.generatedLink.set(''); this.inviteSuccess.set(''); this.inviteError.set('');
+    this.invitePhone.set(''); this.lastInvitedPhone.set(''); this.copiedLink.set(false);
   }
 
-  // ─── Helpers ──────────────────────────────────────────
-  getPriority(v: string) {
-    return this.priorityMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' };
-  }
-
-  getStatus(v: string) {
-    return this.statusMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6' };
-  }
+  getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' }; }
+  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#6b7280', bg: '#f3f4f6' }; }
 
   openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
   closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
-  openVendor(v: Vendor) { this.selectedVendor.set(v); }
+  openVendor(v: Vendor) {
+  this.router.navigate(['/vendor-profile', v.id]);
+}
   closeVendor() { this.selectedVendor.set(null); }
 
   switchTab(tab: ActiveTab) {
     this.activeTab.set(tab);
-    this.statusFilter.set('all');
-    this.priorityFilter.set('all');
-    this.specialtyFilter.set('all');
-    this.searchQuery.set('');
+    this.statusFilter.set('all'); this.priorityFilter.set('all');
+    this.specialtyFilter.set('all'); this.searchQuery.set('');
+    this.usersSearchQuery.set('');
     if (tab === 'review') this.loadReviewTickets();
+    if (tab === 'users') this.loadUsers();
+  }
+
+  switchUsersSubTab(sub: UsersSubTab) {
+    this.usersSubTab.set(sub);
+    this.usersSearchQuery.set('');
   }
 
   openImage(images: string[], index: number) {
-    this._currentImages = images;
-    this.currentImageIndex.set(index);
-    this.previewImage.set(images[index]);
+    this._currentImages = images; this.currentImageIndex.set(index); this.previewImage.set(images[index]);
   }
-
   closeImage() { this.previewImage.set(null); this._currentImages = []; }
 
   nextImage() {
     if (!this._currentImages.length) return;
     const n = (this.currentImageIndex() + 1) % this._currentImages.length;
-    this.currentImageIndex.set(n);
-    this.previewImage.set(this._currentImages[n]);
+    this.currentImageIndex.set(n); this.previewImage.set(this._currentImages[n]);
   }
 
   prevImage() {
     if (!this._currentImages.length) return;
     const p = (this.currentImageIndex() - 1 + this._currentImages.length) % this._currentImages.length;
-    this.currentImageIndex.set(p);
-    this.previewImage.set(this._currentImages[p]);
+    this.currentImageIndex.set(p); this.previewImage.set(this._currentImages[p]);
   }
 
   @HostListener('document:keydown', ['$event'])
