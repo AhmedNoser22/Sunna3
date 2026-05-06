@@ -26,6 +26,8 @@ interface Ticket {
   vendorName?: string;
   beforeImageUrls: string[];
   afterImageUrls: string[];
+  isPaid: boolean;
+  price?: number;
 }
 
 interface AfterImagePreview {
@@ -45,7 +47,7 @@ type ModalStep = 'details' | 'complete-form';
 })
 export class VendorDashboard implements OnInit {
   private http = inject(HttpClient);
-  private ns   = inject(NotificationService);   // ← أضفناه
+  private ns = inject(NotificationService);
   readonly API_URL = 'http://localhost:5001';
 
   activeTab = signal<ActiveTab>('my-tasks');
@@ -73,38 +75,38 @@ export class VendorDashboard implements OnInit {
   applyingId = signal<string | null>(null);
 
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-    Low:       { label: 'منخفضة', color: '#15803d', bg: '#dcfce7', dot: '#22c55e' },
-    Medium:    { label: 'متوسطة', color: '#b45309', bg: '#fef9c3', dot: '#eab308' },
-    High:      { label: 'عالية',  color: '#b91c1c', bg: '#fee2e2', dot: '#ef4444' },
-    Emergency: { label: 'طارئة',  color: '#9a3412', bg: '#ffedd5', dot: '#f97316' },
-    Critical:  { label: 'حرجة',  color: '#6d28d9', bg: '#ede9fe', dot: '#8b5cf6' },
+    Low: { label: 'منخفضة', color: '#15803d', bg: '#dcfce7', dot: '#22c55e' },
+    Medium: { label: 'متوسطة', color: '#b45309', bg: '#fef9c3', dot: '#eab308' },
+    High: { label: 'عالية', color: '#b91c1c', bg: '#fee2e2', dot: '#ef4444' },
+    Emergency: { label: 'طارئة', color: '#9a3412', bg: '#ffedd5', dot: '#f97316' },
+    Critical: { label: 'حرجة', color: '#6d28d9', bg: '#ede9fe', dot: '#8b5cf6' },
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string }> = {
-    Pending:        { label: 'انتظار',       color: '#b45309', bg: '#fef9c3' },
+    Pending: { label: 'انتظار', color: '#b45309', bg: '#fef9c3' },
     vendorAccepted: { label: 'جارٍ التنفيذ', color: '#1d4ed8', bg: '#dbeafe' },
-    Resolved:       { label: 'تم الإنجاز',   color: '#15803d', bg: '#dcfce7' },
-    Closed:         { label: 'مغلق',         color: '#4b5563', bg: '#f3f4f6' },
+    Resolved: { label: 'تم الإنجاز', color: '#15803d', bg: '#dcfce7' },
+    Closed: { label: 'مغلق', color: '#4b5563', bg: '#f3f4f6' },
   };
 
   firstName = computed(() => {
     const name = this.auth.currentUser()?.fullName;
-    return name ? name.split(' ')[0] : 'الفني';
+    return name? name.split(' ')[0] : 'الفني';
   });
 
   myTaskStats = computed(() => {
     const t = this.myTickets();
     return {
-      total:      t.length,
+      total: t.length,
       inProgress: t.filter(x => x.status === 'vendorAccepted').length,
-      resolved:   t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
-      emergency:  t.filter(x => x.priority === 'Emergency').length,
+      resolved: t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
+      emergency: t.filter(x => x.priority === 'Emergency').length,
     };
   });
 
   filteredNewTickets = computed(() => {
     const f = this.newTicketsStatusFilter();
-    return f === 'pending' ? this.newTickets().filter(t => t.status === 'Pending') : this.newTickets();
+    return f === 'pending'? this.newTickets().filter(t => t.status === 'Pending') : this.newTickets();
   });
 
   newTicketsStats = computed(() => {
@@ -117,8 +119,6 @@ export class VendorDashboard implements OnInit {
   ngOnInit() {
     this.loadMyTickets();
     this.loadCurrentUserProfile();
-
-    // ── connect SignalR ──────────────────────────────────────
     const token = localStorage.getItem('token');
     if (token) this.ns.connect(token);
   }
@@ -139,9 +139,9 @@ export class VendorDashboard implements OnInit {
         const current = this.auth.currentUser();
         if (!current) return;
         const updated = {
-          ...current,
-          profileImageUrl: profile.imageUrl ?? current.profileImageUrl ?? null,
-          phone: profile.phone ?? current.phone ?? null,
+         ...current,
+          profileImageUrl: profile.imageUrl?? current.profileImageUrl?? null,
+          phone: profile.phone?? current.phone?? null,
         };
         localStorage.setItem('user', JSON.stringify(updated));
         this.auth.currentUser.set(updated);
@@ -155,7 +155,7 @@ export class VendorDashboard implements OnInit {
     if (!token) return '';
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.sub ?? '';
+      return payload.sub?? '';
     } catch { return ''; }
   }
 
@@ -186,7 +186,7 @@ export class VendorDashboard implements OnInit {
   onGovernorateChange(gov: string) {
     this.selectedGovernorate.set(gov);
     this.selectedCity.set('');
-    this.filterCities.set(EGYPT_DATA[gov] ?? []);
+    this.filterCities.set(EGYPT_DATA[gov]?? []);
     this.loadNewTickets();
   }
 
@@ -214,7 +214,7 @@ export class VendorDashboard implements OnInit {
   }
 
   goToCompleteForm() { this.modalStep.set('complete-form'); }
-  backToDetails()    { this.modalStep.set('details'); }
+  backToDetails() { this.modalStep.set('details'); }
 
   onAfterImagesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -223,14 +223,14 @@ export class VendorDashboard implements OnInit {
       file,
       previewUrl: URL.createObjectURL(file),
     }));
-    this.afterImagePreviews.update(prev => [...prev, ...added]);
+    this.afterImagePreviews.update(prev => [...prev,...added]);
     input.value = '';
   }
 
   removeAfterImage(index: number) {
     this.afterImagePreviews.update(prev => {
       URL.revokeObjectURL(prev[index].previewUrl);
-      return prev.filter((_, i) => i !== index);
+      return prev.filter((_, i) => i!== index);
     });
   }
 
@@ -241,7 +241,13 @@ export class VendorDashboard implements OnInit {
 
   submitComplete() {
     const ticket = this.selectedTicket();
-    if (!ticket || !this.afterImagePreviews().length) return;
+    if (!ticket ||!this.afterImagePreviews().length) return;
+
+    // ── تأكد إن الدفع اتم قبل ما تسمح بالإنهاء ──────────
+    if (!ticket.isPaid) {
+      alert('لازم المستأجر يكمّل الدفع الأول!');
+      return;
+    }
 
     this.completingId.set(ticket.id);
 
@@ -274,14 +280,14 @@ export class VendorDashboard implements OnInit {
 
   openWhatsApp(phone: string) {
     const cleaned = phone?.replace(/\D/g, '');
-    const intl = cleaned?.startsWith('0') ? '2' + cleaned : cleaned;
+    const intl = cleaned?.startsWith('0')? '2' + cleaned : cleaned;
     window.open(`https://wa.me/${intl}`, '_blank');
   }
 
   callTenant(phone: string) { window.open(`tel:${phone}`, '_self'); }
 
-  getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
-  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
+  getPriority(v: string) { return this.priorityMap[v]?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
+  getStatus(v: string) { return this.statusMap[v]?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
 
   openImage(images: string[], index: number) {
     this._currentImages = images;
@@ -310,8 +316,8 @@ export class VendorDashboard implements OnInit {
     if (!this.previewImage()) return;
     switch (event.key) {
       case 'ArrowRight': this.nextImage(); break;
-      case 'ArrowLeft':  this.prevImage(); break;
-      case 'Escape':     this.closeImage(); break;
+      case 'ArrowLeft': this.prevImage(); break;
+      case 'Escape': this.closeImage(); break;
     }
   }
 

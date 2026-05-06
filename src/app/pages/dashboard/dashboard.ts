@@ -2,8 +2,11 @@ import { Component, signal, OnInit, computed, inject, HostListener } from '@angu
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Auth } from '../../services/auth';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Auth } from '../../services/auth';
+import { NotificationBell } from '../notification-bell/notification-bell';
+import { NotificationService } from '../../services/notification-service';
+import { PaymentModal } from '../payment-modal/payment-modal';
 
 interface Ticket {
   id: string;
@@ -18,11 +21,14 @@ interface Ticket {
   deadline: string;
   createdAt: string;
   tenantName: string;
+  tenantId: string;
   vendorName?: string;
   vendorId?: string;
   companyId: string;
   beforeImageUrls: string[];
   afterImageUrls: string[];
+  isPaid: boolean;
+  price: number;
 }
 
 interface Notification {
@@ -41,68 +47,49 @@ interface TicketApplication {
   appliedAt: string;
 }
 
-interface FeedbackItem {
-  id: string;
-  comment: string;
-  tenantName: string;
-  tenantId: string;
-}
-
-interface VendorTicketHistory {
-  ticketId: string;
-  description: string;
-  status: string;
-  governorate: string;
-  city: string;
-  createdAt: string;
-  feedbacks: FeedbackItem[];
-}
-
-interface VendorProfileData {
-  vendorId: string;
-  fullName: string;
-  phone: string;
-  ticketHistory: VendorTicketHistory[];
-}
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, FormsModule],
+  imports: [CommonModule, RouterLink, DatePipe, FormsModule, NotificationBell, PaymentModal],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
   private http = inject(HttpClient);
+  private ns   = inject(NotificationService);
   readonly API_URL = 'http://localhost:5001';
 
-  tickets = signal<Ticket[]>([]);
-  loading = signal(true);
+  tickets        = signal<Ticket[]>([]);
+  loading        = signal(true);
   selectedTicket = signal<Ticket | null>(null);
-  activeFilter = signal('all');
-  previewImage = signal<string | null>(null);
+  activeFilter   = signal('all');
+  previewImage   = signal<string | null>(null);
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
 
-  notifications = signal<Notification[]>([]);
+  notifications     = signal<Notification[]>([]);
   showNotifications = signal(false);
   unreadCount = computed(() => this.notifications().filter(n => !n.isRead).length);
 
-  applications = signal<TicketApplication[]>([]);
+  applications        = signal<TicketApplication[]>([]);
   loadingApplications = signal(false);
   showApplicationsModal = signal(false);
-  applicationsTicketId = signal<string | null>(null);
-  acceptingId = signal<string | null>(null);
+  applicationsTicketId  = signal<string | null>(null);
+  acceptingId           = signal<string | null>(null);
 
-  showFeedbackModal = signal(false);
-  feedbackComment = signal('');
-  feedbackTicketId = signal<string | null>(null);
-  feedbackVendorId = signal<string | null>(null);
-  feedbackLoading = signal(false);
-  feedbackError = signal('');
-  feedbackSuccess = signal(false);
+  showFeedbackModal  = signal(false);
+  feedbackComment    = signal('');
+  feedbackTicketId   = signal<string | null>(null);
+  feedbackVendorId   = signal<string | null>(null);
+  feedbackLoading    = signal(false);
+  feedbackError      = signal('');
+  feedbackSuccess    = signal(false);
 
   closingTicketId = signal<string | null>(null);
+
+  // ── Payment ──────────────────────────────────────────────
+  showPaymentModal = signal(false);
+  paymentTicket    = signal<Ticket | null>(null);
 
   firstName = computed(() => {
     const name = this.auth.currentUser()?.fullName;
@@ -147,6 +134,7 @@ export class Dashboard implements OnInit {
       pending:    t.filter(x => x.status === 'Pending').length,
       inProgress: t.filter(x => x.status === 'vendorAccepted').length,
       done:       t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
+      awaitingPayment: t.filter(x => x.status === 'vendorAccepted' && !x.isPaid).length,
     };
   });
 
@@ -155,6 +143,8 @@ export class Dashboard implements OnInit {
   ngOnInit() {
     this.loadTickets();
     this.loadNotifications();
+    const token = localStorage.getItem('token');
+    if (token) this.ns.connect(token);
   }
 
   private getHeaders(): HttpHeaders {
@@ -166,7 +156,7 @@ export class Dashboard implements OnInit {
     this.loading.set(true);
     this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers: this.getHeaders() }).subscribe({
       next: (data) => { this.tickets.set(data); this.loading.set(false); },
-      error: (err) => { console.error(err); this.loading.set(false); },
+      error: (err)  => { console.error(err); this.loading.set(false); },
     });
   }
 
@@ -189,7 +179,25 @@ export class Dashboard implements OnInit {
     this.notifications.update(list => list.map(n => ({ ...n, isRead: true })));
   }
 
-  // Applications
+  // ── Payment ──────────────────────────────────────────────
+  openPayment(ticket: Ticket, event: Event) {
+    event.stopPropagation();
+    this.paymentTicket.set(ticket);
+    this.showPaymentModal.set(true);
+  }
+
+  onPaymentClosed() {
+    this.showPaymentModal.set(false);
+    this.paymentTicket.set(null);
+  }
+
+  onPaymentDone() {
+    this.showPaymentModal.set(false);
+    this.paymentTicket.set(null);
+    this.loadTickets();
+  }
+
+  // ── Applications ─────────────────────────────────────────
   openApplications(ticket: Ticket, event: Event) {
     event.stopPropagation();
     this.applicationsTicketId.set(ticket.id);
@@ -205,37 +213,29 @@ export class Dashboard implements OnInit {
       { headers: this.getHeaders() }
     ).subscribe({
       next: (data) => { this.applications.set(data); this.loadingApplications.set(false); },
-      error: (err) => { console.error(err); this.loadingApplications.set(false); },
+      error: (err)  => { console.error(err); this.loadingApplications.set(false); },
     });
   }
 
   acceptApplication(applicationId: string) {
     this.acceptingId.set(applicationId);
     this.http.patch(
-      `${this.API_URL}/api/Tickets/${applicationId}/accept`,
-      {},
+      `${this.API_URL}/api/Tickets/${applicationId}/accept`, {},
       { headers: this.getHeaders() }
     ).subscribe({
-      next: () => {
-        this.acceptingId.set(null);
-        this.showApplicationsModal.set(false);
-        this.loadTickets();
-      },
+      next: () => { this.acceptingId.set(null); this.showApplicationsModal.set(false); this.loadTickets(); },
       error: (err) => { console.error(err); this.acceptingId.set(null); },
     });
   }
 
-  closeApplicationsModal() {
-    this.showApplicationsModal.set(false);
-    this.applications.set([]);
-  }
+  closeApplicationsModal() { this.showApplicationsModal.set(false); this.applications.set([]); }
 
   openVendorProfile(vendorId: string, event: Event) {
     event.stopPropagation();
     this.router.navigate(['/vendor-profile', vendorId]);
   }
 
-  // Feedback
+  // ── Feedback ─────────────────────────────────────────────
   openFeedback(ticket: Ticket, event: Event) {
     event.stopPropagation();
     this.feedbackTicketId.set(ticket.id);
@@ -262,22 +262,13 @@ export class Dashboard implements OnInit {
     });
   }
 
-  closeFeedbackModal() {
-    this.showFeedbackModal.set(false);
-    this.feedbackComment.set('');
-    this.feedbackSuccess.set(false);
-    this.feedbackError.set('');
-  }
+  closeFeedbackModal() { this.showFeedbackModal.set(false); this.feedbackComment.set(''); this.feedbackSuccess.set(false); this.feedbackError.set(''); }
 
-  // Close Ticket
+  // ── Close Ticket ─────────────────────────────────────────
   closeTicketAction(ticketId: string, event: Event) {
     event.stopPropagation();
     this.closingTicketId.set(ticketId);
-    this.http.patch(
-      `${this.API_URL}/api/Tickets/${ticketId}/close`,
-      {},
-      { headers: this.getHeaders() }
-    ).subscribe({
+    this.http.patch(`${this.API_URL}/api/Tickets/${ticketId}/close`, {}, { headers: this.getHeaders() }).subscribe({
       next: () => { this.closingTicketId.set(null); this.loadTickets(); this.closeTicket(); },
       error: (err) => { console.error(err); this.closingTicketId.set(null); },
     });
@@ -287,24 +278,20 @@ export class Dashboard implements OnInit {
   closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
 
   openImage(images: string[], index: number) {
-    this._currentImages = images;
-    this.currentImageIndex.set(index);
-    this.previewImage.set(images[index]);
+    this._currentImages = images; this.currentImageIndex.set(index); this.previewImage.set(images[index]);
   }
   closeImage() { this.previewImage.set(null); this._currentImages = []; }
 
   nextImage() {
     if (!this._currentImages.length) return;
     const n = (this.currentImageIndex() + 1) % this._currentImages.length;
-    this.currentImageIndex.set(n);
-    this.previewImage.set(this._currentImages[n]);
+    this.currentImageIndex.set(n); this.previewImage.set(this._currentImages[n]);
   }
 
   prevImage() {
     if (!this._currentImages.length) return;
     const p = (this.currentImageIndex() - 1 + this._currentImages.length) % this._currentImages.length;
-    this.currentImageIndex.set(p);
-    this.previewImage.set(this._currentImages[p]);
+    this.currentImageIndex.set(p); this.previewImage.set(this._currentImages[p]);
   }
 
   @HostListener('document:keydown', ['$event'])

@@ -26,6 +26,8 @@ interface Ticket {
   companyId: string;
   beforeImageUrls: string[];
   afterImageUrls: string[];
+  isPaid: boolean;
+  price?: number;
 }
 
 interface Vendor {
@@ -331,8 +333,8 @@ export class Dashboard implements OnInit {
   openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
   closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
   openVendor(v: Vendor) {
-  this.router.navigate(['/vendor-profile', v.id]);
-}
+    this.router.navigate(['/vendor-profile', v.id]);
+  }
   closeVendor() { this.selectedVendor.set(null); }
 
   switchTab(tab: ActiveTab) {

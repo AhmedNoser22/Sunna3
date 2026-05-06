@@ -1,0 +1,216 @@
+<!-- ============================================================
+     payment-modal.component.html
+     ============================================================ -->
+<div class="overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <!-- ══════════ STEP 1 — اختيار طريقة الدفع ══════════ -->
+    @if (step() === 'choose') {
+
+      <div class="modal-head">
+        <div class="head-icon">
+          <span class="material-icons-round">payment</span>
+        </div>
+        <div>
+          <h2>إتمام الدفع</h2>
+          <p class="head-sub">{{ ticketDescription }}</p>
+        </div>
+        <button class="close-btn" (click)="close()">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- ملخص المبلغ -->
+        <div class="amount-summary">
+          <div class="amount-row">
+            <span class="amount-label">تكلفة الخدمة</span>
+            <span class="amount-val">{{ totalDisplay }} ج.م</span>
+          </div>
+          <div class="amount-row muted">
+            <span class="amount-label">نصيب المنصة (١٠٪)</span>
+            <span class="amount-val">{{ platformFee }} ج.م</span>
+          </div>
+          <div class="amount-row total">
+            <span class="amount-label">الإجمالي المطلوب</span>
+            <span class="amount-val total-num">{{ totalDisplay }} ج.م</span>
+          </div>
+        </div>
+
+        <!-- اختيار الطريقة -->
+        <div class="methods-label">اختار طريقة الدفع</div>
+
+        <div class="methods-wrap">
+          <!-- كارت -->
+          <button
+            class="method-card"
+            [class.selected]="selectedMethod() === 'card'"
+            (click)="selectMethod('card')">
+            <div class="method-icon card-icon">
+              <span class="material-icons-round">credit_card</span>
+            </div>
+            <div class="method-info">
+              <span class="method-name">بطاقة بنكية</span>
+              <span class="method-sub">Visa / Mastercard</span>
+            </div>
+            <div class="method-radio">
+              <span class="material-icons-round">
+                {{ selectedMethod() === 'card' ? 'radio_button_checked' : 'radio_button_unchecked' }}
+              </span>
+            </div>
+          </button>
+
+          <!-- محفظة -->
+          <button
+            class="method-card"
+            [class.selected]="selectedMethod() === 'wallet'"
+            (click)="selectMethod('wallet')">
+            <div class="method-icon wallet-icon">
+              <span class="material-icons-round">phone_iphone</span>
+            </div>
+            <div class="method-info">
+              <span class="method-name">محفظة إلكترونية</span>
+              <span class="method-sub">Vodafone Cash / Instapay</span>
+            </div>
+            <div class="method-radio">
+              <span class="material-icons-round">
+                {{ selectedMethod() === 'wallet' ? 'radio_button_checked' : 'radio_button_unchecked' }}
+              </span>
+            </div>
+          </button>
+        </div>
+
+        <!-- حقل رقم المحفظة -->
+        @if (selectedMethod() === 'wallet') {
+          <div class="wallet-field">
+            <label>رقم المحفظة</label>
+            <div class="wallet-input-wrap">
+              <span class="material-icons-round">phone_iphone</span>
+              <input
+                type="tel"
+                placeholder="01xxxxxxxxx"
+                dir="ltr"
+                [value]="walletNumber()"
+                (input)="walletNumber.set($any($event.target).value)" />
+            </div>
+          </div>
+        }
+
+        @if (error()) {
+          <div class="error-box">
+            <span class="material-icons-round">error_outline</span>
+            {{ error() }}
+          </div>
+        }
+
+        <!-- زرار الدفع -->
+        <button class="pay-btn" (click)="pay()" [disabled]="loading()">
+          @if (loading()) {
+            <span class="btn-spinner"></span>
+            <span>جاري التجهيز...</span>
+          } @else {
+            <span class="material-icons-round">lock</span>
+            <span>ادفع {{ totalDisplay }} ج.م الآن</span>
+          }
+        </button>
+
+        <div class="secure-note">
+          <span class="material-icons-round">verified_user</span>
+          <span>الدفع آمن ومشفر عبر Paymob</span>
+        </div>
+
+      </div>
+    }
+
+    <!-- ══════════ STEP 2 — iframe الكارت ══════════ -->
+    @if (step() === 'iframe') {
+      <div class="modal-head">
+        <button class="back-btn" (click)="step.set('choose')">
+          <span class="material-icons-round">arrow_forward_ios</span>
+        </button>
+        <div>
+          <h2>إدخال بيانات البطاقة</h2>
+          <p class="head-sub">أدخل بياناتك على صفحة Paymob الآمنة</p>
+        </div>
+        <button class="close-btn" (click)="close()">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+
+      <div class="iframe-wrap">
+        <iframe
+          [src]="iframeUrl"
+          frameborder="0"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="iframe-footer">
+        <button class="confirm-done-btn" (click)="confirmIframeDone()">
+          <span class="material-icons-round">check_circle</span>
+          تم الدفع بنجاح
+        </button>
+        <p class="iframe-hint">بعد ما تخلص الدفع في الصفحة فوق، اضغط الزرار ده</p>
+      </div>
+    }
+
+    <!-- ══════════ STEP 3 — wallet redirect ══════════ -->
+    @if (step() === 'redirect') {
+      <div class="modal-head">
+        <div class="head-icon wallet-icon-head">
+          <span class="material-icons-round">phone_iphone</span>
+        </div>
+        <div>
+          <h2>إتمام الدفع عبر المحفظة</h2>
+          <p class="head-sub">افتح الرابط على موبايلك لإتمام الدفع</p>
+        </div>
+        <button class="close-btn" (click)="close()">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="redirect-card">
+          <div class="redirect-icon">
+            <span class="material-icons-round">open_in_new</span>
+          </div>
+          <div class="redirect-info">
+            <p class="redirect-title">جاهز للدفع</p>
+            <p class="redirect-sub">
+              سيتم فتح صفحة Paymob للمحفظة. بعد ما تخلص الدفع هناك، ارجع هنا وأكد.
+            </p>
+          </div>
+        </div>
+
+        <button class="pay-btn" (click)="openWalletRedirect()">
+          <span class="material-icons-round">launch</span>
+          <span>افتح صفحة الدفع</span>
+        </button>
+
+        <div class="secure-note">
+          <span class="material-icons-round">verified_user</span>
+          <span>الدفع آمن ومشفر عبر Paymob</span>
+        </div>
+      </div>
+    }
+
+    <!-- ══════════ STEP 4 — Success ══════════ -->
+    @if (step() === 'success') {
+      <div class="modal-body success-body">
+        <div class="success-icon">
+          <span class="material-icons-round">check_circle</span>
+        </div>
+        <h2 class="success-title">تم الدفع بنجاح! 🎉</h2>
+        <p class="success-sub">
+          الفني دلوقتي يقدر يسجّل إنهاء الشغل وسيتم إشعارك عند اكتمال الطلب
+        </p>
+        <button class="pay-btn" (click)="close()">
+          <span class="material-icons-round">done</span>
+          <span>ممتاز</span>
+        </button>
+      </div>
+    }
+
+  </div>
+</div>

@@ -119,7 +119,14 @@
                     <span class="chip" [style.background]="getStatus(t.status).bg" [style.color]="getStatus(t.status).color">{{ getStatus(t.status).label }}</span>
                     <span class="chip" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">{{ getPriority(t.priority).label }}</span>
                   </div>
-                  @if (t.status === 'vendorAccepted') {
+                  @if (t.status === 'vendorAccepted' &&!t.isPaid) {
+                    <div class="waiting-pay-chip">
+                      <span class="material-icons-round">schedule</span>
+                      انتظار الدفع
+                    </div>
+                  }
+
+                  @if (t.status === 'vendorAccepted' && t.isPaid) {
                     <button class="done-btn" (click)="openTicket(t); $event.stopPropagation()">
                       <span class="material-icons-round">add_a_photo</span>
                       إنهاء
@@ -179,7 +186,7 @@
           <div class="sel-wrap" [class.dim]="!selectedGovernorate()">
             <span class="sel-ico material-icons-round">location_city</span>
             <select [ngModel]="selectedCity()" (ngModelChange)="onCityChange($event)" [disabled]="!selectedGovernorate()" class="sel">
-              <option value="">{{ selectedGovernorate() ? 'كل المدن' : 'اختار المحافظة أولاً' }}</option>
+              <option value="">{{ selectedGovernorate()? 'كل المدن' : 'اختار المحافظة أولاً' }}</option>
               @for (city of filterCities(); track city) { <option [value]="city">{{ city }}</option> }
             </select>
           </div>
@@ -218,7 +225,7 @@
                   </div>
                   @if (t.status === 'Pending') {
                     <button class="quick-apply" (click)="applyToTicket(t.id, $event)" [disabled]="applyingId()===t.id" title="تقدم الآن">
-                      <span class="material-icons-round">{{ applyingId()===t.id ? 'hourglass_empty' : 'add_task' }}</span>
+                      <span class="material-icons-round">{{ applyingId()===t.id? 'hourglass_empty' : 'add_task' }}</span>
                     </button>
                   }
                 </div>
@@ -324,30 +331,30 @@
               <div class="perf-bar-wrap">
                 <div class="perf-bar-label">
                   <span>نسبة الإنجاز</span>
-                  <span class="perf-pct green">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
+                  <span class="perf-pct green">{{ myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
                 </div>
-                <div class="perf-track"><div class="perf-fill green" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="perf-track"><div class="perf-fill green" [style.width]="myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="perf-bar-wrap">
                 <div class="perf-bar-label">
                   <span>جارٍ التنفيذ</span>
                   <span class="perf-pct blue">{{ myTaskStats().inProgress }}</span>
                 </div>
-                <div class="perf-track"><div class="perf-fill blue" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="perf-track"><div class="perf-fill blue" [style.width]="myTaskStats().total > 0? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="perf-bar-wrap">
                 <div class="perf-bar-label">
                   <span>المهام الطارئة</span>
                   <span class="perf-pct red">{{ myTaskStats().emergency }}</span>
                 </div>
-                <div class="perf-track"><div class="perf-fill red" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="perf-track"><div class="perf-fill red" [style.width]="myTaskStats().total > 0? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="completion-ring-wrap">
                 <svg class="completion-ring" viewBox="0 0 80 80">
                   <circle cx="40" cy="40" r="33" fill="none" stroke="#ede9fe" stroke-width="7" />
                   <circle cx="40" cy="40" r="33" fill="none" stroke="url(#ringGrad)" stroke-width="7"
                     stroke-linecap="round" [attr.stroke-dasharray]="207"
-                    [attr.stroke-dashoffset]="myTaskStats().total > 0 ? 207 - (207 * myTaskStats().resolved / myTaskStats().total) : 207"
+                    [attr.stroke-dashoffset]="myTaskStats().total > 0? 207 - (207 * myTaskStats().resolved / myTaskStats().total) : 207"
                     transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 0.8s" />
                   <defs>
                     <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
@@ -357,7 +364,7 @@
                   </defs>
                 </svg>
                 <div class="ring-center">
-                  <span class="ring-num">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
+                  <span class="ring-num">{{ myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
                   <span class="ring-lbl">إنجاز</span>
                 </div>
               </div>
@@ -383,19 +390,19 @@
                 <div class="sdc-icon"><span class="material-icons-round">construction</span></div>
                 <div class="sdc-num">{{ myTaskStats().inProgress }}</div>
                 <div class="sdc-lbl">جارٍ التنفيذ</div>
-                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="stat-detail-card green">
                 <div class="sdc-icon"><span class="material-icons-round">task_alt</span></div>
                 <div class="sdc-num">{{ myTaskStats().resolved }}</div>
                 <div class="sdc-lbl">مكتملة</div>
-                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="stat-detail-card red">
                 <div class="sdc-icon"><span class="material-icons-round">priority_high</span></div>
                 <div class="sdc-num">{{ myTaskStats().emergency }}</div>
                 <div class="sdc-lbl">طارئة</div>
-                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
             </div>
           </div>
@@ -419,7 +426,7 @@
         <!-- ─── STEP 1: تفاصيل التيكيت ─── -->
         @if (modalStep() === 'details') {
           <div class="modal-head">
-            <h2>{{ activeTab()==='new-tickets' ? 'تفاصيل الطلب' : 'تفاصيل المهمة' }}</h2>
+            <h2>{{ activeTab()==='new-tickets'? 'تفاصيل الطلب' : 'تفاصيل المهمة' }}</h2>
             <button class="close-btn" (click)="closeTicket()">
               <span class="material-icons-round">close</span>
             </button>
@@ -552,10 +559,32 @@
 
             <!-- زرار الانتقال لرفع صور الإنجاز -->
             @if (activeTab()==='my-tasks' && selectedTicket()!.status==='vendorAccepted') {
-              <button class="apply-btn complete" (click)="goToCompleteForm()">
-                <span class="material-icons-round">add_a_photo</span>
-                إنهاء المهمة ورفع صور الإنجاز
-              </button>
+
+              @if (!selectedTicket()!.isPaid) {
+                <div class="payment-pending-notice">
+                  <span class="material-icons-round">hourglass_empty</span>
+                  <div>
+                    <p class="ppn-title">في انتظار الدفع</p>
+                    <p class="ppn-sub">لازم المستأجر يكمّل الدفع عشان تقدر تسجّل الإنجاز</p>
+                  </div>
+                </div>
+              }
+
+              @if (selectedTicket()!.isPaid) {
+                <div class="payment-done-notice">
+                  <span class="material-icons-round">verified</span>
+                  <div>
+                    <p class="ppn-title">تم استلام الدفع</p>
+                    <p class="ppn-sub">يمكنك الآن إنهاء المهمة ورفع صور الإنجاز</p>
+                  </div>
+                </div>
+
+                <button class="apply-btn complete" (click)="goToCompleteForm()">
+                  <span class="material-icons-round">add_a_photo</span>
+                  إنهاء المهمة ورفع صور الإنجاز
+                </button>
+              }
+
             }
 
           </div>
@@ -610,7 +639,7 @@
               [disabled]="!afterImagePreviews().length || completingId()===selectedTicket()!.id"
               (click)="submitComplete()">
               <span class="material-icons-round">
-                {{ completingId()===selectedTicket()!.id ? 'hourglass_empty' : 'check_circle' }}
+                {{ completingId()===selectedTicket()!.id? 'hourglass_empty' : 'check_circle' }}
               </span>
               @if (completingId()===selectedTicket()!.id) {
                 جاري الحفظ والإنهاء...

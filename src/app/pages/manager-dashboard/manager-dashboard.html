@@ -217,7 +217,7 @@
         <thead>
           <tr>
             <th>الوصف</th><th>الموقع</th><th>المستأجر</th>
-            <th>الحالة</th><th>الأولوية</th><th>الفني</th><th>الموعد</th><th></th>
+            <th>الحالة</th><th>الأولوية</th><th>الفني</th><th>الموعد</th><th>الدفع</th><th></th>
           </tr>
         </thead>
         <tbody>
@@ -244,6 +244,21 @@
               @else { <span class="no-vendor">غير محدد</span> }
             </td>
             <td class="td-date">{{ t.deadline | date:'dd/MM/yy' }}</td>
+            <td>
+              @if (t.isPaid) {
+                <span style="background:#dcfce7;color:#15803d;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                  <span class="material-icons-round" style="font-size:13px;">check_circle</span>
+                  مدفوع
+                </span>
+              } @else if (t.status === 'vendorAccepted') {
+                <span style="background:#fef9c3;color:#b45309;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                  <span class="material-icons-round" style="font-size:13px;">hourglass_empty</span>
+                  انتظار
+                </span>
+              } @else {
+                <span style="color:#9ca3af;font-size:12px;">—</span>
+              }
+            </td>
             <td>
               <button class="row-btn" (click)="$event.stopPropagation(); openTicket(t)">
                 <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
@@ -616,6 +631,31 @@
           </div>
         </div>
         }
+
+        <!-- ══ حالة الدفع ══ -->
+        <div class="modal-section">
+          <div class="modal-lbl">حالة الدفع</div>
+          @if (selectedTicket()!.isPaid) {
+            <div class="manager-paid-badge">
+              <span class="material-icons-round">check_circle</span>
+              <span>تم الدفع بنجاح</span>
+              <span class="paid-amount">{{ selectedTicket()!.price }} ج.م</span>
+            </div>
+          }
+          @if (!selectedTicket()!.isPaid && selectedTicket()!.status === 'vendorAccepted') {
+            <div class="manager-unpaid-badge">
+              <span class="material-icons-round">hourglass_empty</span>
+              <span>في انتظار دفع المستأجر</span>
+            </div>
+          }
+          @if (!selectedTicket()!.isPaid && selectedTicket()!.status !== 'vendorAccepted') {
+            <div class="manager-na-badge">
+              <span class="material-icons-round">remove_circle_outline</span>
+              <span>لم يتم الدفع بعد</span>
+            </div>
+          }
+        </div>
+
         @if (selectedTicket()!.beforeImageUrls?.length) {
           <div class="modal-section">
             <div class="modal-lbl"><span style="display:flex;align-items:center;gap:6px"><svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>صور قبل الشغل</span></div>
