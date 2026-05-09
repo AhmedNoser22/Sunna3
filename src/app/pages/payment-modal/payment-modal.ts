@@ -1,6 +1,6 @@
 import {
   Component, Input, Output, EventEmitter,
-  signal, inject, OnInit
+  signal, inject, OnInit, OnDestroy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,100 +12,159 @@ import { PaymentService } from '../../services/payment-service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './payment-modal.html',
-  styleUrl:    './payment-modal.scss',
+  styleUrl: './payment-modal.scss',
 })
-export class PaymentModal implements OnInit {
-  // ── Inputs ──────────────────────────────────────────────
+export class PaymentModal implements OnInit, OnDestroy {
+
   @Input() ticketId!: string;
   @Input() ticketDescription!: string;
-  @Input() amount!: number;                 // المبلغ بالجنيه
+  @Input() amount!: number;
 
-  // ── Outputs ─────────────────────────────────────────────
-  @Output() closed        = new EventEmitter<void>();
-  @Output() paymentDone   = new EventEmitter<void>();  // بعد ما webhook يتم — لو بتعمل polling
+  @Output() closed = new EventEmitter<void>();
+  @Output() paymentDone = new EventEmitter<void>();
 
-  // ── Services ────────────────────────────────────────────
   private paymentSvc = inject(PaymentService);
-  private sanitizer  = inject(DomSanitizer);
+  private sanitizer = inject(DomSanitizer);
 
-  // ── State ────────────────────────────────────────────────
-  step = signal<'choose' | 'iframe' | 'redirect' | 'success'>('choose');
-
+  step = signal<'choose' | 'iframe' | 'redirect' | 'verifying' | 'success'>('choose');
   selectedMethod = signal<'card' | 'wallet'>('card');
-  walletNumber   = signal('');
+  walletNumber = signal('');
+  loading = signal(false);
+  error = signal('');
 
-  loading  = signal(false);
-  error    = signal('');
-
-  iframeUrl:   SafeResourceUrl | null = null;
+  iframeUrl: SafeResourceUrl | null = null;
   redirectUrl: string | null = null;
+  currentPaymentId = '';
 
-  // ── Computed helpers ─────────────────────────────────────
-  get platformFee()  { return +(this.amount * 0.10).toFixed(2); }
-  get totalDisplay() { return this.amount; }   // الـ tenant بيدفع الـ total فقط
+  private pollInterval: any;
+  private pollAttempts = 0;
+  private msgListener: ((e: MessageEvent) => void) | null = null;
 
-  ngOnInit() {}
+  get platformFee() { return +(this.amount * 0.10).toFixed(2); }
+  get vendorShare() { return +(this.amount * 0.90).toFixed(2); }
+  get totalDisplay() { return this.amount; }
 
-  // ── اختيار طريقة الدفع ──────────────────────────────────
+  ngOnInit() {
+    // استمع لـ postMessage من Paymob iframe
+    this.msgListener = (event: MessageEvent) => {
+      try {
+        const d = typeof event.data === 'string'
+          ? JSON.parse(event.data) : event.data;
+        if (d?.success === true && this.step() === 'iframe') {
+          this.startVerifying();
+        }
+      } catch { }
+    };
+    window.addEventListener('message', this.msgListener);
+  }
+
+  ngOnDestroy() {
+    this.stopPolling();
+    if (this.msgListener)
+      window.removeEventListener('message', this.msgListener);
+  }
+
   selectMethod(m: 'card' | 'wallet') {
     this.selectedMethod.set(m);
     this.error.set('');
     this.walletNumber.set('');
   }
 
-  // ── ابدأ الدفع ──────────────────────────────────────────
   pay() {
     if (this.selectedMethod() === 'wallet' && !this.walletNumber().trim()) {
-      this.error.set('ادخل رقم المحفظة الأول');
+      this.error.set('ادخل رقم المحفظة أولاً');
       return;
     }
-
     this.loading.set(true);
     this.error.set('');
 
     this.paymentSvc.initiatePayment({
-      ticketId:     this.ticketId,
+      ticketId: this.ticketId,
       paymentMethod: this.selectedMethod(),
-      walletNumber:  this.selectedMethod() === 'wallet' ? this.walletNumber() : undefined,
+      walletNumber: this.selectedMethod() === 'wallet'
+        ? this.walletNumber() : undefined,
     }).subscribe({
       next: (res) => {
         this.loading.set(false);
+        this.currentPaymentId = res.paymentId;
+
+        // ✅ حفظ الـ paymentId الحقيقي بتاعنا
+        localStorage.setItem('pending_payment_id', res.paymentId);
+        localStorage.setItem('pending_payment_ticket', this.ticketId);
 
         if (res.iframeUrl) {
-          // card → افتح iframe
           this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(res.iframeUrl);
           this.step.set('iframe');
         } else if (res.redirectUrl) {
-          // wallet → redirect
           this.redirectUrl = res.redirectUrl;
           this.step.set('redirect');
         }
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.message ?? 'حصل خطأ، حاول تاني');
-      },
+        this.error.set(err?.error?.message ?? 'حصل خطأ أثناء بدء الدفع');
+      }
     });
   }
 
-  // ── بعد ما الـ iframe يخلص ──────────────────────────────
-  // Paymob بيعمل redirect بعد الدفع، بس في حالة iframe مش هيحصل callback
-  // الحل: polling كل 5 ثواني على حالة الـ payment أو تستخدم signalR
-  // للتبسيط: زرار "تأكيد الدفع" يدوسه المستخدم بعد ما يخلص في الـ iframe
   confirmIframeDone() {
-    this.step.set('success');
-    setTimeout(() => this.paymentDone.emit(), 1500);
+    this.startVerifying();
   }
 
-  // ── فتح الـ redirect url في tab جديد ────────────────────
   openWalletRedirect() {
-    window.open(this.redirectUrl!, '_blank');
-    // بعد ما يرجع → يدوس "تم الدفع"
-    this.step.set('success');
-    setTimeout(() => this.paymentDone.emit(), 1500);
+    if (!this.redirectUrl) return;
+    window.open(this.redirectUrl, '_blank');
+    this.startVerifying();
+  }
+
+  private startVerifying() {
+    this.step.set('verifying');
+    this.pollAttempts = 0;
+    this.stopPolling();
+
+    // أول check بعد ثانية واحدة
+    setTimeout(() => this.checkPayment(), 1000);
+
+    // بعدين كل 3 ثواني
+    this.pollInterval = setInterval(() => {
+      this.pollAttempts++;
+      if (this.pollAttempts > 40) {
+        this.stopPolling();
+        this.error.set('التأكيد اتأخر — اضغط "تحديث" في الصفحة');
+        this.step.set('choose');
+        return;
+      }
+      this.checkPayment();
+    }, 3000);
+  }
+
+  private checkPayment() {
+    if (!this.currentPaymentId) return;
+
+    this.paymentSvc.verifyPayment(this.currentPaymentId).subscribe({
+      next: (res) => {
+        if (res.isPaid) {
+          this.stopPolling();
+          localStorage.removeItem('pending_payment_id');
+          localStorage.removeItem('pending_payment_ticket');
+          this.step.set('success');
+          // ✅ emit بعد ثانية — الداشبورد هيعمل reload ويفتح التذكرة
+          setTimeout(() => this.paymentDone.emit(), 1500);
+        }
+      },
+      error: () => { /* retry */ }
+    });
+  }
+
+  private stopPolling() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+      this.pollInterval = null;
+    }
   }
 
   close() {
+    this.stopPolling();
     this.closed.emit();
   }
 }

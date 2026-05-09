@@ -1,4 +1,3 @@
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -11,8 +10,13 @@ export interface InitiatePaymentDto {
 
 export interface PaymentResponseDto {
   paymentId: string;
-  iframeUrl?: string;    // لو card
-  redirectUrl?: string;  // لو wallet
+  iframeUrl?: string;
+  redirectUrl?: string;
+}
+
+export interface VerifyPaymentResponseDto {
+  isPaid: boolean;
+  ticketId?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -32,4 +36,19 @@ export class PaymentService {
       { headers: this.headers() }
     );
   }
+
+  verifyPayment(paymentId: string): Observable<VerifyPaymentResponseDto> {
+  return this.http.get<VerifyPaymentResponseDto>(
+    `${this.API_URL}/api/payment/verify/${paymentId}`,
+    { headers: this.headers() }
+  );
+}
+// في payment-service.ts — أضف
+markPaid(paymentId: string): Observable<{ isPaid: boolean; ticketId?: string }> {
+  return this.http.post<{ isPaid: boolean; ticketId?: string }>(
+    `${this.API_URL}/api/payment/mark-paid/${paymentId}`,
+    {},
+    { headers: this.headers() }
+  );
+}
 }

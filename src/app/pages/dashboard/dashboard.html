@@ -31,7 +31,7 @@
         <span class="material-icons-round">payment</span>
         <div>
           <p>{{ stats().awaitingPayment }} طلب ينتظر الدفع</p>
-          <span>ادفع عشان الفني يكمل الشغل</span>
+          <span>الفني خلّص وبعت السعر — ادفع دلوقتي</span>
         </div>
       </div>
     }
@@ -118,15 +118,15 @@
       </div>
     </div>
 
-    <!-- Payment Alert Banner -->
+    <!-- Payment Alert Banner — يظهر لما الفيندور يبعت السعر -->
     @if (stats().awaitingPayment > 0) {
       <div class="payment-alert-banner">
-        <div class="pab-icon"><span class="material-icons-round">payment</span></div>
+        <div class="pab-icon"><span class="material-icons-round">payments</span></div>
         <div class="pab-text">
-          <strong>{{ stats().awaitingPayment }} طلب ينتظر الدفع</strong>
-          <span>لازم تكمّل الدفع عشان الفني يقدر يسجّل الإنجاز</span>
+          <strong>{{ stats().awaitingPayment }} طلب جاهز للدفع</strong>
+          <span>الفني أنهى شغله وبعت السعر — ادفع عشان يتحسب على حسابه</span>
         </div>
-        <button class="pab-btn" (click)="activeFilter.set('vendorAccepted')">
+        <button class="pab-btn" (click)="activeFilter.set('Resolved')">
           عرض الطلبات
           <span class="material-icons-round">arrow_back</span>
         </button>
@@ -161,9 +161,10 @@
       <div class="grid">
         @for (t of filteredTickets(); track t.id) {
           <div class="tcard"
-               [class.tcard-review]="t.status === 'Review'"
+               [class.tcard-review]="t.status === 'Review' || t.status === 'ManagerReview'"
                [class.tcard-rejected]="t.status === 'Rejected'"
-               [class.tcard-pay-needed]="t.status === 'vendorAccepted' && !t.isPaid"
+               [class.tcard-pay-needed]="needsPayment(t)"
+               [class.tcard-paid]="t.status === 'Resolved' && t.isPaid"
                (click)="openTicket(t)">
             <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
             <div class="tcard-content">
@@ -176,22 +177,35 @@
                 </span>
               </div>
 
-              @if (t.status === 'Review') {
+              @if (t.status === 'Review' || t.status === 'ManagerReview') {
                 <div class="review-banner"><span class="material-icons-round">info</span>طلبك بيتراجع من المدير</div>
               }
               @if (t.status === 'Rejected') {
                 <div class="rejected-banner"><span class="material-icons-round">cancel</span>تم رفض هذا الطلب من قِبل المدير</div>
               }
-              @if (t.status === 'vendorAccepted' && !t.isPaid) {
+
+              <!-- الـ vendor خلّص وبعت السعر وبتستنى الدفع -->
+              @if (needsPayment(t)) {
                 <div class="pay-banner">
-                  <span class="material-icons-round">payment</span>
-                  <span>لازم تدفع عشان الفني يكمّل الشغل</span>
+                  <span class="material-icons-round">payments</span>
+                  <div>
+                    <span class="pay-banner-title">الفني أنهى الشغل — السعر: {{ t.price }} ج.م</span>
+                    <span class="pay-banner-sub">ادفع عشان يتحسب له</span>
+                  </div>
                 </div>
               }
-              @if (t.status === 'vendorAccepted' && t.isPaid) {
+
+              @if (t.status === 'Resolved' && t.isPaid) {
                 <div class="paid-banner">
                   <span class="material-icons-round">verified</span>
-                  <span>تم الدفع — الفني شغّال</span>
+                  <span>تم الدفع {{ t.price }} ج.م ✓</span>
+                </div>
+              }
+
+              @if (t.status === 'vendorAccepted') {
+                <div class="inprog-banner">
+                  <span class="material-icons-round">construction</span>
+                  <span>الفني شغّال دلوقتي — في انتظار الإنهاء</span>
                 </div>
               }
 
@@ -217,18 +231,22 @@
                     <span class="material-icons-round">groups</span>الفنيون المتقدمون
                   </button>
                 }
-                @if (t.status === 'vendorAccepted' && !t.isPaid) {
+
+                <!-- زرار الدفع — يظهر لما الفيندور يخلص ويبعت السعر -->
+                @if (needsPayment(t)) {
                   <button class="act-btn act-pay" (click)="openPayment(t, $event)">
-                    <span class="material-icons-round">payment</span>ادفع دلوقتي
+                    <span class="material-icons-round">payment</span>ادفع {{ t.price }} ج.م
                   </button>
                 }
-                @if (t.status === 'Resolved') {
+
+                @if (t.status === 'Resolved' && t.isPaid) {
                   <button class="act-btn act-green" (click)="closeTicketAction(t.id, $event)" [disabled]="closingTicketId() === t.id">
                     <span class="material-icons-round">check_circle</span>
                     @if (closingTicketId() === t.id) { جاري... } @else { إغلاق الطلب }
                   </button>
                 }
-                @if ((t.status === 'vendorAccepted' || t.status === 'Resolved' || t.status === 'Closed') && t.vendorId) {
+
+                @if ((t.status === 'Resolved' || t.status === 'Closed') && t.vendorId) {
                   <button class="act-btn act-amber" (click)="openFeedback(t, $event)">
                     <span class="material-icons-round">rate_review</span>تقييم الفني
                   </button>
@@ -264,7 +282,7 @@
             </span>
           </div>
 
-          @if (selectedTicket()!.status === 'Review') {
+          @if (selectedTicket()!.status === 'Review' || selectedTicket()!.status === 'ManagerReview') {
             <div class="modal-review-notice">
               <span class="material-icons-round">manage_search</span>
               <div><div class="mrn-title">طلبك قيد مراجعة المدير</div><div class="mrn-sub">الطلب وصلنا وبيتراجع دلوقتي</div></div>
@@ -277,25 +295,35 @@
             </div>
           }
 
-          <!-- Payment status block -->
           @if (selectedTicket()!.status === 'vendorAccepted') {
-            @if (!selectedTicket()!.isPaid) {
-              <div class="modal-pay-notice">
-                <span class="material-icons-round">payment</span>
-                <div>
-                  <div class="mrn-title">لازم تكمّل الدفع</div>
-                  <div class="mrn-sub">الفني مش هيقدر يسجّل الإنجاز غير بعد إتمام الدفع</div>
-                </div>
+            <div class="modal-inprog-notice">
+              <span class="material-icons-round">construction</span>
+              <div>
+                <div class="mrn-title">الفني شغّال دلوقتي</div>
+                <div class="mrn-sub">في انتظار الإنهاء ورفع الصور — هيتبعتلك السعر بعد الخلاص</div>
               </div>
-            } @else {
-              <div class="modal-paid-notice">
-                <span class="material-icons-round">verified</span>
-                <div>
-                  <div class="mrn-title">تم الدفع بنجاح ✅</div>
-                  <div class="mrn-sub">الفني يشتغل دلوقتي وهيتم إشعارك عند الإنجاز</div>
-                </div>
+            </div>
+          }
+
+          <!-- حالة الدفع — يظهر بعد ما الفيندور يخلص ويبعت السعر -->
+          @if (needsPayment(selectedTicket()!)) {
+            <div class="modal-pay-notice">
+              <span class="material-icons-round">payments</span>
+              <div>
+                <div class="mrn-title">الفني أنهى الشغل 🎉</div>
+                <div class="mrn-sub">السعر المحدد: <strong>{{ selectedTicket()!.price }} ج.م</strong> — ادفع عشان يتحسب للفني</div>
               </div>
-            }
+            </div>
+          }
+
+          @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
+            <div class="modal-paid-notice">
+              <span class="material-icons-round">verified</span>
+              <div>
+                <div class="mrn-title">تم الدفع بنجاح ✅</div>
+                <div class="mrn-sub">دفعت {{ selectedTicket()!.price }} ج.م — شكراً لك</div>
+              </div>
+            </div>
           }
 
           <div class="info-block">
@@ -354,24 +382,27 @@
                 <span class="material-icons-round">groups</span>عرض الفنيين المتقدمين
               </button>
             }
-            @if (selectedTicket()!.status === 'vendorAccepted' && !selectedTicket()!.isPaid) {
+
+            <!-- زرار الدفع في المودال -->
+            @if (needsPayment(selectedTicket()!)) {
               <button class="btn-pay full" (click)="openPayment(selectedTicket()!, $event)">
-                <span class="material-icons-round">payment</span>إتمام الدفع لإكمال الطلب
+                <span class="material-icons-round">payment</span>
+                ادفع {{ selectedTicket()!.price }} ج.م الآن
               </button>
             }
-            @if (selectedTicket()!.status === 'vendorAccepted' && selectedTicket()!.isPaid) {
+
+            @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
               <div class="paid-notice-modal">
                 <span class="material-icons-round">check_circle</span>
-                <span>تم الدفع — الفني شغّال دلوقتي</span>
+                <span>تم الدفع {{ selectedTicket()!.price }} ج.م ✓</span>
               </div>
-            }
-            @if (selectedTicket()!.status === 'Resolved') {
               <button class="btn-success full" (click)="closeTicketAction(selectedTicket()!.id, $event)" [disabled]="closingTicketId() === selectedTicket()!.id">
                 <span class="material-icons-round">check_circle</span>
                 @if (closingTicketId() === selectedTicket()!.id) { جاري الإغلاق... } @else { تأكيد إغلاق الطلب }
               </button>
             }
-            @if ((selectedTicket()!.status === 'vendorAccepted' || selectedTicket()!.status === 'Resolved' || selectedTicket()!.status === 'Closed') && selectedTicket()!.vendorId) {
+
+            @if ((selectedTicket()!.status === 'Resolved' || selectedTicket()!.status === 'Closed') && selectedTicket()!.vendorId) {
               <button class="btn-outline full" (click)="openFeedback(selectedTicket()!, $event)">
                 <span class="material-icons-round">rate_review</span>كتابة تقييم للفني
               </button>
@@ -448,12 +479,12 @@
     </div>
   }
 
-  <!-- PAYMENT MODAL -->
+  <!-- PAYMENT MODAL — بياخد السعر اللي الفيندور حدده -->
   @if (showPaymentModal() && paymentTicket()) {
     <app-payment-modal
       [ticketId]="paymentTicket()!.id"
       [ticketDescription]="paymentTicket()!.description"
-      [amount]="paymentTicket()!.price ?? 0"
+      [amount]="paymentTicket()!.price"
       (closed)="onPaymentClosed()"
       (paymentDone)="onPaymentDone()">
     </app-payment-modal>

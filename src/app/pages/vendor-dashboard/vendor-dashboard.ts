@@ -63,6 +63,10 @@ export class VendorDashboard implements OnInit {
   afterImagePreviews = signal<AfterImagePreview[]>([]);
   completingId = signal<string | null>(null);
 
+  // ── حقل السعر ────────────────────────────────────────
+  completionPrice = signal<number | null>(null);
+  priceError = signal('');
+
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
@@ -91,7 +95,7 @@ export class VendorDashboard implements OnInit {
 
   firstName = computed(() => {
     const name = this.auth.currentUser()?.fullName;
-    return name? name.split(' ')[0] : 'الفني';
+    return name ? name.split(' ')[0] : 'الفني';
   });
 
   myTaskStats = computed(() => {
@@ -106,7 +110,7 @@ export class VendorDashboard implements OnInit {
 
   filteredNewTickets = computed(() => {
     const f = this.newTicketsStatusFilter();
-    return f === 'pending'? this.newTickets().filter(t => t.status === 'Pending') : this.newTickets();
+    return f === 'pending' ? this.newTickets().filter(t => t.status === 'Pending') : this.newTickets();
   });
 
   newTicketsStats = computed(() => {
@@ -139,9 +143,9 @@ export class VendorDashboard implements OnInit {
         const current = this.auth.currentUser();
         if (!current) return;
         const updated = {
-         ...current,
-          profileImageUrl: profile.imageUrl?? current.profileImageUrl?? null,
-          phone: profile.phone?? current.phone?? null,
+          ...current,
+          profileImageUrl: profile.imageUrl ?? current.profileImageUrl ?? null,
+          phone: profile.phone ?? current.phone ?? null,
         };
         localStorage.setItem('user', JSON.stringify(updated));
         this.auth.currentUser.set(updated);
@@ -155,7 +159,7 @@ export class VendorDashboard implements OnInit {
     if (!token) return '';
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.sub?? '';
+      return payload.sub ?? '';
     } catch { return ''; }
   }
 
@@ -186,7 +190,7 @@ export class VendorDashboard implements OnInit {
   onGovernorateChange(gov: string) {
     this.selectedGovernorate.set(gov);
     this.selectedCity.set('');
-    this.filterCities.set(EGYPT_DATA[gov]?? []);
+    this.filterCities.set(EGYPT_DATA[gov] ?? []);
     this.loadNewTickets();
   }
 
@@ -205,11 +209,15 @@ export class VendorDashboard implements OnInit {
     this.imagesTab.set('before');
     this.currentImageIndex.set(0);
     this._clearAfterPreviews();
+    this.completionPrice.set(null);
+    this.priceError.set('');
   }
 
   closeTicket() {
     this.selectedTicket.set(null);
     this._clearAfterPreviews();
+    this.completionPrice.set(null);
+    this.priceError.set('');
     this.closeImage();
   }
 
@@ -223,14 +231,14 @@ export class VendorDashboard implements OnInit {
       file,
       previewUrl: URL.createObjectURL(file),
     }));
-    this.afterImagePreviews.update(prev => [...prev,...added]);
+    this.afterImagePreviews.update(prev => [...prev, ...added]);
     input.value = '';
   }
 
   removeAfterImage(index: number) {
     this.afterImagePreviews.update(prev => {
       URL.revokeObjectURL(prev[index].previewUrl);
-      return prev.filter((_, i) => i!== index);
+      return prev.filter((_, i) => i !== index);
     });
   }
 
@@ -241,18 +249,19 @@ export class VendorDashboard implements OnInit {
 
   submitComplete() {
     const ticket = this.selectedTicket();
-    if (!ticket ||!this.afterImagePreviews().length) return;
+    if (!ticket || !this.afterImagePreviews().length) return;
 
-    // ── تأكد إن الدفع اتم قبل ما تسمح بالإنهاء ──────────
-    if (!ticket.isPaid) {
-      alert('لازم المستأجر يكمّل الدفع الأول!');
+    const price = this.completionPrice();
+    if (!price || price <= 0) {
+      this.priceError.set('لازم تدخل السعر الأول');
       return;
     }
-
+    this.priceError.set('');
     this.completingId.set(ticket.id);
 
     const formData = new FormData();
     this.afterImagePreviews().forEach(p => formData.append('Images', p.file));
+    formData.append('Price', price.toString());
 
     this.http.patch(
       `${this.API_URL}/api/Tickets/${ticket.id}/complete`,
@@ -262,6 +271,7 @@ export class VendorDashboard implements OnInit {
       next: () => {
         this.completingId.set(null);
         this._clearAfterPreviews();
+        this.completionPrice.set(null);
         this.loadMyTickets();
         this.closeTicket();
       },
@@ -280,14 +290,14 @@ export class VendorDashboard implements OnInit {
 
   openWhatsApp(phone: string) {
     const cleaned = phone?.replace(/\D/g, '');
-    const intl = cleaned?.startsWith('0')? '2' + cleaned : cleaned;
+    const intl = cleaned?.startsWith('0') ? '2' + cleaned : cleaned;
     window.open(`https://wa.me/${intl}`, '_blank');
   }
 
   callTenant(phone: string) { window.open(`tel:${phone}`, '_self'); }
 
-  getPriority(v: string) { return this.priorityMap[v]?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
-  getStatus(v: string) { return this.statusMap[v]?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
+  getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
+  getStatus(v: string) { return this.statusMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6' }; }
 
   openImage(images: string[], index: number) {
     this._currentImages = images;

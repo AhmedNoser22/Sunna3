@@ -16,6 +16,8 @@ interface Ticket {
   priority: string;
   problemType: string;
   tenantLocation: string;
+  governorate?: string;
+  city?: string;
   arrival: string;
   deadline: string;
   createdAt: string;
@@ -27,7 +29,7 @@ interface Ticket {
   beforeImageUrls: string[];
   afterImageUrls: string[];
   isPaid: boolean;
-  price?: number;
+  price: number;
 }
 
 interface Vendor {
@@ -47,10 +49,26 @@ interface Tenant {
   fullName: string;
   email: string;
   phone?: string;
-  createdAt: string;
 }
 
-type ActiveTab = 'tickets' | 'vendors' | 'invitations' | 'review' | 'users';
+interface VendorPayout {
+  paymentId: string;
+  ticketId: string;
+  vendorId: string;
+  vendorName: string;
+  vendorIBAN?: string;
+  vendorInstapay?: string;
+  vendorWallet?: string;
+  vendorAmount: number;
+  platformAmount: number;
+  totalAmount: number;
+  paymentMethod: string;
+  paidAt: string;
+  isDisbursed: boolean;
+  disbursedAt?: string;
+}
+
+type ActiveTab = 'tickets' | 'vendors' | 'invitations' | 'review' | 'users' | 'payouts';
 type UsersSubTab = 'tenants' | 'vendors';
 
 @Component({
@@ -60,50 +78,55 @@ type UsersSubTab = 'tenants' | 'vendors';
   templateUrl: './manager-dashboard.html',
   styleUrl: './manager-dashboard.scss',
 })
-export class Dashboard implements OnInit {
+export class ManagerDashboard implements OnInit {
   private http = inject(HttpClient);
   private ns   = inject(NotificationService);
   readonly API_URL = 'http://localhost:5001';
 
-  activeTab = signal<ActiveTab>('tickets');
-  usersSubTab = signal<UsersSubTab>('tenants');
+  activeTab    = signal<ActiveTab>('tickets');
+  usersSubTab  = signal<UsersSubTab>('tenants');
+  payoutsSubTab = signal<'pending' | 'all'>('pending');
 
-  tickets = signal<Ticket[]>([]);
-  vendors = signal<Vendor[]>([]);
+  tickets      = signal<Ticket[]>([]);
+  vendors      = signal<Vendor[]>([]);
   reviewTickets = signal<Ticket[]>([]);
-  tenants = signal<Tenant[]>([]);
-  allVendors = signal<Vendor[]>([]);
+  tenants      = signal<Tenant[]>([]);
+  allVendors   = signal<Vendor[]>([]);
+  payouts      = signal<VendorPayout[]>([]);
+  pendingPayouts = signal<VendorPayout[]>([]);
 
-  loadingTickets = signal(true);
-  loadingVendors = signal(true);
-  loadingReview = signal(false);
-  loadingUsers = signal(false);
+  loadingTickets  = signal(true);
+  loadingVendors  = signal(true);
+  loadingReview   = signal(false);
+  loadingUsers    = signal(false);
+  loadingPayouts  = signal(false);
+  confirmingId    = signal<string | null>(null);
 
   selectedTicket = signal<Ticket | null>(null);
   selectedVendor = signal<Vendor | null>(null);
-  sortOrder = signal<'newest' | 'oldest'>('newest');
-  previewImage = signal<string | null>(null);
+  sortOrder      = signal<'newest' | 'oldest'>('newest');
+  previewImage   = signal<string | null>(null);
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
 
-  approvingId = signal<string | null>(null);
-  rejectingId = signal<string | null>(null);
-  rejectReason = signal('');
+  approvingId   = signal<string | null>(null);
+  rejectingId   = signal<string | null>(null);
+  rejectReason  = signal('');
   showRejectModal = signal(false);
   pendingRejectTicketId = signal<string | null>(null);
 
-  invitePhone = signal('');
+  invitePhone   = signal('');
   inviteLoading = signal(false);
-  inviteError = signal('');
+  inviteError   = signal('');
   inviteSuccess = signal('');
   generatedLink = signal('');
-  copiedLink = signal(false);
+  copiedLink    = signal(false);
   private lastInvitedPhone = signal('');
   private router = inject(Router);
 
-  statusFilter = signal('all');
+  statusFilter   = signal('all');
   priorityFilter = signal('all');
-  searchQuery = signal('');
+  searchQuery    = signal('');
   specialtyFilter = signal('all');
   usersSearchQuery = signal('');
 
@@ -115,13 +138,12 @@ export class Dashboard implements OnInit {
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string }> = {
-    Pending:    { label: 'انتظار',       color: '#b45309', bg: '#fef3c7' },
-    Assigned:   { label: 'محدد له فني',  color: '#1d4ed8', bg: '#dbeafe' },
-    InProgress: { label: 'جارٍ التنفيذ', color: '#0369a1', bg: '#e0f2fe' },
-    Resolved:   { label: 'تم الحل',      color: '#059669', bg: '#d1fae5' },
-    Closed:     { label: 'مغلق',         color: '#6b7280', bg: '#f3f4f6' },
-    Review:     { label: 'قيد المراجعة', color: '#7c3aed', bg: '#ede9fe' },
-    Rejected:   { label: 'مرفوض',        color: '#dc2626', bg: '#fee2e2' },
+    ManagerReview: { label: 'قيد المراجعة', color: '#7c3aed', bg: '#ede9fe' },
+    Pending:       { label: 'انتظار',        color: '#b45309', bg: '#fef3c7' },
+    vendorAccepted:{ label: 'جارٍ التنفيذ',  color: '#0369a1', bg: '#e0f2fe' },
+    Resolved:      { label: 'تم الإنجاز',    color: '#059669', bg: '#d1fae5' },
+    Closed:        { label: 'مغلق',          color: '#6b7280', bg: '#f3f4f6' },
+    Rejected:      { label: 'مرفوض',         color: '#dc2626', bg: '#fee2e2' },
   };
 
   specialties = ['كهرباء', 'سباكة', 'تكييف', 'نجارة', 'دهانات', 'أعمال عامة'];
@@ -137,12 +159,11 @@ export class Dashboard implements OnInit {
     const p = this.priorityFilter();
     if (s !== 'all') list = list.filter(t => t.status === s);
     if (p !== 'all') list = list.filter(t => t.priority === p);
-    list = [...list].sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return this.sortOrder() === 'newest' ? dateB - dateA : dateA - dateB;
+    return [...list].sort((a, b) => {
+      const da = new Date(a.createdAt).getTime();
+      const db = new Date(b.createdAt).getTime();
+      return this.sortOrder() === 'newest' ? db - da : da - db;
     });
-    return list;
   });
 
   filteredVendors = computed(() => {
@@ -150,10 +171,7 @@ export class Dashboard implements OnInit {
     const sp = this.specialtyFilter();
     const q  = this.searchQuery().trim().toLowerCase();
     if (sp !== 'all') list = list.filter(v => v.specialty === sp);
-    if (q) list = list.filter(v =>
-      v.fullName.toLowerCase().includes(q) ||
-      v.specialty?.toLowerCase().includes(q)
-    );
+    if (q) list = list.filter(v => v.fullName.toLowerCase().includes(q) || v.specialty?.toLowerCase().includes(q));
     return list;
   });
 
@@ -161,9 +179,7 @@ export class Dashboard implements OnInit {
     const q = this.usersSearchQuery().trim().toLowerCase();
     if (!q) return this.tenants();
     return this.tenants().filter(t =>
-      t.fullName.toLowerCase().includes(q) ||
-      t.email.toLowerCase().includes(q) ||
-      t.phone?.includes(q)
+      t.fullName.toLowerCase().includes(q) || t.email.toLowerCase().includes(q) || t.phone?.includes(q)
     );
   });
 
@@ -171,29 +187,36 @@ export class Dashboard implements OnInit {
     const q = this.usersSearchQuery().trim().toLowerCase();
     if (!q) return this.allVendors();
     return this.allVendors().filter(v =>
-      v.fullName.toLowerCase().includes(q) ||
-      v.specialty?.toLowerCase().includes(q) ||
-      v.phone?.includes(q)
+      v.fullName.toLowerCase().includes(q) || v.specialty?.toLowerCase().includes(q) || v.phone?.includes(q)
     );
   });
+
+  // الـ payouts اللي تظهر حسب الـ sub-tab
+  displayedPayouts = computed(() =>
+    this.payoutsSubTab() === 'pending' ? this.pendingPayouts() : this.payouts()
+  );
 
   ticketStats = computed(() => {
     const t = this.tickets();
     return {
       total:      t.length,
       pending:    t.filter(x => x.status === 'Pending').length,
-      inProgress: t.filter(x => x.status === 'InProgress').length,
+      inProgress: t.filter(x => x.status === 'vendorAccepted').length,
       resolved:   t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
       emergency:  t.filter(x => x.priority === 'Emergency').length,
     };
   });
 
-  vendorStats = computed(() => ({ total: this.vendors().length }));
-  reviewStats = computed(() => ({ total: this.reviewTickets().length }));
-  usersStats  = computed(() => ({
-    tenants: this.tenants().length,
-    vendors: this.allVendors().length,
+  payoutsStats = computed(() => ({
+    pending:  this.pendingPayouts().length,
+    total:    this.payouts().length,
+    pendingAmount: this.pendingPayouts().reduce((s, p) => s + p.vendorAmount, 0),
+    totalPlatform: this.payouts().reduce((s, p) => s + p.platformAmount, 0),
   }));
+
+  vendorStats  = computed(() => ({ total: this.vendors().length }));
+  reviewStats  = computed(() => ({ total: this.reviewTickets().length }));
+  usersStats   = computed(() => ({ tenants: this.tenants().length, vendors: this.allVendors().length }));
 
   constructor(public auth: Auth) {}
 
@@ -245,6 +268,45 @@ export class Dashboard implements OnInit {
     });
   }
 
+  // ── Payouts ───────────────────────────────────────────────
+  loadPayouts() {
+    this.loadingPayouts.set(true);
+    // كل الـ payouts
+    this.http.get<VendorPayout[]>(`${this.API_URL}/api/Manager/payouts`, { headers: this.headers() }).subscribe({
+      next: d => { this.payouts.set(d); this.loadingPayouts.set(false); },
+      error: e => { console.error(e); this.loadingPayouts.set(false); },
+    });
+    // الـ pending فقط
+    this.http.get<VendorPayout[]>(`${this.API_URL}/api/Manager/payouts/pending`, { headers: this.headers() }).subscribe({
+      next: d => this.pendingPayouts.set(d),
+      error: e => console.error(e),
+    });
+  }
+
+  confirmPayout(paymentId: string) {
+    this.confirmingId.set(paymentId);
+    this.http.patch(`${this.API_URL}/api/Manager/payouts/${paymentId}/confirm`, {}, { headers: this.headers() }).subscribe({
+      next: () => {
+        this.confirmingId.set(null);
+        this.loadPayouts(); // reload
+      },
+      error: e => { console.error(e); this.confirmingId.set(null); },
+    });
+  }
+
+  getPaymentMethodLabel(method: string): string {
+    const map: Record<string, string> = {
+      card:   'بطاقة بنكية',
+      wallet: 'محفظة إلكترونية',
+    };
+    return map[method] ?? method;
+  }
+
+  getPaymentMethodIcon(method: string): string {
+    return method === 'card' ? 'credit_card' : 'phone_iphone';
+  }
+
+  // ── Review ────────────────────────────────────────────────
   approveTicket(ticketId: string) {
     this.approvingId.set(ticketId);
     this.http.patch(`${this.API_URL}/api/Tickets/${ticketId}/approve`, {}, { headers: this.headers() }).subscribe({
@@ -288,6 +350,7 @@ export class Dashboard implements OnInit {
     });
   }
 
+  // ── Invitation ────────────────────────────────────────────
   sendInvitation() {
     const phone = this.invitePhone().trim();
     if (!phone) { this.inviteError.set('من فضلك ادخل رقم الهاتف'); return; }
@@ -327,29 +390,25 @@ export class Dashboard implements OnInit {
     this.invitePhone.set(''); this.lastInvitedPhone.set(''); this.copiedLink.set(false);
   }
 
+  // ── Navigation ────────────────────────────────────────────
   getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' }; }
   getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#6b7280', bg: '#f3f4f6' }; }
 
   openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
   closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
-  openVendor(v: Vendor) {
-    this.router.navigate(['/vendor-profile', v.id]);
-  }
-  closeVendor() { this.selectedVendor.set(null); }
+  openVendor(v: Vendor) { this.router.navigate(['/vendor-profile', v.id]); }
 
   switchTab(tab: ActiveTab) {
     this.activeTab.set(tab);
     this.statusFilter.set('all'); this.priorityFilter.set('all');
     this.specialtyFilter.set('all'); this.searchQuery.set('');
     this.usersSearchQuery.set('');
-    if (tab === 'review') this.loadReviewTickets();
-    if (tab === 'users') this.loadUsers();
+    if (tab === 'review')   this.loadReviewTickets();
+    if (tab === 'users')    this.loadUsers();
+    if (tab === 'payouts')  this.loadPayouts();
   }
 
-  switchUsersSubTab(sub: UsersSubTab) {
-    this.usersSubTab.set(sub);
-    this.usersSearchQuery.set('');
-  }
+  switchUsersSubTab(sub: UsersSubTab) { this.usersSubTab.set(sub); this.usersSearchQuery.set(''); }
 
   openImage(images: string[], index: number) {
     this._currentImages = images; this.currentImageIndex.set(index); this.previewImage.set(images[index]);
@@ -376,5 +435,5 @@ export class Dashboard implements OnInit {
     if (e.key === 'Escape')     this.closeImage();
   }
 
-  trackById(_: number, item: any) { return item.id; }
+  trackById(_: number, item: any) { return item.id ?? item.paymentId; }
 }

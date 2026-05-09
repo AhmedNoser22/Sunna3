@@ -6,20 +6,16 @@
   <aside class="sidebar">
     <div class="sb-brand">
       <div class="sb-logo-icon">
-        <div class="sb-logo-icon">
-          <svg viewBox="0 0 36 36" class="logo-svg">
-            <rect width="36" height="36" rx="12" fill="url(#grad)" />
-            <path
-              d="M25.4 10.6C24.1 9.3 22.3 8.5 20.4 8.5C17.5 8.5 15.1 10.5 14.4 13.2L8.5 19.1V27.5H16.9L22.8 21.6C25.5 20.9 27.5 18.5 27.5 15.6C27.5 13.7 26.7 11.9 25.4 10.6ZM14.9 25.5H10.5V21.1L15.9 15.7C16.2 16.6 16.9 17.3 17.8 17.6L14.9 20.5V25.5ZM21.5 18.5C20.4 18.5 19.5 17.6 19.5 16.5C19.5 15.4 20.4 14.5 21.5 14.5C22.6 14.5 23.5 15.4 23.5 16.5C23.5 17.6 22.6 18.5 21.5 18.5Z"
-              fill="white" />
-            <defs>
-              <linearGradient id="grad" x1="0" y1="0" x2="36" y2="36">
-                <stop offset="0%" stop-color="#7c3aed" />
-                <stop offset="100%" stop-color="#4f46e5" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
+        <svg viewBox="0 0 36 36" class="logo-svg">
+          <rect width="36" height="36" rx="12" fill="url(#grad)" />
+          <path d="M25.4 10.6C24.1 9.3 22.3 8.5 20.4 8.5C17.5 8.5 15.1 10.5 14.4 13.2L8.5 19.1V27.5H16.9L22.8 21.6C25.5 20.9 27.5 18.5 27.5 15.6C27.5 13.7 26.7 11.9 25.4 10.6ZM14.9 25.5H10.5V21.1L15.9 15.7C16.2 16.6 16.9 17.3 17.8 17.6L14.9 20.5V25.5ZM21.5 18.5C20.4 18.5 19.5 17.6 19.5 16.5C19.5 15.4 20.4 14.5 21.5 14.5C22.6 14.5 23.5 15.4 23.5 16.5C23.5 17.6 22.6 18.5 21.5 18.5Z" fill="white" />
+          <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="36" y2="36">
+              <stop offset="0%" stop-color="#7c3aed" />
+              <stop offset="100%" stop-color="#4f46e5" />
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
       <div class="sb-brand-text">
         <span class="sb-name">صُنّاع</span>
@@ -73,7 +69,7 @@
         @else if (activeTab()==='new-tickets') { <p>استعرض الطلبات المتاحة وتقدم عليها</p> }
         @else { <p>بيانات حسابك الشخصي</p> }
       </div>
-       <app-notification-bell />
+      <app-notification-bell />
     </div>
 
     <!-- ══════════ مهامي ══════════ -->
@@ -98,10 +94,7 @@
       </div>
 
       @if (loadingMyTickets()) {
-        <div class="center-state">
-          <div class="loader"></div>
-          <p>جاري التحميل...</p>
-        </div>
+        <div class="center-state"><div class="loader"></div><p>جاري التحميل...</p></div>
       } @else if (myTickets().length === 0) {
         <div class="center-state">
           <span class="material-icons-round empty-ico">assignment_late</span>
@@ -119,18 +112,25 @@
                     <span class="chip" [style.background]="getStatus(t.status).bg" [style.color]="getStatus(t.status).color">{{ getStatus(t.status).label }}</span>
                     <span class="chip" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">{{ getPriority(t.priority).label }}</span>
                   </div>
-                  @if (t.status === 'vendorAccepted' &&!t.isPaid) {
-                    <div class="waiting-pay-chip">
-                      <span class="material-icons-round">schedule</span>
-                      انتظار الدفع
-                    </div>
-                  }
-
-                  @if (t.status === 'vendorAccepted' && t.isPaid) {
+                  <!-- لو vendorAccepted: زرار إنهاء فقط -->
+                  @if (t.status === 'vendorAccepted') {
                     <button class="done-btn" (click)="openTicket(t); $event.stopPropagation()">
                       <span class="material-icons-round">add_a_photo</span>
                       إنهاء
                     </button>
+                  }
+                  <!-- لو Resolved: منتظرين الدفع من التنانت -->
+                  @if (t.status === 'Resolved' && !t.isPaid) {
+                    <div class="waiting-pay-chip">
+                      <span class="material-icons-round">schedule</span>
+                      انتظار دفع المستأجر
+                    </div>
+                  }
+                  @if (t.status === 'Resolved' && t.isPaid) {
+                    <div class="paid-chip">
+                      <span class="material-icons-round">verified</span>
+                      تم الدفع
+                    </div>
                   }
                 </div>
                 <p class="tcard-desc">{{ t.description }}</p>
@@ -139,6 +139,9 @@
                     <span><span class="material-icons-round">place</span>{{ t.city }} — {{ t.governorate }}</span>
                   }
                   <span><span class="material-icons-round">person</span>{{ t.tenantName }}</span>
+                  @if (t.price && t.price > 0) {
+                    <span><span class="material-icons-round">payments</span>{{ t.price }} ج.م</span>
+                  }
                 </div>
                 <div class="tcard-foot">
                   <span class="dlbl">الموعد النهائي</span>
@@ -186,7 +189,7 @@
           <div class="sel-wrap" [class.dim]="!selectedGovernorate()">
             <span class="sel-ico material-icons-round">location_city</span>
             <select [ngModel]="selectedCity()" (ngModelChange)="onCityChange($event)" [disabled]="!selectedGovernorate()" class="sel">
-              <option value="">{{ selectedGovernorate()? 'كل المدن' : 'اختار المحافظة أولاً' }}</option>
+              <option value="">{{ selectedGovernorate() ? 'كل المدن' : 'اختار المحافظة أولاً' }}</option>
               @for (city of filterCities(); track city) { <option [value]="city">{{ city }}</option> }
             </select>
           </div>
@@ -202,10 +205,7 @@
       </div>
 
       @if (loadingNewTickets()) {
-        <div class="center-state">
-          <div class="loader"></div>
-          <p>جاري التحميل...</p>
-        </div>
+        <div class="center-state"><div class="loader"></div><p>جاري التحميل...</p></div>
       } @else if (filteredNewTickets().length === 0) {
         <div class="center-state">
           <span class="material-icons-round empty-ico">search_off</span>
@@ -225,7 +225,7 @@
                   </div>
                   @if (t.status === 'Pending') {
                     <button class="quick-apply" (click)="applyToTicket(t.id, $event)" [disabled]="applyingId()===t.id" title="تقدم الآن">
-                      <span class="material-icons-round">{{ applyingId()===t.id? 'hourglass_empty' : 'add_task' }}</span>
+                      <span class="material-icons-round">{{ applyingId()===t.id ? 'hourglass_empty' : 'add_task' }}</span>
                     </button>
                   }
                 </div>
@@ -331,30 +331,30 @@
               <div class="perf-bar-wrap">
                 <div class="perf-bar-label">
                   <span>نسبة الإنجاز</span>
-                  <span class="perf-pct green">{{ myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
+                  <span class="perf-pct green">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
                 </div>
-                <div class="perf-track"><div class="perf-fill green" [style.width]="myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="perf-track"><div class="perf-fill green" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="perf-bar-wrap">
                 <div class="perf-bar-label">
                   <span>جارٍ التنفيذ</span>
                   <span class="perf-pct blue">{{ myTaskStats().inProgress }}</span>
                 </div>
-                <div class="perf-track"><div class="perf-fill blue" [style.width]="myTaskStats().total > 0? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="perf-track"><div class="perf-fill blue" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="perf-bar-wrap">
                 <div class="perf-bar-label">
                   <span>المهام الطارئة</span>
                   <span class="perf-pct red">{{ myTaskStats().emergency }}</span>
                 </div>
-                <div class="perf-track"><div class="perf-fill red" [style.width]="myTaskStats().total > 0? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="perf-track"><div class="perf-fill red" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="completion-ring-wrap">
                 <svg class="completion-ring" viewBox="0 0 80 80">
                   <circle cx="40" cy="40" r="33" fill="none" stroke="#ede9fe" stroke-width="7" />
                   <circle cx="40" cy="40" r="33" fill="none" stroke="url(#ringGrad)" stroke-width="7"
                     stroke-linecap="round" [attr.stroke-dasharray]="207"
-                    [attr.stroke-dashoffset]="myTaskStats().total > 0? 207 - (207 * myTaskStats().resolved / myTaskStats().total) : 207"
+                    [attr.stroke-dashoffset]="myTaskStats().total > 0 ? 207 - (207 * myTaskStats().resolved / myTaskStats().total) : 207"
                     transform="rotate(-90 40 40)" style="transition:stroke-dashoffset 0.8s" />
                   <defs>
                     <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
@@ -364,7 +364,7 @@
                   </defs>
                 </svg>
                 <div class="ring-center">
-                  <span class="ring-num">{{ myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
+                  <span class="ring-num">{{ myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100 | number:'1.0-0') : 0 }}%</span>
                   <span class="ring-lbl">إنجاز</span>
                 </div>
               </div>
@@ -390,19 +390,19 @@
                 <div class="sdc-icon"><span class="material-icons-round">construction</span></div>
                 <div class="sdc-num">{{ myTaskStats().inProgress }}</div>
                 <div class="sdc-lbl">جارٍ التنفيذ</div>
-                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().inProgress / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="stat-detail-card green">
                 <div class="sdc-icon"><span class="material-icons-round">task_alt</span></div>
                 <div class="sdc-num">{{ myTaskStats().resolved }}</div>
                 <div class="sdc-lbl">مكتملة</div>
-                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().resolved / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
               <div class="stat-detail-card red">
                 <div class="sdc-icon"><span class="material-icons-round">priority_high</span></div>
                 <div class="sdc-num">{{ myTaskStats().emergency }}</div>
                 <div class="sdc-lbl">طارئة</div>
-                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
+                <div class="sdc-bar"><div class="sdc-fill" [style.width]="myTaskStats().total > 0 ? ((myTaskStats().emergency / myTaskStats().total) * 100) + '%' : '0%'"></div></div>
               </div>
             </div>
           </div>
@@ -416,45 +416,35 @@
     }
   </main>
 
-  <!-- ══════════════════════════════════════════════════════
-       TICKET MODAL
-  ══════════════════════════════════════════════════════ -->
+  <!-- ══════════════════ TICKET MODAL ══════════════════ -->
   @if (selectedTicket()) {
     <div class="overlay" (click)="closeTicket()">
       <div class="modal" (click)="$event.stopPropagation()">
 
-        <!-- ─── STEP 1: تفاصيل التيكيت ─── -->
+        <!-- ─── STEP 1: تفاصيل ─── -->
         @if (modalStep() === 'details') {
           <div class="modal-head">
-            <h2>{{ activeTab()==='new-tickets'? 'تفاصيل الطلب' : 'تفاصيل المهمة' }}</h2>
+            <h2>{{ activeTab()==='new-tickets' ? 'تفاصيل الطلب' : 'تفاصيل المهمة' }}</h2>
             <button class="close-btn" (click)="closeTicket()">
               <span class="material-icons-round">close</span>
             </button>
           </div>
 
           <div class="modal-body">
-
-            <!-- الحالة والأولوية -->
             <div class="chips">
-              <span class="chip lg"
-                [style.background]="getStatus(selectedTicket()!.status).bg"
-                [style.color]="getStatus(selectedTicket()!.status).color">
+              <span class="chip lg" [style.background]="getStatus(selectedTicket()!.status).bg" [style.color]="getStatus(selectedTicket()!.status).color">
                 {{ getStatus(selectedTicket()!.status).label }}
               </span>
-              <span class="chip lg"
-                [style.background]="getPriority(selectedTicket()!.priority).bg"
-                [style.color]="getPriority(selectedTicket()!.priority).color">
+              <span class="chip lg" [style.background]="getPriority(selectedTicket()!.priority).bg" [style.color]="getPriority(selectedTicket()!.priority).color">
                 {{ getPriority(selectedTicket()!.priority).label }}
               </span>
             </div>
 
-            <!-- الوصف -->
             <div class="info-block">
               <div class="info-label">الوصف</div>
               <div class="info-val">{{ selectedTicket()!.description }}</div>
             </div>
 
-            <!-- الموقع -->
             <div class="info-block">
               <div class="info-label">الموقع</div>
               <div class="info-val">
@@ -465,13 +455,11 @@
               </div>
             </div>
 
-            <!-- المستأجر -->
             <div class="info-block">
               <div class="info-label">المستأجر</div>
               <div class="info-val">{{ selectedTicket()!.tenantName }}</div>
             </div>
 
-            <!-- التواصل -->
             @if (selectedTicket()!.tenantPhone) {
               <div class="contact-row">
                 <button class="contact-btn wa" (click)="openWhatsApp(selectedTicket()!.tenantPhone!)">
@@ -483,7 +471,6 @@
               </div>
             }
 
-            <!-- التواريخ -->
             <div class="dates-2col">
               <div>
                 <div class="info-label">وقت الوصول</div>
@@ -495,7 +482,22 @@
               </div>
             </div>
 
-            <!-- ══ الصور: تابين قبل / بعد ══ -->
+            <!-- السعر لو موجود (بعد الإنهاء) -->
+            @if (selectedTicket()!.price && selectedTicket()!.price! > 0) {
+              <div class="price-display-block">
+                <span class="material-icons-round">payments</span>
+                <div>
+                  <div class="pdb-label">السعر المحدد</div>
+                  <div class="pdb-val">{{ selectedTicket()!.price }} ج.م</div>
+                </div>
+                @if (selectedTicket()!.isPaid) {
+                  <span class="pdb-paid-badge">
+                    <span class="material-icons-round">verified</span>مدفوع
+                  </span>
+                }
+              </div>
+            }
+
             <div class="imgs-section">
               <div class="imgs-tabs">
                 <button class="imgs-tab-btn" [class.on]="imagesTab()==='before'" (click)="imagesTab.set('before')">
@@ -518,9 +520,7 @@
                 @if (selectedTicket()!.beforeImageUrls?.length) {
                   <div class="imgs-grid">
                     @for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {
-                      <img [src]="API_URL + '/' + img"
-                           [class.active]="i===currentImageIndex()"
-                           (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />
+                      <img [src]="API_URL + '/' + img" [class.active]="i===currentImageIndex()" (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />
                     }
                   </div>
                 } @else {
@@ -535,8 +535,7 @@
                 @if (selectedTicket()!.afterImageUrls?.length) {
                   <div class="imgs-grid">
                     @for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {
-                      <img [src]="API_URL + '/' + img"
-                           (click)="openImage(selectedTicket()!.afterImageUrls, i)" />
+                      <img [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.afterImageUrls, i)" />
                     }
                   </div>
                 } @else {
@@ -548,56 +547,54 @@
               }
             </div>
 
-            <!-- زرار التقدم (للطلبات المتاحة) -->
+            <!-- زرار التقدم للطلبات المتاحة -->
             @if (activeTab()==='new-tickets' && selectedTicket()!.status==='Pending') {
-              <button class="apply-btn" (click)="applyToTicket(selectedTicket()!.id, $event)"
-                [disabled]="applyingId()===selectedTicket()!.id">
+              <button class="apply-btn" (click)="applyToTicket(selectedTicket()!.id, $event)" [disabled]="applyingId()===selectedTicket()!.id">
                 <span class="material-icons-round">add_task</span>
                 @if (applyingId()===selectedTicket()!.id) { جاري التقدم... } @else { التقدم على هذا الطلب }
               </button>
             }
 
-            <!-- زرار الانتقال لرفع صور الإنجاز -->
+            <!-- زرار إنهاء المهمة لو vendorAccepted -->
             @if (activeTab()==='my-tasks' && selectedTicket()!.status==='vendorAccepted') {
-
-              @if (!selectedTicket()!.isPaid) {
-                <div class="payment-pending-notice">
-                  <span class="material-icons-round">hourglass_empty</span>
-                  <div>
-                    <p class="ppn-title">في انتظار الدفع</p>
-                    <p class="ppn-sub">لازم المستأجر يكمّل الدفع عشان تقدر تسجّل الإنجاز</p>
-                  </div>
-                </div>
-              }
-
-              @if (selectedTicket()!.isPaid) {
-                <div class="payment-done-notice">
-                  <span class="material-icons-round">verified</span>
-                  <div>
-                    <p class="ppn-title">تم استلام الدفع</p>
-                    <p class="ppn-sub">يمكنك الآن إنهاء المهمة ورفع صور الإنجاز</p>
-                  </div>
-                </div>
-
-                <button class="apply-btn complete" (click)="goToCompleteForm()">
-                  <span class="material-icons-round">add_a_photo</span>
-                  إنهاء المهمة ورفع صور الإنجاز
-                </button>
-              }
-
+              <button class="apply-btn complete" (click)="goToCompleteForm()">
+                <span class="material-icons-round">add_a_photo</span>
+                إنهاء المهمة ورفع صور الإنجاز وتحديد السعر
+              </button>
             }
 
+            <!-- لو Resolved: المستأجر لسه مادفعش -->
+            @if (activeTab()==='my-tasks' && selectedTicket()!.status==='Resolved' && !selectedTicket()!.isPaid) {
+              <div class="payment-pending-notice">
+                <span class="material-icons-round">hourglass_empty</span>
+                <div>
+                  <p class="ppn-title">في انتظار دفع المستأجر</p>
+                  <p class="ppn-sub">تم تحديد السعر بـ {{ selectedTicket()!.price }} ج.م — المستأجر هيدفع قريباً</p>
+                </div>
+              </div>
+            }
+
+            <!-- لو Resolved وتم الدفع -->
+            @if (activeTab()==='my-tasks' && selectedTicket()!.status==='Resolved' && selectedTicket()!.isPaid) {
+              <div class="payment-done-notice">
+                <span class="material-icons-round">verified</span>
+                <div>
+                  <p class="ppn-title">تم استلام الدفع</p>
+                  <p class="ppn-sub">المبلغ {{ selectedTicket()!.price }} ج.م — جاري تحويله من المنصة</p>
+                </div>
+              </div>
+            }
           </div>
         }
 
-        <!-- ─── STEP 2: رفع صور بعد الشغل ─── -->
+        <!-- ─── STEP 2: رفع صور + السعر ─── -->
         @if (modalStep() === 'complete-form') {
           <div class="modal-head">
             <div class="modal-head-right">
               <button class="back-btn" (click)="backToDetails()" title="رجوع">
                 <span class="material-icons-round">arrow_forward_ios</span>
               </button>
-              <h2>رفع صور ما بعد الشغل</h2>
+              <h2>إنهاء المهمة</h2>
             </div>
             <button class="close-btn" (click)="closeTicket()">
               <span class="material-icons-round">close</span>
@@ -608,15 +605,55 @@
 
             <div class="complete-hint">
               <span class="material-icons-round">info</span>
-              ارفع صوراً توضح إنجاز العمل — ستُحفظ كـ "صور بعد الشغل" وتُرسل للمستأجر للمراجعة
+              ارفع صور الإنجاز وحدد السعر — المستأجر هيشوف السعر ويدفع بعدين
             </div>
 
+            <!-- ── حقل السعر ── -->
+            <div class="price-field">
+              <label class="price-label">
+                <span class="material-icons-round">payments</span>
+                تكلفة الخدمة (ج.م)
+              </label>
+              <div class="price-input-wrap" [class.error]="priceError()">
+                <span class="price-currency">ج.م</span>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="مثال: 350"
+                  dir="ltr"
+                  [ngModel]="completionPrice()"
+                  (ngModelChange)="completionPrice.set($event); priceError.set('')" />
+              </div>
+              @if (priceError()) {
+                <div class="price-error">
+                  <span class="material-icons-round">error_outline</span>
+                  {{ priceError() }}
+                </div>
+              }
+              @if (completionPrice() && completionPrice()! > 0) {
+                <div class="price-breakdown">
+                  <div class="pb-row">
+                    <span>المبلغ الكلي</span>
+                    <span class="pb-total">{{ completionPrice() }} ج.م</span>
+                  </div>
+                  <div class="pb-row muted">
+                    <span>نصيب المنصة (١٠٪)</span>
+                    <span>{{ (completionPrice()! * 0.1).toFixed(2) }} ج.م</span>
+                  </div>
+                  <div class="pb-row vendor">
+                    <span>نصيبك (٩٠٪)</span>
+                    <span class="pb-vendor-amt">{{ (completionPrice()! * 0.9).toFixed(2) }} ج.م</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- ── رفع الصور ── -->
             <label class="upload-zone" for="after-imgs-input">
               <span class="material-icons-round">cloud_upload</span>
-              <span>اضغط لإضافة الصور</span>
+              <span>اضغط لإضافة صور الإنجاز</span>
               <span class="upload-sub">JPG · PNG · WEBP — يمكن اختيار أكثر من صورة</span>
-              <input id="after-imgs-input" type="file" accept="image/*" multiple hidden
-                (change)="onAfterImagesSelected($event)" />
+              <input id="after-imgs-input" type="file" accept="image/*" multiple hidden (change)="onAfterImagesSelected($event)" />
             </label>
 
             @if (afterImagePreviews().length) {
@@ -636,15 +673,15 @@
             }
 
             <button class="apply-btn complete"
-              [disabled]="!afterImagePreviews().length || completingId()===selectedTicket()!.id"
+              [disabled]="!afterImagePreviews().length || !completionPrice() || completionPrice()! <= 0 || completingId()===selectedTicket()!.id"
               (click)="submitComplete()">
               <span class="material-icons-round">
-                {{ completingId()===selectedTicket()!.id? 'hourglass_empty' : 'check_circle' }}
+                {{ completingId()===selectedTicket()!.id ? 'hourglass_empty' : 'check_circle' }}
               </span>
               @if (completingId()===selectedTicket()!.id) {
                 جاري الحفظ والإنهاء...
               } @else {
-                تأكيد الإنجاز وإرسال الصور
+                تأكيد الإنجاز وإرسال للمستأجر
               }
             </button>
 
@@ -670,8 +707,7 @@
       </button>
       <div class="iv-dots" (click)="$event.stopPropagation()">
         @for (img of _currentImages; track img; let i = $index) {
-          <span class="iv-dot" [class.on]="i===currentImageIndex()"
-            (click)="openImage(_currentImages, i)"></span>
+          <span class="iv-dot" [class.on]="i===currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
         }
       </div>
     </div>
