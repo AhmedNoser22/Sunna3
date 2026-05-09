@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, tenantGuard, managerGuard, vendorGuard } from './guards/auth-guard';
+import { PaymentCallback } from './pages/payment-callback/payment-callback';
 
 export const routes: Routes = [
   {
@@ -50,8 +51,12 @@ export const routes: Routes = [
     canActivate: [managerGuard],
     loadComponent: () =>
       import('./pages/manager-dashboard/manager-dashboard').then(
-        (m) => m.Dashboard
+        (m) => m.ManagerDashboard
       ),
+  },
+  {
+    path: 'payment/callback',
+    component: PaymentCallback,
   },
   {
     path: 'vendor-dashboard',
