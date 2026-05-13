@@ -107,14 +107,25 @@ export class Dashboard implements OnInit {
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string; icon: string }> = {
-    ManagerReview: { label: 'قيد مراجعة المدير', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
-    Review: { label: 'قيد مراجعة المدير', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
-    Rejected: { label: 'مرفوض من المدير', color: '#dc2626', bg: '#fee2e2', icon: '❌' },
+    ManagerReview: { label: 'قيد مراجعة الادارة', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
+    Review: { label: 'قيد مراجعة الادارة', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
+    Rejected: { label: 'مرفوض من الادارة', color: '#dc2626', bg: '#fee2e2', icon: '❌' },
     Pending: { label: 'قيد الانتظار', color: '#b45309', bg: '#fef9c3', icon: '⏳' },
     vendorAccepted: { label: 'جارٍ التنفيذ', color: '#1d4ed8', bg: '#dbeafe', icon: '🔧' },
     Resolved: { label: 'تم الإنجاز', color: '#15803d', bg: '#dcfce7', icon: '✅' },
     Closed: { label: 'مغلق', color: '#4b5563', bg: '#f3f4f6', icon: '🔒' },
   };
+  ticketStats = computed(() => {
+    const t = this.tickets();
+    return {
+      total: t.length,
+      pending: t.filter(x => x.status === 'Pending' || x.status === '0').length,
+      inProgress: t.filter(x => x.status === 'vendorAccepted' || x.status === '1').length,
+      resolved: t.filter(x => x.status === 'Resolved' || x.status === '2').length,
+      closed: t.filter(x => x.status === 'Closed' || x.status === '3').length,
+      emergency: t.filter(x => x.priority === 'Emergency' || x.priority === '3').length,
+    };
+  });
 
   problemIconMap: Record<string, string> = {
     Electrical: 'electrical_services',

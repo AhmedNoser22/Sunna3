@@ -8,205 +8,265 @@
 
   <div class="auth-card">
     <div class="auth-logo">
-      <span class="logo-icon">ص</span>
+      <div class="logo-icon-svg">
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 10C22 8.34 20.66 7 19 7H9C7.34 7 6 8.34 6 10V18C6 19.66 7.34 21 9 21H19C20.66 21 22 19.66 22 18"
+            stroke="#E2B258" stroke-width="2" stroke-linecap="round" />
+          <circle cx="22" cy="14" r="3" fill="#E2B258" />
+          <path d="M14 12V16M12 14H16" stroke="#E2B258" stroke-width="1.2" stroke-linecap="round" />
+        </svg>
+      </div>
       <span>صُنّاع</span>
     </div>
 
     @if (checking()) {
-      <div class="checking-state">
-        <div class="check-spinner"></div>
-        <p>جارٍ التحقق من رابط الدعوة...</p>
-      </div>
+    <div class="checking-state">
+      <div class="check-spinner"></div>
+      <p>جارٍ التحقق من رابط الدعوة...</p>
+    </div>
     }
 
     @if (!checking() && tokenValid() === false) {
-      <div class="invalid-state">
-        <div class="invalid-icon">❌</div>
-        <h2>رابط غير صالح</h2>
-        <p>رابط الدعوة منتهي الصلاحية أو مستخدم من قبل.<br>تواصل مع المدير لإرسال رابط جديد.</p>
-      </div>
+    <div class="invalid-state">
+      <div class="invalid-icon">❌</div>
+      <h2>رابط غير صالح</h2>
+      <p>رابط الدعوة منتهي الصلاحية أو مستخدم من قبل.<br>تواصل مع المدير لإرسال رابط جديد.</p>
+    </div>
     }
 
     @if (success()) {
-      <div class="success-state">
-        <div class="success-icon">🎉</div>
-        <h2>تم التسجيل بنجاح!</h2>
-        <p>أهلاً بيك في منظومة صُنّاع. سيتم تحويلك للداشبورد...</p>
-        <div class="success-loader"></div>
-      </div>
+    <div class="success-state">
+      <div class="success-icon">🎉</div>
+      <h2>تم التسجيل بنجاح!</h2>
+      <p>أهلاً بيك في منظومة صُنّاع. سيتم تحويلك للداشبورد...</p>
+      <div class="success-loader"></div>
+    </div>
     }
 
     @if (!checking() && tokenValid() === true && !success()) {
-      <h1>إنشاء حسابك كفني 👷</h1>
-      <p class="auth-sub">أكمّل بياناتك وانضم للمنظومة</p>
+    <h1>ابدأ رحلتك المهنية مع صُنّاع👷</h1>
+    <p class="auth-sub">
+      أنشئ حسابك الآن للوصول إلى الطلبات، إدارة أعمالك، واستلام أرباحك بكل سهولة واحترافية.
+    </p>
 
-      <div class="auth-form">
+    <div class="auth-form">
 
-        <div class="avatar-upload-section">
-          <div class="avatar-preview" (click)="imgInput.click()">
-            @if (imagePreview()) {
-              <img [src]="imagePreview()" alt="صورتك" class="avatar-img" />
-              <button class="remove-img" (click)="$event.stopPropagation(); removeImage()">✕</button>
+      <div class="avatar-upload-section">
+        <div class="avatar-preview" (click)="imgInput.click()">
+          @if (imagePreview()) {
+          <img [src]="imagePreview()" alt="صورتك" class="avatar-img" />
+          <button class="remove-img" (click)="$event.stopPropagation(); removeImage()">✕</button>
+          } @else {
+          <div class="avatar-placeholder">
+            <span class="avatar-icon">📷</span>
+            <span class="avatar-hint">صورة البروفايل</span>
+          </div>
+          }
+        </div>
+        <input #imgInput type="file" accept="image/*" style="display:none" (change)="onImageSelected($event)" />
+        <p class="avatar-label">اختياري — اضغط لرفع صورتك</p>
+      </div>
+
+      <div class="section-divider"><span>البيانات الشخصية</span></div>
+
+      <div class="field">
+        <label>الاسم الكامل <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon"></span>
+          <input type="text" [(ngModel)]="form.fullName" placeholder="أدخل الاسم بالكامل" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>البريد الإلكتروني <span class="req">*</span></label>
+        <div class="input-wrap">
+          <svg class="iw-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+          </svg>
+          <input type="email" [(ngModel)]="form.email" placeholder="أدخل بريدك الإلكتروني" dir="ltr" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>رقم الهاتف <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon"></span>
+          <input type="tel" [(ngModel)]="form.PhoneNumber" placeholder="01xxxxxxxxx" dir="ltr" maxlength="13" />
+        </div>
+      </div>
+
+      <!-- كلمة المرور -->
+      <div class="field">
+        <label>كلمة المرور <span class="req">*</span></label>
+        <div class="input-wrap with-toggle">
+          <svg class="iw-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+              clip-rule="evenodd" />
+          </svg>
+          <input [type]="showPass() ? 'text' : 'password'" [(ngModel)]="form.password" placeholder="أدخل كلمة المرور"
+            dir="ltr" />
+          <button class="pass-toggle" type="button" (click)="showPass.set(!showPass())">
+            @if (showPass()) {
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                clip-rule="evenodd" />
+              <path
+                d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+            </svg>
             } @else {
-              <div class="avatar-placeholder">
-                <span class="avatar-icon">📷</span>
-                <span class="avatar-hint">صورة البروفايل</span>
-              </div>
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path fill-rule="evenodd"
+                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                clip-rule="evenodd" />
+            </svg>
             }
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>تأكيد كلمة المرور <span class="req">*</span></label>
+        <div class="input-wrap with-toggle">
+          <svg class="iw-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+              clip-rule="evenodd" />
+          </svg>
+          <input [type]="showConfirm() ? 'text' : 'password'" [(ngModel)]="form.confirmPassword"
+            placeholder="أعد كتابة كلمة المرور" dir="ltr" />
+          <button class="pass-toggle" type="button" (click)="showPass.set(!showPass())">
+            @if (showConfirm()) {
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                clip-rule="evenodd" />
+              <path
+                d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+            </svg>
+            } @else {
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path fill-rule="evenodd"
+                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                clip-rule="evenodd" />
+            </svg>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- ─── طرق استلام المدفوعات ─── -->
+      <div class="section-divider payment-divider"><span>طرق استلام المدفوعات</span></div>
+
+      <div class="payment-info-note">
+        <span class="pin-icon">💡</span>
+        <p>
+          حدّد وسيلة استلام الأرباح المناسبة لك، ويمكنك اختيار أكثر من طريقة لسهولة تحويل مستحقاتك.
+        </p>
+      </div>
+
+      <div class="payment-methods-group">
+
+        <!-- تحويل بنكي -->
+        <div class="payment-method-toggle" [class.active]="wantsBank()" (click)="wantsBank.set(!wantsBank())">
+          <div class="pmt-icon">
+            <span class="mat-icon material-icons-round">account_balance</span>
           </div>
-          <input #imgInput type="file" accept="image/*" style="display:none" (change)="onImageSelected($event)" />
-          <p class="avatar-label">اختياري — اضغط لرفع صورتك</p>
+          <div class="pmt-info">
+            <div class="pmt-name">تحويل بنكي (IBAN)</div>
+            <div class="pmt-sub">CIB / Banque Misr / QNB وغيرها</div>
+          </div>
+          <div class="pmt-checkbox">
+            <span class="check material-icons-round">check</span>
+          </div>
         </div>
 
-        <div class="section-divider"><span>البيانات الشخصية</span></div>
+        @if (wantsBank()) {
+        <div class="payment-fields-container">
+          <div class="field">
+            <label>رقم IBAN</label>
+            <div class="input-wrap payment-input">
+              <span class="input-icon">🏦</span>
+              <input type="text" [(ngModel)]="form.IBAN" placeholder="EG000000000000000000000000" dir="ltr" />
+            </div>
+          </div>
+          <div class="field">
+            <label>اسم البنك</label>
+            <div class="input-wrap payment-input">
+              <span class="input-icon">🏦</span>
+              <input type="text" [(ngModel)]="form.BankName" placeholder="مثال: CIB، Banque Misr..." />
+            </div>
+          </div>
+        </div>
+        }
 
-        <div class="field">
-          <label>الاسم الكامل <span class="req">*</span></label>
-          <div class="input-wrap">
-            <span class="input-icon">👤</span>
-            <input type="text" [(ngModel)]="form.fullName" placeholder="محمد أحمد" />
+        <!-- Instapay -->
+        <div class="payment-method-toggle" [class.active]="wantsInstapay()"
+          (click)="wantsInstapay.set(!wantsInstapay())">
+          <div class="pmt-icon">
+            <span class="mat-icon material-icons-round">send_to_mobile</span>
+          </div>
+          <div class="pmt-info">
+            <div class="pmt-name">InstaPay</div>
+            <div class="pmt-sub">تحويل فوري عبر InstaPay</div>
+          </div>
+          <div class="pmt-checkbox">
+            <span class="check material-icons-round">check</span>
           </div>
         </div>
 
-        <div class="field">
-          <label>البريد الإلكتروني <span class="req">*</span></label>
-          <div class="input-wrap">
-            <span class="input-icon">✉️</span>
-            <input type="email" [(ngModel)]="form.email" placeholder="example@email.com" dir="ltr" />
+        @if (wantsInstapay()) {
+        <div class="payment-fields-container">
+          <div class="field">
+            <label>اسم مستخدم InstaPay</label>
+            <div class="input-wrap payment-input">
+              <span class="input-icon">⚡</span>
+              <input type="text" [(ngModel)]="form.InstapayNumber" placeholder="instapay@yourname" dir="ltr" />
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- محفظة -->
+        <div class="payment-method-toggle" [class.active]="wantsWallet()" (click)="wantsWallet.set(!wantsWallet())">
+          <div class="pmt-icon">
+            <span class="mat-icon material-icons-round">phone_iphone</span>
+          </div>
+          <div class="pmt-info">
+            <div class="pmt-name">محفظة إلكترونية</div>
+            <div class="pmt-sub">Vodafone Cash / Orange Cash / Etisalat Cash</div>
+          </div>
+          <div class="pmt-checkbox">
+            <span class="check material-icons-round">check</span>
           </div>
         </div>
 
-        <div class="field">
-          <label>رقم الهاتف <span class="req">*</span></label>
-          <div class="input-wrap">
-            <span class="input-icon">📞</span>
-            <input type="tel" [(ngModel)]="form.PhoneNumber" placeholder="01xxxxxxxxx" dir="ltr" maxlength="13" />
+        @if (wantsWallet()) {
+        <div class="payment-fields-container">
+          <div class="field">
+            <label>رقم المحفظة</label>
+            <div class="input-wrap payment-input">
+              <span class="input-icon">📱</span>
+              <input type="tel" [(ngModel)]="form.WalletNumber" placeholder="01xxxxxxxxx" dir="ltr" maxlength="13" />
+            </div>
           </div>
         </div>
-
-        <div class="field">
-          <label>كلمة المرور <span class="req">*</span></label>
-          <div class="pass-wrap">
-            <span class="input-icon">🔒</span>
-            <input [type]="showPass() ? 'text' : 'password'" [(ngModel)]="form.password" placeholder="••••••••" dir="ltr" />
-            <button class="show-pass" (click)="showPass.set(!showPass())">{{ showPass() ? '🙈' : '👁' }}</button>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>تأكيد كلمة المرور <span class="req">*</span></label>
-          <div class="pass-wrap">
-            <span class="input-icon">🔒</span>
-            <input [type]="showConfirm() ? 'text' : 'password'" [(ngModel)]="form.confirmPassword" placeholder="••••••••" dir="ltr" />
-            <button class="show-pass" (click)="showConfirm.set(!showConfirm())">{{ showConfirm() ? '🙈' : '👁' }}</button>
-          </div>
-        </div>
-
-        <!-- ─── طرق استلام المدفوعات ─── -->
-        <div class="section-divider payment-divider"><span>طرق استلام المدفوعات</span></div>
-
-        <div class="payment-info-note">
-          <span class="pin-icon">💡</span>
-          <p>اختار طريقة أو أكتر. المدير هيشوف الخيارات دي ويحول أرباحك عليها.</p>
-        </div>
-
-        <div class="payment-methods-group">
-
-          <!-- تحويل بنكي -->
-          <div class="payment-method-toggle" [class.active]="wantsBank()" (click)="wantsBank.set(!wantsBank())">
-            <div class="pmt-icon">
-              <span class="mat-icon material-icons-round">account_balance</span>
-            </div>
-            <div class="pmt-info">
-              <div class="pmt-name">تحويل بنكي (IBAN)</div>
-              <div class="pmt-sub">CIB / Banque Misr / QNB وغيرها</div>
-            </div>
-            <div class="pmt-checkbox">
-              <span class="check material-icons-round">check</span>
-            </div>
-          </div>
-
-          @if (wantsBank()) {
-            <div class="payment-fields-container">
-              <div class="field">
-                <label>رقم IBAN</label>
-                <div class="input-wrap payment-input">
-                  <span class="input-icon">🏦</span>
-                  <input type="text" [(ngModel)]="form.IBAN" placeholder="EG000000000000000000000000" dir="ltr" />
-                </div>
-              </div>
-              <div class="field">
-                <label>اسم البنك</label>
-                <div class="input-wrap payment-input">
-                  <span class="input-icon">🏦</span>
-                  <input type="text" [(ngModel)]="form.BankName" placeholder="مثال: CIB، Banque Misr..." />
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Instapay -->
-          <div class="payment-method-toggle" [class.active]="wantsInstapay()" (click)="wantsInstapay.set(!wantsInstapay())">
-            <div class="pmt-icon">
-              <span class="mat-icon material-icons-round">send_to_mobile</span>
-            </div>
-            <div class="pmt-info">
-              <div class="pmt-name">InstaPay</div>
-              <div class="pmt-sub">تحويل فوري عبر InstaPay</div>
-            </div>
-            <div class="pmt-checkbox">
-              <span class="check material-icons-round">check</span>
-            </div>
-          </div>
-
-          @if (wantsInstapay()) {
-            <div class="payment-fields-container">
-              <div class="field">
-                <label>اسم مستخدم InstaPay</label>
-                <div class="input-wrap payment-input">
-                  <span class="input-icon">⚡</span>
-                  <input type="text" [(ngModel)]="form.InstapayNumber" placeholder="instapay@yourname" dir="ltr" />
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- محفظة -->
-          <div class="payment-method-toggle" [class.active]="wantsWallet()" (click)="wantsWallet.set(!wantsWallet())">
-            <div class="pmt-icon">
-              <span class="mat-icon material-icons-round">phone_iphone</span>
-            </div>
-            <div class="pmt-info">
-              <div class="pmt-name">محفظة إلكترونية</div>
-              <div class="pmt-sub">Vodafone Cash / Orange Cash / Etisalat Cash</div>
-            </div>
-            <div class="pmt-checkbox">
-              <span class="check material-icons-round">check</span>
-            </div>
-          </div>
-
-          @if (wantsWallet()) {
-            <div class="payment-fields-container">
-              <div class="field">
-                <label>رقم المحفظة</label>
-                <div class="input-wrap payment-input">
-                  <span class="input-icon">📱</span>
-                  <input type="tel" [(ngModel)]="form.WalletNumber" placeholder="01xxxxxxxxx" dir="ltr" maxlength="13" />
-                </div>
-              </div>
-            </div>
-          }
-
-        </div>
-
-        @if (error()) { <div class="error-msg">{{ error() }}</div> }
-
-        <button class="btn-primary" (click)="submit()" [disabled]="loading()">
-          @if (loading()) { <span class="spinner"></span> }
-          @else { إنشاء الحساب }
-        </button>
+        }
 
       </div>
+
+      @if (error()) { <div class="error-msg">{{ error() }}</div> }
+
+      <button class="btn-primary" (click)="submit()" [disabled]="loading()">
+        @if (loading()) { <span class="spinner"></span> }
+        @else { إنشاء الحساب }
+      </button>
+
+    </div>
     }
   </div>
 </div>

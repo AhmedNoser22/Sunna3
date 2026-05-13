@@ -17,12 +17,40 @@ export class Register {
   error = signal('');
   showPass = signal(false);
 
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(private auth: Auth, private router: Router) { }
 
   private extractError(err: any): string {
-    if (typeof err?.error === 'string') return err.error;
-    if (typeof err?.error?.message === 'string') return err.error.message;
-    if (typeof err?.message === 'string') return err.message;
+    const res = err?.error;
+
+    const message = res?.message || res;
+    const code = res?.code;
+    const field = res?.field;
+
+    // 🔥 Email errors
+    if (field === 'email' || code === 'EMAIL_EXISTS') {
+      return 'هذا البريد الإلكتروني مستخدم بالفعل';
+    }
+
+    // 🔥 Password errors
+    if (field === 'password' || code === 'WEAK_PASSWORD') {
+      return 'كلمة المرور ضعيفة، لازم تكون 8 أحرف على الأقل';
+    }
+
+    // 🔥 Full name errors
+    if (field === 'fullName') {
+      return 'الاسم غير صالح';
+    }
+
+    // 🔥 Generic auth errors
+    if (code === 'INVALID_CREDENTIALS' || message === 'Invalid credentials') {
+      return 'بيانات غير صحيحة';
+    }
+
+    // fallback
+    if (typeof message === 'string') {
+      return message;
+    }
+
     return 'حصل خطأ، حاول تاني';
   }
 

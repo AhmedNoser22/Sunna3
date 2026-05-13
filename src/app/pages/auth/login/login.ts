@@ -24,7 +24,7 @@ export class Login implements OnInit {
     private auth: Auth,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
     const redirect = this.route.snapshot.queryParamMap.get('redirect');
@@ -60,8 +60,29 @@ export class Login implements OnInit {
       },
       error: (err: any) => {
         this.loading.set(false);
-        this.error.set(err?.error ?? 'خطأ في البيانات، حاول تاني');
-      },
+
+        const res = err?.error;
+
+        const message = res?.message || res;
+
+        const code = res?.code;
+
+        const field = res?.field;
+
+     
+        if (code === 'INVALID_PASSWORD' || field === 'password') {
+          this.error.set('كلمة المرور غير صحيحة');
+        }
+        else if (code === 'USER_NOT_FOUND' || field === 'email') {
+          this.error.set('البريد الإلكتروني غير موجود');
+        }
+        else if (message === 'Invalid credentials') {
+          this.error.set('بيانات الدخول غير صحيحة');
+        }
+        else {
+          this.error.set('تأكد من البيانات المدخلة');
+        }
+      }
     });
   }
 

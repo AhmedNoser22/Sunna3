@@ -31,52 +31,67 @@
 
   <div class="vp-content">
 
-    <!-- Hero Card -->
+    <!-- ══ Hero Card ══ -->
     <div class="hero-card">
-      <div class="hero-left">
-        <div class="hero-av">
-          @if (profile()!.imageUrl) {
-          <img [src]="'http://localhost:5001/' + profile()!.imageUrl"
-            style="width:100%;height:100%;object-fit:cover;border-radius:22px;" />
-          } @else {
-          {{ profile()!.fullName.charAt(0) }}
-          }
-        </div>
-        <div>
-          <h1 class="hero-name">{{ profile()!.fullName }}</h1>
-          <div class="hero-badge">
-            <span class="material-icons-round">engineering</span>
-            فني صيانة
+
+      <!-- الجزء الملون فوق -->
+      <div class="hero-top">
+        <div class="hero-top-bg"></div>
+        <div class="hero-left">
+          <div class="hero-av">
+            @if (profile()!.imageUrl) {
+            <img [src]="'http://localhost:5001/' + profile()!.imageUrl" alt="صورة الفني" />
+            } @else {
+            {{ profile()!.fullName.charAt(0) }}
+            }
           </div>
-          <div class="hero-phone">
-            <span class="material-icons-round">phone</span>
-            {{ profile()!.phone}}
+          <div class="hero-text">
+            <h1 class="hero-name">{{ profile()!.fullName }}</h1>
+            <div class="hero-badge">
+              <span class="material-icons-round">engineering</span>
+              فني صيانة معتمد
+            </div>
+            <div class="hero-phone">
+              <span class="material-icons-round">phone</span>
+              {{ profile()!.phone }}
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- إحصائيات أسفل الـ hero -->
       <div class="hero-stats">
         <div class="hstat">
           <span class="hstat-n">{{ stats().total }}</span>
           <span class="hstat-l">إجمالي المهام</span>
         </div>
-        <div class="hstat-div"></div>
         <div class="hstat">
           <span class="hstat-n">{{ stats().done }}</span>
           <span class="hstat-l">مكتملة</span>
         </div>
-        <div class="hstat-div"></div>
         <div class="hstat">
           <span class="hstat-n">{{ stats().feedbacks }}</span>
           <span class="hstat-l">التقييمات</span>
         </div>
+        <div class="hstat">
+          <span class="hstat-n">
+            {{ stats().total > 0 ? ((stats().done / stats().total) * 100).toFixed(0) : 0 }}%
+          </span>
+          <span class="hstat-l">نسبة الإنجاز</span>
+        </div>
       </div>
     </div>
 
-    <!-- History -->
+    <!-- ══ History ══ -->
     <div class="section">
       <div class="section-hd">
-        <span class="material-icons-round">history</span>
-        سجل العمل والتقييمات
+        <div class="shd-icon">
+          <span class="material-icons-round">history</span>
+        </div>
+        <div class="shd-text">
+          <span class="shd-title">سجل العمل والتقييمات</span>
+          <span class="shd-sub">آخر المهام المنجزة</span>
+        </div>
         <span class="count-pill">{{ profile()!.ticketHistory.length }}</span>
       </div>
 
@@ -91,7 +106,6 @@
         <div class="hist-card">
           <div class="hist-top">
             <div class="hist-main">
-              <!-- <p class="hist-desc">{{ ticket.description }}</p> -->
               <div class="hist-meta">
                 <span>
                   <span class="material-icons-round">place</span>

@@ -5,310 +5,282 @@
   </div>
 
   @if (success()) {
-    <div class="success-screen">
-      <div class="success-card">
-        <div class="success-anim">✅</div>
-        <h2>تم إرسال الطلب!</h2>
-        <p>طلب الصيانة بتاعك اتبعت بنجاح، هيتواصلوا معاك قريباً</p>
-        <div class="success-details">
-          <div class="detail-item">
-            <span>{{ getProblemIcon(form.problemType) }}</span>
-            <span>{{ getProblemLabel(form.problemType) }}</span>
-          </div>
-          <div class="detail-item">
-            <span>🎯</span>
-            <span>أولوية {{ getPriorityLabel(form.priority) }}</span>
-          </div>
-          <div class="detail-item">
-            <span>📍</span>
-            <span>{{ form.city }} - {{ form.governorate }}</span>
-          </div>
+  <div class="success-screen">
+    <div class="success-card">
+      <div class="success-anim"></div>
+      <h2>تم إرسال الطلب!</h2>
+      <p>طلب الصيانة بتاعك اتبعت بنجاح، هيتواصلوا معاك قريباً</p>
+      <div class="success-details">
+        <div class="detail-item">
+          <span>{{ getProblemIcon(form.problemType) }}</span>
+          <span>{{ getProblemLabel(form.problemType) }}</span>
         </div>
-        <button class="btn-primary" (click)="goToDashboard()">يتم الان 🏠</button>
+        <div class="detail-item">
+          <span>🎯</span>
+          <span>أولوية {{ getPriorityLabel(form.priority) }}</span>
+        </div>
+        <div class="detail-item">
+          <span>📍</span>
+          <span>{{ form.city }} - {{ form.governorate }}</span>
+        </div>
       </div>
+      <button class="btn-primary" (click)="goToDashboard()">
+        الانتقال إلى الرئيسية 
+      </button>
     </div>
+  </div>
   }
 
   @if (!success()) {
-    <div class="ticket-container">
+  <div class="ticket-container">
 
-      <div class="page-header">
-        <div class="header-logo">
-          <span class="logo-icon">ص</span>
-          <span>صُنّاع</span>
-        </div>
-        <div class="header-user">
-          <span>👋 {{ auth.currentUser()?.fullName }}</span>
-        </div>
+    <div class="page-header">
+      <div class="header-logo">
+        <span class="logo-icon">ص</span>
+        <span>صُنّاع</span>
       </div>
-
-      <div class="stepper">
-        @for (s of [{n:1,label:'المشكلة'},{n:2,label:'التفاصيل'},{n:3,label:'المراجعة'}]; track s.n) {
-          <div class="step" [class.active]="step()===s.n" [class.done]="step()>s.n">
-            <div class="step-circle">@if(step()>s.n){✓}@else{{{s.n}}}</div>
-            <span class="step-label">{{s.label}}</span>
-          </div>
-          @if(s.n<3){<div class="step-line" [class.done]="step()>s.n"></div>}
-        }
-      </div>
-
-      <div class="ticket-card">
-
-        <!-- ══════════════ STEP 1 ══════════════ -->
-        @if (step() === 1) {
-          <div class="step-content">
-            <h2 class="step-title">إيه المشكلة؟</h2>
-            <p class="step-sub">اختار نوع المشكلة وحدد أولويتها واكتب وصف</p>
-
-            <!-- ── Type carousel ── -->
-            <div class="section-block">
-              <div class="section-label">نوع المشكلة *</div>
-
-              <div class="carousel-wrapper">
-                <!-- Prev arrow -->
-                <button
-                  class="carousel-arrow arrow-prev"
-                  [class.disabled]="typeCarouselIndex() === 0"
-                  (click)="carouselPrev()"
-                  [disabled]="typeCarouselIndex() === 0">
-                  ←
-                </button>
-
-                <!-- Cards -->
-                <div class="carousel-track">
-                  @for (t of visibleTypes; track t.value) {
-                    <button
-                      class="type-card"
-                      [class.selected]="form.problemType === t.value"
-                      (click)="selectType(t.value)">
-                      <span class="type-card-icon">{{t.icon}}</span>
-                      <span class="type-card-label">{{t.label}}</span>
-                      @if (form.problemType === t.value) {
-                        <span class="type-check">✓</span>
-                      }
-                    </button>
-                  }
-                </div>
-
-                <!-- Next arrow -->
-                <button
-                  class="carousel-arrow arrow-next"
-                  [class.disabled]="typeCarouselIndex() === totalPages - 1"
-                  (click)="carouselNext()"
-                  [disabled]="typeCarouselIndex() === totalPages - 1">
-                  →
-                </button>
-              </div>
-
-              <!-- Dots -->
-              <div class="carousel-dots">
-                @for (p of [].constructor(totalPages); track $index) {
-                  <span
-                    class="dot"
-                    [class.active]="typeCarouselIndex() === $index"
-                    (click)="typeCarouselIndex.set($index)">
-                  </span>
-                }
-              </div>
-
-              <!-- Selected badge -->
-              @if (form.problemType) {
-                <div class="selected-type-badge">
-                  <span>{{getProblemIcon(form.problemType)}}</span>
-                  <span>{{getProblemLabel(form.problemType)}}</span>
-                  <span class="badge-check">✓ تم الاختيار</span>
-                </div>
-              }
-            </div>
-
-            <!-- ── Priority ── -->
-            <div class="section-block">
-              <div class="section-label">الأولوية</div>
-              <div class="priority-grid">
-                @for (p of priorities; track p.value) {
-                  <button
-                    class="priority-btn"
-                    [class.selected]="form.priority === p.value"
-                    [style.--p-color]="p.color"
-                    (click)="selectPriority(p.value)">
-                    <span class="priority-icon">{{p.icon}}</span>
-                    <span>{{p.label}}</span>
-                  </button>
-                }
-              </div>
-            </div>
-
-            <!-- ── Description ── -->
-            <div class="section-block">
-              <div class="field">
-                <label>وصف المشكلة *</label>
-                <textarea
-                  [(ngModel)]="form.description"
-                  placeholder="مثلاً: الكهرباء بتتقطع في الأوضة الكبيرة من ساعتين"
-                  rows="4">
-                </textarea>
-              </div>
-            </div>
-
-            @if (error()) { <div class="error-msg">⚠️ {{error()}}</div> }
-            <button class="btn-primary next-btn" (click)="nextStep()">التالي ←</button>
-          </div>
-        }
-
-        <!-- ══════════════ STEP 2 ══════════════ -->
-        @if (step() === 2) {
-          <div class="step-content">
-            <h2 class="step-title">تفاصيل الطلب</h2>
-            <p class="step-sub">حدد الموقع والمواعيد وارفع صور</p>
-
-            <!-- محافظة ومدينة -->
-            <div class="dates-grid">
-              <div class="field">
-                <label>🗺️ المحافظة *</label>
-                <div class="select-wrap">
-                  <select
-                    [ngModel]="form.governorate"
-                    (ngModelChange)="onGovernorateChange($event)"
-                    class="form-select">
-                    <option value="">اختار المحافظة</option>
-                    @for (gov of governorates; track gov) {
-                      <option [value]="gov">{{ gov }}</option>
-                    }
-                  </select>
-                  <span class="select-arrow">▼</span>
-                </div>
-              </div>
-
-              <div class="field">
-                <label>🏙️ المدينة / المركز *</label>
-                <div class="select-wrap" [class.disabled]="!form.governorate">
-                  <select
-                    [(ngModel)]="form.city"
-                    [disabled]="!form.governorate"
-                    class="form-select">
-                    <option value="">{{ form.governorate ? 'اختار المدينة' : 'اختار المحافظة أولاً' }}</option>
-                    @for (city of cities; track city) {
-                      <option [value]="city">{{ city }}</option>
-                    }
-                  </select>
-                  <span class="select-arrow">▼</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>📍 تفاصيل الموقع *</label>
-              <input type="text" [(ngModel)]="form.tenantLocation"
-                placeholder="مثلاً: شارع التحرير - برج النيل - شقة 12 - الدور 3" />
-            </div>
-
-            <div class="dates-grid">
-              <div class="field">
-                <label>📅 وقت الوصول المطلوب *</label>
-                <input
-                  type="datetime-local"
-                  [(ngModel)]="form.arrival"
-                  [min]="nowDateTimeLocal" />
-              </div>
-              <div class="field">
-                <label>⏰ الموعد النهائي *</label>
-                <input
-                  type="datetime-local"
-                  [(ngModel)]="form.deadline"
-                  [min]="form.arrival || nowDateTimeLocal" />
-              </div>
-            </div>
-
-            <div class="images-section">
-              <label>📸 صور المشكلة (اختياري — حتى 5 صور)</label>
-              <div class="images-grid">
-                @for (preview of imagePreviews; track $index; let i = $index) {
-                  <div class="img-thumb">
-                    <img [src]="preview" />
-                    <button class="remove-img" (click)="removeImage(i)">✕</button>
-                  </div>
-                }
-                @if (imagePreviews.length < 5) {
-                  <label class="add-img-btn">
-                    <input type="file" accept="image/*" multiple (change)="onImageSelect($event)" style="display:none" />
-                    <span>📷</span><span>إضافة</span>
-                  </label>
-                }
-              </div>
-            </div>
-
-            @if (error()) { <div class="error-msg">⚠️ {{error()}}</div> }
-            <div class="step-actions">
-              <button class="btn-outline" (click)="prevStep()">→ رجوع</button>
-              <button class="btn-primary" (click)="nextStep()">مراجعة الطلب ←</button>
-            </div>
-          </div>
-        }
-
-        <!-- ══════════════ STEP 3 ══════════════ -->
-        @if (step() === 3) {
-          <div class="step-content">
-            <h2 class="step-title">مراجعة الطلب</h2>
-            <p class="step-sub">راجع بياناتك قبل الإرسال</p>
-
-            <div class="review-card">
-              <div class="review-row">
-                <span class="review-label">نوع المشكلة</span>
-                <span class="review-val">{{getProblemIcon(form.problemType)}} {{getProblemLabel(form.problemType)}}</span>
-              </div>
-              <div class="review-row">
-                <span class="review-label">الأولوية</span>
-                <span class="review-val priority-badge"
-                  [style.background]="getPriorityColor(form.priority)+'18'"
-                  [style.color]="getPriorityColor(form.priority)">
-                  {{getPriorityLabel(form.priority)}}
-                </span>
-              </div>
-              <div class="review-row">
-                <span class="review-label">المحافظة</span>
-                <span class="review-val">🗺️ {{form.governorate}}</span>
-              </div>
-              <div class="review-row">
-                <span class="review-label">المدينة</span>
-                <span class="review-val">🏙️ {{form.city}}</span>
-              </div>
-              <div class="review-row">
-                <span class="review-label">الموقع التفصيلي</span>
-                <span class="review-val">📍 {{form.tenantLocation}}</span>
-              </div>
-              <div class="review-row">
-                <span class="review-label">الوصف</span>
-                <span class="review-val desc-val">{{form.description}}</span>
-              </div>
-              <div class="review-row">
-                <span class="review-label">وقت الوصول</span>
-                <span class="review-val">{{form.arrival | date:'dd/MM/yyyy - hh:mm a'}}</span>
-              </div>
-              <div class="review-row">
-                <span class="review-label">الموعد النهائي</span>
-                <span class="review-val">{{form.deadline | date:'dd/MM/yyyy - hh:mm a'}}</span>
-              </div>
-              @if (imagePreviews.length > 0) {
-                <div class="review-row">
-                  <span class="review-label">الصور</span>
-                  <div class="review-imgs">
-                    @for (p of imagePreviews; track $index) { <img [src]="p" /> }
-                  </div>
-                </div>
-              }
-            </div>
-
-            @if (error()) { <div class="error-msg">⚠️ {{error()}}</div> }
-            <div class="step-actions">
-              <button class="btn-outline" (click)="prevStep()">→ تعديل</button>
-              <button class="btn-primary" (click)="submit()" [disabled]="loading()">
-                @if(loading()){<span class="spinner"></span>}@else{إرسال الطلب 🚀}
-              </button>
-            </div>
-          </div>
-        }
-
+      <div class="header-user">
+        <span>👋 {{ auth.currentUser()?.fullName }}</span>
       </div>
     </div>
-  }
+
+    <div class="stepper">
+      @for (s of [{n:1,label:'المشكلة'},{n:2,label:'التفاصيل'},{n:3,label:'المراجعة'}]; track s.n) {
+      <div class="step" [class.active]="step()===s.n" [class.done]="step()>s.n">
+        <div class="step-circle">@if(step()>s.n){✓}@else{{{s.n}}}</div>
+        <span class="step-label">{{s.label}}</span>
+      </div>
+      @if(s.n<3){<div class="step-line" [class.done]="step()>s.n">
+    </div>}
+    }
+  </div>
+
+  <div class="ticket-card">
+
+    <!-- ══════════════ STEP 1 ══════════════ -->
+    @if (step() === 1) {
+    <div class="step-content">
+      <h2 class="step-title">إيه المشكلة؟</h2>
+      <p class="step-sub">اختار نوع المشكلة وحدد أولويتها واكتب وصف</p>
+
+      <!-- ── Type carousel ── -->
+      <div class="section-block">
+        <div class="section-label">نوع المشكلة *</div>
+
+        <div class="carousel-wrapper">
+          <!-- Prev arrow -->
+          <button class="carousel-arrow arrow-prev" [class.disabled]="typeCarouselIndex() === 0"
+            (click)="carouselPrev()" [disabled]="typeCarouselIndex() === 0">
+            ←
+          </button>
+
+          <!-- Cards -->
+          <div class="carousel-track">
+            @for (t of visibleTypes; track t.value) {
+            <button class="type-card" [class.selected]="form.problemType === t.value" (click)="selectType(t.value)">
+              <span class="type-card-icon">{{t.icon}}</span>
+              <span class="type-card-label">{{t.label}}</span>
+              @if (form.problemType === t.value) {
+              <span class="type-check">✓</span>
+              }
+            </button>
+            }
+          </div>
+
+          <!-- Next arrow -->
+          <button class="carousel-arrow arrow-next" [class.disabled]="typeCarouselIndex() === totalPages - 1"
+            (click)="carouselNext()" [disabled]="typeCarouselIndex() === totalPages - 1">
+            →
+          </button>
+        </div>
+
+        <!-- Dots -->
+        <div class="carousel-dots">
+          @for (p of [].constructor(totalPages); track $index) {
+          <span class="dot" [class.active]="typeCarouselIndex() === $index" (click)="typeCarouselIndex.set($index)">
+          </span>
+          }
+        </div>
+
+        <!-- Selected badge -->
+        @if (form.problemType) {
+        <div class="selected-type-badge">
+          <span>{{getProblemIcon(form.problemType)}}</span>
+          <span>{{getProblemLabel(form.problemType)}}</span>
+          <span class="badge-check">✓ تم الاختيار</span>
+        </div>
+        }
+      </div>
+
+      <!-- ── Priority ── -->
+      <div class="section-block">
+        <div class="section-label">الأولوية</div>
+        <div class="priority-grid">
+          @for (p of priorities; track p.value) {
+          <button class="priority-btn" [class.selected]="form.priority === p.value" [style.--p-color]="p.color"
+            (click)="selectPriority(p.value)">
+            <span class="priority-icon">{{p.icon}}</span>
+            <span>{{p.label}}</span>
+          </button>
+          }
+        </div>
+      </div>
+
+      <!-- ── Description ── -->
+      <div class="section-block">
+        <div class="field">
+          <label>وصف المشكلة *</label>
+          <textarea [(ngModel)]="form.description" placeholder="مثلاً: الكهرباء بتتقطع في الأوضة الكبيرة من ساعتين"
+            rows="4">
+                </textarea>
+        </div>
+      </div>
+
+      @if (error()) { <div class="error-msg">⚠️ {{error()}}</div> }
+      <button class="btn-primary next-btn" (click)="nextStep()">التالي ←</button>
+    </div>
+    }
+
+    <!-- ══════════════ STEP 2 ══════════════ -->
+    @if (step() === 2) {
+    <div class="step-content">
+      <h2 class="step-title">تفاصيل الطلب</h2>
+      <p class="step-sub">حدد الموقع والمواعيد وارفع صور</p>
+
+      <!-- محافظة ومدينة -->
+      <div class="dates-grid">
+        <div class="field">
+          <label>🗺️ المحافظة *</label>
+          <div class="select-wrap">
+            <select [ngModel]="form.governorate" (ngModelChange)="onGovernorateChange($event)" class="form-select">
+              <option value="">اختار المحافظة</option>
+              @for (gov of governorates; track gov) {
+              <option [value]="gov">{{ gov }}</option>
+              }
+            </select>
+            <span class="select-arrow">▼</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>🏙️ المدينة / المركز *</label>
+          <div class="select-wrap" [class.disabled]="!form.governorate">
+            <select [(ngModel)]="form.city" [disabled]="!form.governorate" class="form-select">
+              <option value="">{{ form.governorate ? 'اختار المدينة' : 'اختار المحافظة أولاً' }}</option>
+              @for (city of cities; track city) {
+              <option [value]="city">{{ city }}</option>
+              }
+            </select>
+            <span class="select-arrow">▼</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>📍 تفاصيل الموقع *</label>
+        <input type="text" [(ngModel)]="form.tenantLocation"
+          placeholder="مثلاً: شارع التحرير - برج النيل - شقة 12 - الدور 3" />
+      </div>
+
+      <div class="dates-grid">
+        <div class="field">
+          <label>📅 وقت الوصول المطلوب *</label>
+          <input type="datetime-local" [(ngModel)]="form.arrival" [min]="nowDateTimeLocal" />
+        </div>
+        <div class="field">
+          <label>⏰ الموعد النهائي *</label>
+          <input type="datetime-local" [(ngModel)]="form.deadline" [min]="form.arrival || nowDateTimeLocal" />
+        </div>
+      </div>
+
+      <div class="images-section">
+        <label>📸 صور المشكلة (اختياري — حتى 5 صور)</label>
+        <div class="images-grid">
+          @for (preview of imagePreviews; track $index; let i = $index) {
+          <div class="img-thumb">
+            <img [src]="preview" />
+            <button class="remove-img" (click)="removeImage(i)">✕</button>
+          </div>
+          }
+          @if (imagePreviews.length < 5) { <label class="add-img-btn">
+            <input type="file" accept="image/*" multiple (change)="onImageSelect($event)" style="display:none" />
+            <span>📷</span><span>إضافة</span>
+            </label>
+            }
+        </div>
+      </div>
+
+      @if (error()) { <div class="error-msg">⚠️ {{error()}}</div> }
+      <div class="step-actions">
+        <button class="btn-outline" (click)="prevStep()">→ رجوع</button>
+        <button class="btn-primary" (click)="nextStep()">مراجعة الطلب ←</button>
+      </div>
+    </div>
+    }
+
+    <!-- ══════════════ STEP 3 ══════════════ -->
+    @if (step() === 3) {
+    <div class="step-content">
+      <h2 class="step-title">مراجعة الطلب</h2>
+      <p class="step-sub">راجع بياناتك قبل الإرسال</p>
+
+      <div class="review-card">
+        <div class="review-row">
+          <span class="review-label">نوع المشكلة</span>
+          <span class="review-val">{{getProblemIcon(form.problemType)}} {{getProblemLabel(form.problemType)}}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">الأولوية</span>
+          <span class="review-val priority-badge" [style.background]="getPriorityColor(form.priority)+'18'"
+            [style.color]="getPriorityColor(form.priority)">
+            {{getPriorityLabel(form.priority)}}
+          </span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">المحافظة</span>
+          <span class="review-val">🗺️ {{form.governorate}}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">المدينة</span>
+          <span class="review-val">🏙️ {{form.city}}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">الموقع التفصيلي</span>
+          <span class="review-val">📍 {{form.tenantLocation}}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">الوصف</span>
+          <span class="review-val desc-val">{{form.description}}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">وقت الوصول</span>
+          <span class="review-val">{{form.arrival | date:'dd/MM/yyyy - hh:mm a'}}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-label">الموعد النهائي</span>
+          <span class="review-val">{{form.deadline | date:'dd/MM/yyyy - hh:mm a'}}</span>
+        </div>
+        @if (imagePreviews.length > 0) {
+        <div class="review-row">
+          <span class="review-label">الصور</span>
+          <div class="review-imgs">
+            @for (p of imagePreviews; track $index) { <img [src]="p" /> }
+          </div>
+        </div>
+        }
+      </div>
+
+      @if (error()) { <div class="error-msg">⚠️ {{error()}}</div> }
+      <div class="step-actions">
+        <button class="btn-outline" (click)="prevStep()">→ تعديل</button>
+        <button class="btn-primary" (click)="submit()" [disabled]="loading()">
+          @if(loading()){<span class="spinner"></span>}@else{إرسال الطلب }
+        </button>
+      </div>
+    </div>
+    }
+
+  </div>
+</div>
+}
 </div>

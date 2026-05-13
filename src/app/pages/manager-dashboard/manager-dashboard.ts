@@ -80,72 +80,85 @@ type UsersSubTab = 'tenants' | 'vendors';
 })
 export class ManagerDashboard implements OnInit {
   private http = inject(HttpClient);
-  private ns   = inject(NotificationService);
+  private ns = inject(NotificationService);
   readonly API_URL = 'http://localhost:5001';
 
-  activeTab    = signal<ActiveTab>('tickets');
-  usersSubTab  = signal<UsersSubTab>('tenants');
+  activeTab = signal<ActiveTab>('tickets');
+  usersSubTab = signal<UsersSubTab>('tenants');
   payoutsSubTab = signal<'pending' | 'all'>('pending');
 
-  tickets      = signal<Ticket[]>([]);
-  vendors      = signal<Vendor[]>([]);
+  // في الـ signals section
+  copiedField = signal<string | null>(null);
+  activeMethodMap = signal<Record<string, string>>({});
+
+  tickets = signal<Ticket[]>([]);
+  vendors = signal<Vendor[]>([]);
   reviewTickets = signal<Ticket[]>([]);
-  tenants      = signal<Tenant[]>([]);
-  allVendors   = signal<Vendor[]>([]);
-  payouts      = signal<VendorPayout[]>([]);
+  tenants = signal<Tenant[]>([]);
+  allVendors = signal<Vendor[]>([]);
+  payouts = signal<VendorPayout[]>([]);
   pendingPayouts = signal<VendorPayout[]>([]);
 
-  loadingTickets  = signal(true);
-  loadingVendors  = signal(true);
-  loadingReview   = signal(false);
-  loadingUsers    = signal(false);
-  loadingPayouts  = signal(false);
-  confirmingId    = signal<string | null>(null);
+  loadingTickets = signal(true);
+  loadingVendors = signal(true);
+  loadingReview = signal(false);
+  loadingUsers = signal(false);
+  loadingPayouts = signal(false);
+  confirmingId = signal<string | null>(null);
 
   selectedTicket = signal<Ticket | null>(null);
   selectedVendor = signal<Vendor | null>(null);
-  sortOrder      = signal<'newest' | 'oldest'>('newest');
-  previewImage   = signal<string | null>(null);
+  sortOrder = signal<'newest' | 'oldest'>('newest');
+  previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
 
-  approvingId   = signal<string | null>(null);
-  rejectingId   = signal<string | null>(null);
-  rejectReason  = signal('');
+  approvingId = signal<string | null>(null);
+  rejectingId = signal<string | null>(null);
+  rejectReason = signal('');
   showRejectModal = signal(false);
   pendingRejectTicketId = signal<string | null>(null);
 
-  invitePhone   = signal('');
+  invitePhone = signal('');
   inviteLoading = signal(false);
-  inviteError   = signal('');
+  inviteError = signal('');
   inviteSuccess = signal('');
   generatedLink = signal('');
-  copiedLink    = signal(false);
+  copiedLink = signal(false);
   private lastInvitedPhone = signal('');
   private router = inject(Router);
 
-  statusFilter   = signal('all');
+  statusFilter = signal('all');
   priorityFilter = signal('all');
-  searchQuery    = signal('');
+  searchQuery = signal('');
   specialtyFilter = signal('all');
   usersSearchQuery = signal('');
 
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-    Low:       { label: 'منخفضة', color: '#059669', bg: '#d1fae5', dot: '#10b981' },
-    Medium:    { label: 'متوسطة', color: '#b45309', bg: '#fef3c7', dot: '#f59e0b' },
-    High:      { label: 'عالية',  color: '#dc2626', bg: '#fee2e2', dot: '#ef4444' },
-    Emergency: { label: 'طارئة',  color: '#7c3aed', bg: '#ede9fe', dot: '#8b5cf6' },
+    Low: { label: 'منخفضة', color: '#059669', bg: '#d1fae5', dot: '#10b981' },
+    '0': { label: 'منخفضة', color: '#059669', bg: '#d1fae5', dot: '#10b981' },
+    Medium: { label: 'متوسطة', color: '#b45309', bg: '#fef3c7', dot: '#f59e0b' },
+    '1': { label: 'متوسطة', color: '#b45309', bg: '#fef3c7', dot: '#f59e0b' },
+    High: { label: 'عالية', color: '#dc2626', bg: '#fee2e2', dot: '#ef4444' },
+    '2': { label: 'عالية', color: '#dc2626', bg: '#fee2e2', dot: '#ef4444' },
+    Emergency: { label: 'طارئة', color: '#7c3aed', bg: '#ede9fe', dot: '#8b5cf6' },
+    '3': { label: 'طارئة', color: '#7c3aed', bg: '#ede9fe', dot: '#8b5cf6' },
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string }> = {
     ManagerReview: { label: 'قيد المراجعة', color: '#7c3aed', bg: '#ede9fe' },
-    Pending:       { label: 'انتظار',        color: '#b45309', bg: '#fef3c7' },
-    vendorAccepted:{ label: 'جارٍ التنفيذ',  color: '#0369a1', bg: '#e0f2fe' },
-    Resolved:      { label: 'تم الإنجاز',    color: '#059669', bg: '#d1fae5' },
-    Closed:        { label: 'مغلق',          color: '#6b7280', bg: '#f3f4f6' },
-    Rejected:      { label: 'مرفوض',         color: '#dc2626', bg: '#fee2e2' },
+    '4': { label: 'قيد المراجعة', color: '#7c3aed', bg: '#ede9fe' },
+    Pending: { label: 'انتظار', color: '#b45309', bg: '#fef3c7' },
+    '0': { label: 'انتظار', color: '#b45309', bg: '#fef3c7' },
+    vendorAccepted: { label: 'جارٍ التنفيذ', color: '#0369a1', bg: '#e0f2fe' },
+    '1': { label: 'جارٍ التنفيذ', color: '#0369a1', bg: '#e0f2fe' },
+    Resolved: { label: 'تم الإنجاز', color: '#059669', bg: '#d1fae5' },
+    '2': { label: 'تم الإنجاز', color: '#059669', bg: '#d1fae5' },
+    Closed: { label: 'مغلق', color: '#6b7280', bg: '#f3f4f6' },
+    '3': { label: 'مغلق', color: '#6b7280', bg: '#f3f4f6' },
+    Rejected: { label: 'مرفوض', color: '#dc2626', bg: '#fee2e2' },
+    '5': { label: 'مرفوض', color: '#dc2626', bg: '#fee2e2' },
   };
-
   specialties = ['كهرباء', 'سباكة', 'تكييف', 'نجارة', 'دهانات', 'أعمال عامة'];
 
   firstName = computed(() => {
@@ -169,7 +182,7 @@ export class ManagerDashboard implements OnInit {
   filteredVendors = computed(() => {
     let list = this.vendors();
     const sp = this.specialtyFilter();
-    const q  = this.searchQuery().trim().toLowerCase();
+    const q = this.searchQuery().trim().toLowerCase();
     if (sp !== 'all') list = list.filter(v => v.specialty === sp);
     if (q) list = list.filter(v => v.fullName.toLowerCase().includes(q) || v.specialty?.toLowerCase().includes(q));
     return list;
@@ -199,26 +212,28 @@ export class ManagerDashboard implements OnInit {
   ticketStats = computed(() => {
     const t = this.tickets();
     return {
-      total:      t.length,
-      pending:    t.filter(x => x.status === 'Pending').length,
-      inProgress: t.filter(x => x.status === 'vendorAccepted').length,
-      resolved:   t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
-      emergency:  t.filter(x => x.priority === 'Emergency').length,
+      total: t.length,
+      pending: t.filter(x => x.status === 'Pending' || x.status === '0').length,
+      inProgress: t.filter(x => x.status === 'vendorAccepted' || x.status === '1').length,
+      resolved: t.filter(x => x.status === 'Resolved' || x.status === '2').length,
+      closed: t.filter(x => x.status === 'Closed' || x.status === '3').length,
+      emergency: t.filter(x => x.priority === 'Emergency' || x.priority === '3').length,
     };
   });
 
+
   payoutsStats = computed(() => ({
-    pending:  this.pendingPayouts().length,
-    total:    this.payouts().length,
+    pending: this.pendingPayouts().length,
+    total: this.payouts().length,
     pendingAmount: this.pendingPayouts().reduce((s, p) => s + p.vendorAmount, 0),
     totalPlatform: this.payouts().reduce((s, p) => s + p.platformAmount, 0),
   }));
 
-  vendorStats  = computed(() => ({ total: this.vendors().length }));
-  reviewStats  = computed(() => ({ total: this.reviewTickets().length }));
-  usersStats   = computed(() => ({ tenants: this.tenants().length, vendors: this.allVendors().length }));
+  vendorStats = computed(() => ({ total: this.vendors().length }));
+  reviewStats = computed(() => ({ total: this.reviewTickets().length }));
+  usersStats = computed(() => ({ tenants: this.tenants().length, vendors: this.allVendors().length }));
 
-  constructor(public auth: Auth) {}
+  constructor(public auth: Auth) { }
 
   ngOnInit() {
     this.loadTickets();
@@ -268,6 +283,36 @@ export class ManagerDashboard implements OnInit {
     });
   }
 
+  getPaymentMethods(p: VendorPayout): { key: string; label: string; icon: string; value: string }[] {
+    const methods = [];
+    if (p.vendorIBAN) methods.push({ key: 'iban', label: 'تحويل بنكي (IBAN)', icon: 'account_balance', value: p.vendorIBAN });
+    if (p.vendorInstapay) methods.push({ key: 'instapay', label: 'InstaPay', icon: 'send_to_mobile', value: p.vendorInstapay });
+    if (p.vendorWallet) methods.push({ key: 'wallet', label: 'محفظة إلكترونية', icon: 'phone_iphone', value: p.vendorWallet });
+    return methods;
+  }
+
+  getActiveMethod(paymentId: string): string {
+    const map = this.activeMethodMap();
+    if (map[paymentId]) return map[paymentId];
+    // default: أول طريقة متاحة
+    const payout = [...this.payouts(), ...this.pendingPayouts()].find(p => p.paymentId === paymentId);
+    if (!payout) return 'iban';
+    if (payout.vendorIBAN) return 'iban';
+    if (payout.vendorInstapay) return 'instapay';
+    return 'wallet';
+  }
+
+  setActiveMethod(paymentId: string, key: string) {
+    this.activeMethodMap.update(map => ({ ...map, [paymentId]: key }));
+  }
+
+  copyPaymentInfo(value: string, fieldKey: string) {
+    navigator.clipboard.writeText(value).then(() => {
+      this.copiedField.set(fieldKey);
+      setTimeout(() => this.copiedField.set(null), 2000);
+    });
+  }
+
   // ── Payouts ───────────────────────────────────────────────
   loadPayouts() {
     this.loadingPayouts.set(true);
@@ -296,7 +341,7 @@ export class ManagerDashboard implements OnInit {
 
   getPaymentMethodLabel(method: string): string {
     const map: Record<string, string> = {
-      card:   'بطاقة بنكية',
+      card: 'بطاقة بنكية',
       wallet: 'محفظة إلكترونية',
     };
     return map[method] ?? method;
@@ -392,7 +437,7 @@ export class ManagerDashboard implements OnInit {
 
   // ── Navigation ────────────────────────────────────────────
   getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' }; }
-  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#6b7280', bg: '#f3f4f6' }; }
+  getStatus(v: string) { return this.statusMap[v] ?? { label: v, color: '#6b7280', bg: '#f3f4f6' }; }
 
   openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
   closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
@@ -403,9 +448,9 @@ export class ManagerDashboard implements OnInit {
     this.statusFilter.set('all'); this.priorityFilter.set('all');
     this.specialtyFilter.set('all'); this.searchQuery.set('');
     this.usersSearchQuery.set('');
-    if (tab === 'review')   this.loadReviewTickets();
-    if (tab === 'users')    this.loadUsers();
-    if (tab === 'payouts')  this.loadPayouts();
+    if (tab === 'review') this.loadReviewTickets();
+    if (tab === 'users') this.loadUsers();
+    if (tab === 'payouts') this.loadPayouts();
   }
 
   switchUsersSubTab(sub: UsersSubTab) { this.usersSubTab.set(sub); this.usersSearchQuery.set(''); }
@@ -431,8 +476,8 @@ export class ManagerDashboard implements OnInit {
   handleKey(e: KeyboardEvent) {
     if (!this.previewImage()) return;
     if (e.key === 'ArrowRight') this.nextImage();
-    if (e.key === 'ArrowLeft')  this.prevImage();
-    if (e.key === 'Escape')     this.closeImage();
+    if (e.key === 'ArrowLeft') this.prevImage();
+    if (e.key === 'Escape') this.closeImage();
   }
 
   trackById(_: number, item: any) { return item.id ?? item.paymentId; }

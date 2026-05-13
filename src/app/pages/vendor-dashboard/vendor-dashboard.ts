@@ -70,7 +70,7 @@ export class VendorDashboard implements OnInit {
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
-
+  today = new Date();
   readonly governorates = GOVERNORATES;
   filterCities = signal<string[]>([]);
   selectedGovernorate = signal('');
@@ -118,13 +118,16 @@ export class VendorDashboard implements OnInit {
     return { total: t.length, pending: t.filter(x => x.status === 'Pending').length };
   });
 
-  constructor(public auth: Auth) {}
+  constructor(public auth: Auth) { }
 
   ngOnInit() {
     this.loadMyTickets();
     this.loadCurrentUserProfile();
     const token = localStorage.getItem('token');
     if (token) this.ns.connect(token);
+    setInterval(() => {
+      this.today = new Date();
+    }, 60000);
   }
 
   private headers(): HttpHeaders {
@@ -150,7 +153,7 @@ export class VendorDashboard implements OnInit {
         localStorage.setItem('user', JSON.stringify(updated));
         this.auth.currentUser.set(updated);
       },
-      error: () => {}
+      error: () => { }
     });
   }
 

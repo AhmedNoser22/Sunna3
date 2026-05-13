@@ -6,17 +6,18 @@
     @if (submitted()) {
     <!-- SUCCESS STATE -->
     <div class="success-view">
-      <div class="success-icon">✅</div>
-      <h2>طلبك تحت المراجعة!</h2>
-      <p>شكراً ليك، هنراجع بياناتك ونتواصل معاك قريباً على رقم التليفون اللي سبّته.</p>
-      <button class="btn-primary" (click)="close.emit()">تمام، شكراً</button>
+      <div class="success-icon">✓</div>
+      <h2>تم استلام طلبك بنجاح</h2>
+      <p>
+        سيتم مراجعة بياناتك من قبل فريق التحقق، وسيتم التواصل معك قريبًا على رقم الهاتف المسجل لإبلاغك بالنتيجة.
+      </p>
     </div>
     } @else {
     <!-- FORM STATE -->
     <div class="modal-header">
       <div class="modal-badge">🔧 انضم كفني</div>
       <h2>قدّم بياناتك</h2>
-      <p>سيب بياناتك وخبرتك وهنتواصل معاك</p>
+      <p>يرجى تعبئة بياناتك وسيتم التواصل معك بعد مراجعتها.</p>
     </div>
 
     <div class="form-grid">
@@ -93,14 +94,14 @@
       <input type="checkbox" id="terms" [(ngModel)]="form.agreedToTerms" />
       <label for="terms">
         أوافق على <a href="#" target="_blank">شروط الاستخدام وسياسة الخصوصية</a>
-        — مراجعة بياناتي من قبل المدير
+
       </label>
     </div>
     <button class="btn-primary submit-btn" (click)="submit()" [disabled]="loading()">
       @if (loading()) {
       <span class="spinner"></span>
       } @else {
-      إرسال الطلب 🚀
+      إرسال الطلب
       }
     </button>
     }

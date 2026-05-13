@@ -5,24 +5,16 @@
     <div class="container nav-inner">
       <div class="nav-logo">
         <div class="logo-mark">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="36" height="36" rx="10" fill="url(#sonaa-final-grad)" />
-
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
-              d="M25.4 10.6C24.1 9.3 22.3 8.5 20.4 8.5C17.5 8.5 15.1 10.5 14.4 13.2L8.5 19.1V27.5H16.9L22.8 21.6C25.5 20.9 27.5 18.5 27.5 15.6C27.5 13.7 26.7 11.9 25.4 10.6ZM14.9 25.5H10.5V21.1L15.9 15.7C16.2 16.6 16.9 17.3 17.8 17.6L14.9 20.5V25.5ZM21.5 18.5C20.4 18.5 19.5 17.6 19.5 16.5C19.5 15.4 20.4 14.5 21.5 14.5C22.6 14.5 23.5 15.4 23.5 16.5C23.5 17.6 22.6 18.5 21.5 18.5Z"
-              fill="white" />
-
-            <defs>
-              <linearGradient id="sonaa-final-grad" x1="0" y1="0" x2="36" y2="36">
-                <stop offset="0%" stop-color="#7c3aed" />
-                <stop offset="100%" stop-color="#4f46e5" />
-              </linearGradient>
-            </defs>
+              d="M22 10C22 8.34 20.66 7 19 7H9C7.34 7 6 8.34 6 10V18C6 19.66 7.34 21 9 21H19C20.66 21 22 19.66 22 18"
+              stroke="#E2B258" stroke-width="2" stroke-linecap="round" />
+            <circle cx="22" cy="14" r="3" fill="#E2B258" />
+            <path d="M14 12V16M12 14H16" stroke="#E2B258" stroke-width="1.2" stroke-linecap="round" />
           </svg>
         </div>
         <span class="logo-text">صُنّاع</span>
       </div>
-
       <button class="vendor-apply-btn" (click)="showVendorModal.set(true)">
         <span class="btn-pulse"></span>
         انضم كفني
@@ -73,10 +65,12 @@
           <div class="card-header">
             <span class="card-title">
               <span class="card-title-icon">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-                  <path fill-rule="evenodd"
-                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                    clip-rule="evenodd" />
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M28 14C28 11.79 26.21 10 24 10H16C13.79 10 12 11.79 12 14V26C12 28.21 13.79 30 16 30H24C26.21 30 28 28.21 28 26"
+                    stroke="#E2B258" stroke-width="2.5" stroke-linecap="round" />
+                  <circle cx="28" cy="20" r="4" fill="#E2B258" />
+                  <path d="M20 18V22M18 20H22" stroke="#E2B258" stroke-width="1.5" stroke-linecap="round" />
                 </svg>
               </span>
               طلبات اليوم
@@ -172,8 +166,13 @@
       <div class="trust-inner">
         <div class="trust-content">
           <div class="section-tag">لماذا صُنّاع؟</div>
-          <h2 class="section-title">الصيانة اللي تستاهل وقتك</h2>
-          <p class="section-sub">مش بس بنربط المستأجر بالفني — بنبني منظومة متكاملة لإدارة الصيانة بشفافية تامة</p>
+
+          <h2 class="section-title">إدارة صيانة أكثر كفاءة ووضوح</h2>
+
+          <p class="section-sub">
+            نوفّر نظامًا متكاملًا لإدارة طلبات الصيانة ومتابعتها من البداية حتى الإغلاق، مع شفافية كاملة وتحكم دقيق في
+            كل خطوة
+          </p>
           <div class="trust-points">
             <div class="trust-point">
               <div class="tp-icon">
@@ -183,8 +182,8 @@
                 </svg>
               </div>
               <div>
-                <strong>فنيون موثوقون</strong>
-                <p>كل فني عنده ملف كامل وتاريخ عمل وتقييمات حقيقية</p>
+                <strong>ملفات فنية موثق</strong>
+                <p>سجل أداء وتقييمات معتمدة لكل فني داخل النظام لضمان جودة التنفيذ</p>
               </div>
             </div>
             <div class="trust-point">
@@ -195,8 +194,8 @@
                 </svg>
               </div>
               <div>
-                <strong>متابعة لحظة بلحظة</strong>
-                <p>تعرف فين الطلب في أي وقت — من الإنشاء لحد الإغلاق</p>
+                <strong>متابعة لحظية</strong>
+                <p>تتبع حالة الطلبات بشكل مباشر من لحظة الإنشاء حتى الإغلاق</p>
               </div>
             </div>
             <div class="trust-point">
@@ -207,8 +206,8 @@
                 </svg>
               </div>
               <div>
-                <strong>تسعير شفاف</strong>
-                <p>مفيش رسوم مخفية — أسعار واضحة قبل أي خطوة</p>
+                <strong>تسعير واضح</strong>
+                <p>أسعار محددة مسبقًا بدون أي رسوم إضافية أو غير معلنة</p>
               </div>
             </div>
           </div>
@@ -234,7 +233,7 @@
             <div class="tv-row">
               <div class="tv-av amber">س</div>
               <div class="tv-info">
-                <span class="tv-name">سارة محمود</span>
+                <span class="tv-name">سارة محمد</span>
                 <span class="tv-sub">طلب تكييف — في الانتظار</span>
               </div>
               <span class="tv-chip amber">انتظار</span>
@@ -249,29 +248,21 @@
     </div>
   </section>
 
-  <!-- ===== FOOTER ===== -->
   <footer class="footer">
     <div class="container footer-inner">
       <div class="footer-logo">
         <div class="logo-mark sm">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="36" height="36" rx="10" fill="url(#sonaa-final-grad)" />
-
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
-              d="M25.4 10.6C24.1 9.3 22.3 8.5 20.4 8.5C17.5 8.5 15.1 10.5 14.4 13.2L8.5 19.1V27.5H16.9L22.8 21.6C25.5 20.9 27.5 18.5 27.5 15.6C27.5 13.7 26.7 11.9 25.4 10.6ZM14.9 25.5H10.5V21.1L15.9 15.7C16.2 16.6 16.9 17.3 17.8 17.6L14.9 20.5V25.5ZM21.5 18.5C20.4 18.5 19.5 17.6 19.5 16.5C19.5 15.4 20.4 14.5 21.5 14.5C22.6 14.5 23.5 15.4 23.5 16.5C23.5 17.6 22.6 18.5 21.5 18.5Z"
-              fill="white" />
-
-            <defs>
-              <linearGradient id="sonaa-final-grad" x1="0" y1="0" x2="36" y2="36">
-                <stop offset="0%" stop-color="#7c3aed" />
-                <stop offset="100%" stop-color="#4f46e5" />
-              </linearGradient>
-            </defs>
+              d="M22 10C22 8.34 20.66 7 19 7H9C7.34 7 6 8.34 6 10V18C6 19.66 7.34 21 9 21H19C20.66 21 22 19.66 22 18"
+              stroke="#E2B258" stroke-width="2" stroke-linecap="round" />
+            <circle cx="22" cy="14" r="3" fill="#E2B258" />
+            <path d="M14 12V16M12 14H16" stroke="#E2B258" stroke-width="1.2" stroke-linecap="round" />
           </svg>
         </div>
-        <span>صُنّاع</span>
+        <span class="logo-text">صُنّاع</span>
       </div>
-      <p>© 2025 صُنّاع — جميع الحقوق محفوظة</p>
+      <p class="copyright">© 2026 صُنّاع — جميع الحقوق محفوظة</p>
     </div>
   </footer>
 

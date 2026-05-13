@@ -56,6 +56,7 @@ export class CreateTicket implements AfterViewInit {
     deadline: '',
     companyId: '',
   };
+  
 
   selectedImages: File[] = [];
   imagePreviews: string[] = [];
@@ -101,6 +102,7 @@ export class CreateTicket implements AfterViewInit {
       this.typeCarouselIndex.set(this.typeCarouselIndex() - 1);
     }
   }
+  
 
   ngAfterViewInit() {}
 

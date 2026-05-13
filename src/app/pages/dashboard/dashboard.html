@@ -6,10 +6,12 @@
   <aside class="sidebar">
     <div class="sb-brand">
       <div class="sb-logo-icon">
-        <svg viewBox="0 0 36 36" class="logo-svg">
-          <rect width="36" height="36" rx="12" fill="url(#grad)"/>
-          <path d="M25.4 10.6C24.1 9.3 22.3 8.5 20.4 8.5C17.5 8.5 15.1 10.5 14.4 13.2L8.5 19.1V27.5H16.9L22.8 21.6C25.5 20.9 27.5 18.5 27.5 15.6C27.5 13.7 26.7 11.9 25.4 10.6ZM14.9 25.5H10.5V21.1L15.9 15.7C16.2 16.6 16.9 17.3 17.8 17.6L14.9 20.5V25.5ZM21.5 18.5C20.4 18.5 19.5 17.6 19.5 16.5C19.5 15.4 20.4 14.5 21.5 14.5C22.6 14.5 23.5 15.4 23.5 16.5C23.5 17.6 22.6 18.5 21.5 18.5Z" fill="white"/>
-          <defs><linearGradient id="grad" x1="0" y1="0" x2="36" y2="36"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs>
+        <!-- في sb-logo-icon بدل الـ SVG القديم -->
+        <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 10C22 8.34 20.66 7 19 7H9C7.34 7 6 8.34 6 10V18C6 19.66 7.34 21 9 21H19C20.66 21 22 19.66 22 18"
+            stroke="#E2B258" stroke-width="2" stroke-linecap="round" />
+          <circle cx="22" cy="14" r="3" fill="#E2B258" />
+          <path d="M14 12V16M12 14H16" stroke="#E2B258" stroke-width="1.2" stroke-linecap="round" />
         </svg>
       </div>
       <div class="sb-brand-text">
@@ -27,13 +29,12 @@
     </nav>
 
     @if (stats().awaitingPayment > 0) {
-      <div class="sb-payment-alert">
-        <span class="material-icons-round">payment</span>
-        <div>
-          <p>{{ stats().awaitingPayment }} طلب ينتظر الدفع</p>
-          <span>الفني خلّص وبعت السعر — ادفع دلوقتي</span>
-        </div>
+    <div class="sb-payment-alert">
+      <span class="material-icons-round">payment</span>
+      <div>
+        <p>{{ stats().awaitingPayment }} طلب بانتظار الدفع</p>
       </div>
+    </div>
     }
 
     <div class="sb-footer">
@@ -48,27 +49,27 @@
           @if (unreadCount() > 0) { <span class="notif-dot"></span> }
         </button>
         @if (showNotifications()) {
-          <div class="notif-drop" (click)="$event.stopPropagation()">
-            <div class="notif-hd">
-              <span>الإشعارات</span>
-              @if (unreadCount() > 0) { <span class="n-badge">{{ unreadCount() }}</span> }
+        <div class="notif-drop" (click)="$event.stopPropagation()">
+          <div class="notif-hd">
+            <span>الإشعارات</span>
+            @if (unreadCount() > 0) { <span class="n-badge">{{ unreadCount() }}</span> }
+          </div>
+          @if (notifications().length === 0) {
+          <div class="notif-empty">
+            <span class="material-icons-round">notifications_none</span>
+            <p>لا توجد إشعارات</p>
+          </div>
+          } @else {
+          <div class="notif-list">
+            @for (n of notifications(); track n.id) {
+            <div class="notif-item" [class.unread]="!n.isRead">
+              <p>{{ n.message }}</p>
+              <span>{{ n.createdAt | date:'dd/MM — hh:mm a' }}</span>
             </div>
-            @if (notifications().length === 0) {
-              <div class="notif-empty">
-                <span class="material-icons-round">notifications_none</span>
-                <p>لا توجد إشعارات</p>
-              </div>
-            } @else {
-              <div class="notif-list">
-                @for (n of notifications(); track n.id) {
-                  <div class="notif-item" [class.unread]="!n.isRead">
-                    <p>{{ n.message }}</p>
-                    <span>{{ n.createdAt | date:'dd/MM — hh:mm a' }}</span>
-                  </div>
-                }
-              </div>
             }
           </div>
+          }
+        </div>
         }
       </div>
       <button class="icon-btn danger" (click)="auth.logout()" title="خروج">
@@ -110,7 +111,8 @@
       </div>
       <div class="scard blue">
         <div class="sc-icon"><span class="material-icons-round">construction</span></div>
-        <div class="sc-body"><span class="snum">{{ stats().inProgress }}</span><span class="slbl">جارٍ التنفيذ</span></div>
+        <div class="sc-body"><span class="snum">{{ stats().inProgress }}</span><span class="slbl">جارٍ التنفيذ</span>
+        </div>
       </div>
       <div class="scard green">
         <div class="sc-icon"><span class="material-icons-round">task_alt</span></div>
@@ -120,389 +122,427 @@
 
     <!-- Payment Alert Banner — يظهر لما الفيندور يبعت السعر -->
     @if (stats().awaitingPayment > 0) {
-      <div class="payment-alert-banner">
-        <div class="pab-icon"><span class="material-icons-round">payments</span></div>
-        <div class="pab-text">
-          <strong>{{ stats().awaitingPayment }} طلب جاهز للدفع</strong>
-          <span>الفني أنهى شغله وبعت السعر — ادفع عشان يتحسب على حسابه</span>
-        </div>
-        <button class="pab-btn" (click)="activeFilter.set('Resolved')">
-          عرض الطلبات
-          <span class="material-icons-round">arrow_back</span>
-        </button>
+    <div class="payment-alert-banner">
+      <div class="pab-icon"><span class="material-icons-round">payments</span></div>
+      <div class="pab-text">
+        <strong>{{ stats().awaitingPayment }} طلب بانتظار الدفع</strong>
+        <span>أكمل الدفع لتحويل المبلغ للفني</span>
       </div>
+      <button class="pab-btn" (click)="activeFilter.set('Resolved')">
+        عرض الطلبات
+        <span class="material-icons-round">arrow_back</span>
+      </button>
+    </div>
     }
 
     <!-- FILTERS -->
     <div class="filters">
-      <button class="flt" [class.on]="activeFilter()==='all'" (click)="activeFilter.set('all')">الكل <span>{{ stats().total }}</span></button>
+      <button class="flt" [class.on]="activeFilter()==='all'" (click)="activeFilter.set('all')">الكل <span>{{
+          stats().total }}</span></button>
       <button class="flt review-flt" [class.on]="activeFilter()==='Review'" (click)="activeFilter.set('Review')">
-        <span class="material-icons-round" style="font-size:14px">manage_search</span> مراجعة <span>{{ stats().review }}</span>
+        <span class="material-icons-round" style="font-size:14px">manage_search</span> مراجعة <span>{{ stats().review
+          }}</span>
       </button>
       <button class="flt rejected-flt" [class.on]="activeFilter()==='Rejected'" (click)="activeFilter.set('Rejected')">
-        <span class="material-icons-round" style="font-size:14px">cancel</span> مرفوض <span>{{ stats().rejected }}</span>
+        <span class="material-icons-round" style="font-size:14px">cancel</span> مرفوض <span>{{ stats().rejected
+          }}</span>
       </button>
-      <button class="flt" [class.on]="activeFilter()==='Pending'" (click)="activeFilter.set('Pending')">انتظار <span>{{ stats().pending }}</span></button>
-      <button class="flt" [class.on]="activeFilter()==='vendorAccepted'" (click)="activeFilter.set('vendorAccepted')">جارٍ <span>{{ stats().inProgress }}</span></button>
-      <button class="flt" [class.on]="activeFilter()==='Resolved'" (click)="activeFilter.set('Resolved')">منتهية <span>{{ stats().done }}</span></button>
+      <button class="flt" [class.on]="activeFilter()==='Pending'" (click)="activeFilter.set('Pending')">انتظار <span>{{
+          stats().pending }}</span></button>
+      <button class="flt" [class.on]="activeFilter()==='vendorAccepted'"
+        (click)="activeFilter.set('vendorAccepted')">جارٍ <span>{{ stats().inProgress }}</span></button>
+      <button class="flt" [class.on]="activeFilter()==='Resolved'" (click)="activeFilter.set('Resolved')">منتهية
+        <span>{{ stats().done }}</span></button>
     </div>
 
     <!-- TICKETS -->
     @if (loading()) {
-      <div class="center-state"><div class="loader"></div><p>جاري التحميل...</p></div>
+    <div class="center-state">
+      <div class="loader"></div>
+      <p>جاري التحميل...</p>
+    </div>
     } @else if (filteredTickets().length === 0) {
-      <div class="center-state">
-        <span class="material-icons-round empty-ico">inbox</span>
-        <h3>لا توجد طلبات</h3>
-        <p>ابدأ بإنشاء أول طلب صيانة</p>
-        <a routerLink="/create-ticket" class="btn-primary"><span class="material-icons-round">add</span>طلب جديد</a>
-      </div>
+    <div class="center-state">
+      <span class="material-icons-round empty-ico">inbox</span>
+      <h3>لا توجد طلبات</h3>
+      <p>ابدأ بإنشاء أول طلب صيانة</p>
+      <a routerLink="/create-ticket" class="btn-primary"><span class="material-icons-round">add</span>طلب جديد</a>
+    </div>
     } @else {
-      <div class="grid">
-        @for (t of filteredTickets(); track t.id) {
-          <div class="tcard"
-               [class.tcard-review]="t.status === 'Review' || t.status === 'ManagerReview'"
-               [class.tcard-rejected]="t.status === 'Rejected'"
-               [class.tcard-pay-needed]="needsPayment(t)"
-               [class.tcard-paid]="t.status === 'Resolved' && t.isPaid"
-               (click)="openTicket(t)">
-            <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
-            <div class="tcard-content">
-              <div class="tcard-top">
-                <div class="problem-icon">
-                  <span class="material-icons-round">{{ problemIconMap[t.problemType] || 'build' }}</span>
-                </div>
-                <span class="status-pill" [style.background]="getStatus(t.status).bg" [style.color]="getStatus(t.status).color">
-                  {{ getStatus(t.status).label }}
-                </span>
-              </div>
+    <div class="grid">
+      @for (t of filteredTickets(); track t.id) {
+      <div class="tcard" [class.tcard-review]="t.status === 'Review' || t.status === 'ManagerReview'"
+        [class.tcard-rejected]="t.status === 'Rejected'" [class.tcard-pay-needed]="needsPayment(t)"
+        [class.tcard-paid]="t.status === 'Resolved' && t.isPaid" (click)="openTicket(t)">
+        <div class="tcard-stripe" [style.background]="getPriority(t.priority).dot"></div>
+        <div class="tcard-content">
+          <div class="tcard-top">
+            <div class="problem-icon">
+              <span class="material-icons-round">{{ problemIconMap[t.problemType] || 'build' }}</span>
+            </div>
+            <span class="status-pill" [style.background]="getStatus(t.status).bg"
+              [style.color]="getStatus(t.status).color">
+              {{ getStatus(t.status).label }}
+            </span>
+          </div>
 
-              @if (t.status === 'Review' || t.status === 'ManagerReview') {
-                <div class="review-banner"><span class="material-icons-round">info</span>طلبك بيتراجع من المدير</div>
-              }
-              @if (t.status === 'Rejected') {
-                <div class="rejected-banner"><span class="material-icons-round">cancel</span>تم رفض هذا الطلب من قِبل المدير</div>
-              }
+          @if (t.status === 'Review' || t.status === 'ManagerReview') {
+          <div class="review-banner"><span class="material-icons-round">info</span>جاري مراجعة الطلب من الإدارة</div>
+          }
+          @if (t.status === 'Rejected') {
+          <div class="rejected-banner">
+            <span class="material-icons-round">cancel</span>
+            الطلب مرفوض
+          </div> }
 
-              <!-- الـ vendor خلّص وبعت السعر وبتستنى الدفع -->
-              @if (needsPayment(t)) {
-                <div class="pay-banner">
-                  <span class="material-icons-round">payments</span>
-                  <div>
-                    <span class="pay-banner-title">الفني أنهى الشغل — السعر: {{ t.price }} ج.م</span>
-                    <span class="pay-banner-sub">ادفع عشان يتحسب له</span>
-                  </div>
-                </div>
-              }
-
-              @if (t.status === 'Resolved' && t.isPaid) {
-                <div class="paid-banner">
-                  <span class="material-icons-round">verified</span>
-                  <span>تم الدفع {{ t.price }} ج.م ✓</span>
-                </div>
-              }
-
-              @if (t.status === 'vendorAccepted') {
-                <div class="inprog-banner">
-                  <span class="material-icons-round">construction</span>
-                  <span>الفني شغّال دلوقتي — في انتظار الإنهاء</span>
-                </div>
-              }
-
-              <p class="tcard-desc">{{ t.description }}</p>
-
-              @if (t.city || t.governorate) {
-                <div class="tcard-loc">
-                  <span class="material-icons-round">place</span>
-                  {{ t.city }}@if (t.governorate) { — {{ t.governorate }}}
-                </div>
-              }
-
-              <div class="tcard-mid">
-                <span class="priority-pill" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">
-                  {{ getPriority(t.priority).label }}
-                </span>
-                <span class="tcard-date">{{ t.createdAt | date:'dd MMM yyyy' }}</span>
-              </div>
-
-              <div class="tcard-actions" (click)="$event.stopPropagation()">
-                @if (t.status === 'Pending') {
-                  <button class="act-btn act-purple" (click)="openApplications(t, $event)">
-                    <span class="material-icons-round">groups</span>الفنيون المتقدمون
-                  </button>
-                }
-
-                <!-- زرار الدفع — يظهر لما الفيندور يخلص ويبعت السعر -->
-                @if (needsPayment(t)) {
-                  <button class="act-btn act-pay" (click)="openPayment(t, $event)">
-                    <span class="material-icons-round">payment</span>ادفع {{ t.price }} ج.م
-                  </button>
-                }
-
-                @if (t.status === 'Resolved' && t.isPaid) {
-                  <button class="act-btn act-green" (click)="closeTicketAction(t.id, $event)" [disabled]="closingTicketId() === t.id">
-                    <span class="material-icons-round">check_circle</span>
-                    @if (closingTicketId() === t.id) { جاري... } @else { إغلاق الطلب }
-                  </button>
-                }
-
-                @if ((t.status === 'Resolved' || t.status === 'Closed') && t.vendorId) {
-                  <button class="act-btn act-amber" (click)="openFeedback(t, $event)">
-                    <span class="material-icons-round">rate_review</span>تقييم الفني
-                  </button>
-                }
-              </div>
-
-              <div class="tcard-dates">
-                <span><span class="material-icons-round">event</span> {{ t.arrival | date:'dd/MM' }}</span>
-                <span><span class="material-icons-round">timer</span> {{ t.deadline | date:'dd/MM' }}</span>
-              </div>
+          <!-- الـ vendor خلّص وبعت السعر وبتستنى الدفع -->
+          @if (needsPayment(t)) {
+          <div class="pay-banner">
+            <span class="material-icons-round">payments</span>
+            <div>
+              <span class="pay-banner-title">الخدمة مكتملة — {{ t.price }} ج.م</span>
+              <span class="pay-banner-sub">ادفع لتحويل المبلغ للفني</span>
             </div>
           </div>
-        }
+          }
+
+          @if (t.status === 'Resolved' && t.isPaid) {
+          <div class="paid-banner">
+            <span class="material-icons-round">verified</span>
+            <span>تم الدفع {{ t.price }} ج.م ✓</span>
+          </div>
+          }
+
+          @if (t.status === 'vendorAccepted') {
+          <div class="inprog-banner">
+            <span class="material-icons-round">construction</span>
+            <span>الفني شغّال دلوقتي — في انتظار الإنهاء</span>
+          </div>
+          }
+
+          <p class="tcard-desc">{{ t.description }}</p>
+
+          @if (t.city || t.governorate) {
+          <div class="tcard-loc">
+            <span class="material-icons-round">place</span>
+            {{ t.city }}@if (t.governorate) { — {{ t.governorate }}}
+          </div>
+          }
+
+          <div class="tcard-mid">
+            <span class="priority-pill" [style.background]="getPriority(t.priority).bg"
+              [style.color]="getPriority(t.priority).color">
+              {{ getPriority(t.priority).label }}
+            </span>
+            <span class="tcard-date">{{ t.createdAt | date:'dd MMM yyyy' }}</span>
+          </div>
+
+          <div class="tcard-actions" (click)="$event.stopPropagation()">
+            @if (t.status === 'Pending') {
+            <button class="act-btn act-purple" (click)="openApplications(t, $event)">
+              <span class="material-icons-round">groups</span>الفنيون المتقدمون
+            </button>
+            }
+
+            <!-- زرار الدفع — يظهر لما الفيندور يخلص ويبعت السعر -->
+            @if (needsPayment(t)) {
+            <button class="act-btn act-pay" (click)="openPayment(t, $event)">
+              <span class="material-icons-round">payment</span>ادفع {{ t.price }} ج.م
+            </button>
+            }
+
+            @if (t.status === 'Resolved' && t.isPaid) {
+            <button class="act-btn act-green" (click)="closeTicketAction(t.id, $event)"
+              [disabled]="closingTicketId() === t.id">
+              <span class="material-icons-round">check_circle</span>
+              @if (closingTicketId() === t.id) { جاري... } @else { إغلاق الطلب }
+            </button>
+            }
+
+            @if ((t.status === 'Resolved' || t.status === 'Closed') && t.vendorId) {
+            <button class="act-btn act-amber" (click)="openFeedback(t, $event)">
+              <span class="material-icons-round">rate_review</span>تقييم الفني
+            </button>
+            }
+          </div>
+
+          <div class="tcard-dates">
+            <span><span class="material-icons-round">event</span> {{ t.arrival | date:'dd/MM' }}</span>
+            <span><span class="material-icons-round">timer</span> {{ t.deadline | date:'dd/MM' }}</span>
+          </div>
+        </div>
       </div>
+      }
+    </div>
     }
   </main>
 
   <!-- TICKET MODAL -->
   @if (selectedTicket()) {
-    <div class="overlay" (click)="closeTicket()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-head">
-          <h2>تفاصيل الطلب</h2>
-          <button class="close-btn" (click)="closeTicket()"><span class="material-icons-round">close</span></button>
+  <div class="overlay" (click)="closeTicket()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>تفاصيل الطلب</h2>
+        <button class="close-btn" (click)="closeTicket()"><span class="material-icons-round">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="pill-row">
+          <span class="status-pill lg" [style.background]="getStatus(selectedTicket()!.status).bg"
+            [style.color]="getStatus(selectedTicket()!.status).color">
+            {{ getStatus(selectedTicket()!.status).label }}
+          </span>
+          <span class="priority-pill lg" [style.background]="getPriority(selectedTicket()!.priority).bg"
+            [style.color]="getPriority(selectedTicket()!.priority).color">
+            {{ getPriority(selectedTicket()!.priority).label }}
+          </span>
         </div>
-        <div class="modal-body">
-          <div class="pill-row">
-            <span class="status-pill lg" [style.background]="getStatus(selectedTicket()!.status).bg" [style.color]="getStatus(selectedTicket()!.status).color">
-              {{ getStatus(selectedTicket()!.status).label }}
-            </span>
-            <span class="priority-pill lg" [style.background]="getPriority(selectedTicket()!.priority).bg" [style.color]="getPriority(selectedTicket()!.priority).color">
-              {{ getPriority(selectedTicket()!.priority).label }}
-            </span>
+
+        @if (selectedTicket()!.status === 'Review' || selectedTicket()!.status === 'ManagerReview') {
+        <div class="modal-review-notice">
+          <span class="material-icons-round">manage_search</span>
+          <div>
+            <div class="mrn-title">طلبك قيد المراجعة حاليًا</div>
+            
           </div>
+        </div>
+        }
+        @if (selectedTicket()!.status === 'Rejected') {
+        <div class="modal-rejected-notice">
+          <span class="material-icons-round">cancel</span>
+          <div>
+            <div class="mrn-title">تم رفض هذا الطلب</div>
+            <div class="mrn-sub">ممكن تتواصل مع المدير أو ترفع طلب جديد</div>
+          </div>
+        </div>
+        }
 
-          @if (selectedTicket()!.status === 'Review' || selectedTicket()!.status === 'ManagerReview') {
-            <div class="modal-review-notice">
-              <span class="material-icons-round">manage_search</span>
-              <div><div class="mrn-title">طلبك قيد مراجعة المدير</div><div class="mrn-sub">الطلب وصلنا وبيتراجع دلوقتي</div></div>
-            </div>
-          }
-          @if (selectedTicket()!.status === 'Rejected') {
-            <div class="modal-rejected-notice">
-              <span class="material-icons-round">cancel</span>
-              <div><div class="mrn-title">تم رفض هذا الطلب</div><div class="mrn-sub">ممكن تتواصل مع المدير أو ترفع طلب جديد</div></div>
-            </div>
+        @if (selectedTicket()!.status === 'vendorAccepted') {
+        <div class="modal-inprog-notice">
+          <span class="material-icons-round">construction</span>
+          <div>
+            <div class="mrn-title">الفني شغّال دلوقتي</div>
+            <div class="mrn-sub">في انتظار الإنهاء ورفع الصور — هيتبعتلك السعر بعد الخلاص</div>
+          </div>
+        </div>
+        }
+
+        <!-- حالة الدفع — يظهر بعد ما الفيندور يخلص ويبعت السعر -->
+        @if (needsPayment(selectedTicket()!)) {
+        <div class="modal-pay-notice">
+          <span class="material-icons-round">payments</span>
+          <div>
+            <div class="mrn-title">الفني أنهى الشغل 🎉</div>
+            <div class="mrn-sub">السعر المحدد: <strong>{{ selectedTicket()!.price }} ج.م</strong> — ادفع عشان يتحسب
+              للفني</div>
+          </div>
+        </div>
+        }
+
+        @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
+        <div class="modal-paid-notice">
+          <span class="material-icons-round">verified</span>
+          <div>
+            <div class="mrn-title">تم الدفع بنجاح ✅</div>
+            <div class="mrn-sub">دفعت {{ selectedTicket()!.price }} ج.م — شكراً لك</div>
+          </div>
+        </div>
+        }
+
+        <div class="info-block">
+          <div class="info-label">الوصف</div>
+          <div class="info-val">{{ selectedTicket()!.description }}</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">الموقع</div>
+          <div class="info-val">
+            {{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}
+            @if (selectedTicket()!.tenantLocation) { <div class="info-sub">{{ selectedTicket()!.tenantLocation }}</div>
+            }
+          </div>
+        </div>
+        <div class="dates-2col">
+          <div class="date-box">
+            <div class="info-label">وقت الوصول</div>
+            <div class="info-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
+          </div>
+          <div class="date-box">
+            <div class="info-label">الموعد النهائي</div>
+            <div class="info-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
+          </div>
+        </div>
+
+        @if (selectedTicket()!.vendorName) {
+        <div class="vendor-strip">
+          <div class="vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
+          <div class="vendor-det">
+            <div class="info-label">الفني المسؤول</div>
+            <div class="info-val">{{ selectedTicket()!.vendorName }}</div>
+          </div>
+          <button class="outline-btn" (click)="openVendorProfile(selectedTicket()!.vendorId!, $event)">
+            <span class="material-icons-round">person</span>عرض الملف
+          </button>
+        </div>
+        }
+
+        @if (selectedTicket()!.beforeImageUrls?.length) {
+        <div class="info-block">
+          <div class="info-label">صور قبل الشغل</div>
+          <div class="imgs-grid">
+            @for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {
+            <img [src]="API_URL + '/' + img" [class.active]="i===currentImageIndex()"
+              (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />
+            }
+          </div>
+        </div>
+        }
+        @if (selectedTicket()!.afterImageUrls?.length) {
+        <div class="info-block">
+          <div class="info-label">صور بعد الشغل</div>
+          <div class="imgs-grid">
+            @for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {
+            <img [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.afterImageUrls, i)" />
+            }
+          </div>
+        </div>
+        }
+
+        <div class="modal-actions">
+          @if (selectedTicket()!.status === 'Pending') {
+          <button class="btn-primary full" (click)="openApplications(selectedTicket()!, $event)">
+            <span class="material-icons-round">groups</span>عرض الفنيين المتقدمين
+          </button>
           }
 
-          @if (selectedTicket()!.status === 'vendorAccepted') {
-            <div class="modal-inprog-notice">
-              <span class="material-icons-round">construction</span>
-              <div>
-                <div class="mrn-title">الفني شغّال دلوقتي</div>
-                <div class="mrn-sub">في انتظار الإنهاء ورفع الصور — هيتبعتلك السعر بعد الخلاص</div>
-              </div>
-            </div>
-          }
-
-          <!-- حالة الدفع — يظهر بعد ما الفيندور يخلص ويبعت السعر -->
+          <!-- زرار الدفع في المودال -->
           @if (needsPayment(selectedTicket()!)) {
-            <div class="modal-pay-notice">
-              <span class="material-icons-round">payments</span>
-              <div>
-                <div class="mrn-title">الفني أنهى الشغل 🎉</div>
-                <div class="mrn-sub">السعر المحدد: <strong>{{ selectedTicket()!.price }} ج.م</strong> — ادفع عشان يتحسب للفني</div>
-              </div>
-            </div>
+          <button class="btn-pay full" (click)="openPayment(selectedTicket()!, $event)">
+            <span class="material-icons-round">payment</span>
+            ادفع {{ selectedTicket()!.price }} ج.م الآن
+          </button>
           }
 
           @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
-            <div class="modal-paid-notice">
-              <span class="material-icons-round">verified</span>
-              <div>
-                <div class="mrn-title">تم الدفع بنجاح ✅</div>
-                <div class="mrn-sub">دفعت {{ selectedTicket()!.price }} ج.م — شكراً لك</div>
-              </div>
-            </div>
+          <div class="paid-notice-modal">
+            <span class="material-icons-round">check_circle</span>
+            <span>تم الدفع {{ selectedTicket()!.price }} ج.م ✓</span>
+          </div>
+          <button class="btn-success full" (click)="closeTicketAction(selectedTicket()!.id, $event)"
+            [disabled]="closingTicketId() === selectedTicket()!.id">
+            <span class="material-icons-round">check_circle</span>
+            @if (closingTicketId() === selectedTicket()!.id) { جاري الإغلاق... } @else { تأكيد إغلاق الطلب }
+          </button>
           }
 
-          <div class="info-block">
-            <div class="info-label">الوصف</div>
-            <div class="info-val">{{ selectedTicket()!.description }}</div>
-          </div>
-          <div class="info-block">
-            <div class="info-label">الموقع</div>
-            <div class="info-val">
-              {{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}
-              @if (selectedTicket()!.tenantLocation) { <div class="info-sub">{{ selectedTicket()!.tenantLocation }}</div> }
-            </div>
-          </div>
-          <div class="dates-2col">
-            <div class="date-box"><div class="info-label">وقت الوصول</div><div class="info-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div></div>
-            <div class="date-box"><div class="info-label">الموعد النهائي</div><div class="info-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div></div>
-          </div>
-
-          @if (selectedTicket()!.vendorName) {
-            <div class="vendor-strip">
-              <div class="vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
-              <div class="vendor-det">
-                <div class="info-label">الفني المسؤول</div>
-                <div class="info-val">{{ selectedTicket()!.vendorName }}</div>
-              </div>
-              <button class="outline-btn" (click)="openVendorProfile(selectedTicket()!.vendorId!, $event)">
-                <span class="material-icons-round">person</span>عرض الملف
-              </button>
-            </div>
+          @if ((selectedTicket()!.status === 'Resolved' || selectedTicket()!.status === 'Closed') &&
+          selectedTicket()!.vendorId) {
+          <button class="btn-outline full" (click)="openFeedback(selectedTicket()!, $event)">
+            <span class="material-icons-round">rate_review</span>كتابة تقييم للفني
+          </button>
           }
-
-          @if (selectedTicket()!.beforeImageUrls?.length) {
-            <div class="info-block">
-              <div class="info-label">صور قبل الشغل</div>
-              <div class="imgs-grid">
-                @for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {
-                  <img [src]="API_URL + '/' + img" [class.active]="i===currentImageIndex()" (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />
-                }
-              </div>
-            </div>
-          }
-          @if (selectedTicket()!.afterImageUrls?.length) {
-            <div class="info-block">
-              <div class="info-label">صور بعد الشغل</div>
-              <div class="imgs-grid">
-                @for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {
-                  <img [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.afterImageUrls, i)" />
-                }
-              </div>
-            </div>
-          }
-
-          <div class="modal-actions">
-            @if (selectedTicket()!.status === 'Pending') {
-              <button class="btn-primary full" (click)="openApplications(selectedTicket()!, $event)">
-                <span class="material-icons-round">groups</span>عرض الفنيين المتقدمين
-              </button>
-            }
-
-            <!-- زرار الدفع في المودال -->
-            @if (needsPayment(selectedTicket()!)) {
-              <button class="btn-pay full" (click)="openPayment(selectedTicket()!, $event)">
-                <span class="material-icons-round">payment</span>
-                ادفع {{ selectedTicket()!.price }} ج.م الآن
-              </button>
-            }
-
-            @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
-              <div class="paid-notice-modal">
-                <span class="material-icons-round">check_circle</span>
-                <span>تم الدفع {{ selectedTicket()!.price }} ج.م ✓</span>
-              </div>
-              <button class="btn-success full" (click)="closeTicketAction(selectedTicket()!.id, $event)" [disabled]="closingTicketId() === selectedTicket()!.id">
-                <span class="material-icons-round">check_circle</span>
-                @if (closingTicketId() === selectedTicket()!.id) { جاري الإغلاق... } @else { تأكيد إغلاق الطلب }
-              </button>
-            }
-
-            @if ((selectedTicket()!.status === 'Resolved' || selectedTicket()!.status === 'Closed') && selectedTicket()!.vendorId) {
-              <button class="btn-outline full" (click)="openFeedback(selectedTicket()!, $event)">
-                <span class="material-icons-round">rate_review</span>كتابة تقييم للفني
-              </button>
-            }
-          </div>
         </div>
       </div>
     </div>
+  </div>
   }
 
   <!-- APPLICATIONS MODAL -->
   @if (showApplicationsModal()) {
-    <div class="overlay" (click)="closeApplicationsModal()">
-      <div class="modal modal-lg" (click)="$event.stopPropagation()">
-        <div class="modal-head">
-          <h2>الفنيون المتقدمون</h2>
-          <button class="close-btn" (click)="closeApplicationsModal()"><span class="material-icons-round">close</span></button>
+  <div class="overlay" (click)="closeApplicationsModal()">
+    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>الفنيون المتقدمون</h2>
+        <button class="close-btn" (click)="closeApplicationsModal()"><span
+            class="material-icons-round">close</span></button>
+      </div>
+      <div class="modal-body">
+        @if (loadingApplications()) {
+        <div class="center-state compact">
+          <div class="loader"></div>
+          <p>جاري التحميل...</p>
         </div>
-        <div class="modal-body">
-          @if (loadingApplications()) {
-            <div class="center-state compact"><div class="loader"></div><p>جاري التحميل...</p></div>
-          } @else if (applications().length === 0) {
-            <div class="center-state compact"><span class="material-icons-round empty-ico">engineering</span><p>لم يتقدم أي فني بعد</p></div>
-          } @else {
-            <div class="apps-list">
-              @for (app of applications(); track app.id) {
-                <div class="app-card">
-                  <div class="app-av">{{ app.vendorName.charAt(0) }}</div>
-                  <div class="app-info">
-                    <div class="app-name">{{ app.vendorName }}</div>
-                    <div class="app-phone"><span class="material-icons-round">phone</span>{{ app.vendorPhone }}</div>
-                    <div class="app-date">تقدم في {{ app.appliedAt | date:'dd/MM/yyyy — hh:mm a' }}</div>
-                  </div>
-                  <div class="app-btns">
-                    <button class="outline-btn sm" (click)="openVendorProfile(app.vendorId, $event)">
-                      <span class="material-icons-round">person</span>الملف
-                    </button>
-                    <button class="btn-primary sm" (click)="acceptApplication(app.id)" [disabled]="acceptingId() === app.id">
-                      <span class="material-icons-round">check</span>
-                      @if (acceptingId() === app.id) { جاري... } @else { قبول }
-                    </button>
-                  </div>
-                </div>
-              }
+        } @else if (applications().length === 0) {
+        <div class="center-state compact"><span class="material-icons-round empty-ico">engineering</span>
+          <p>لم يتقدم أي فني بعد</p>
+        </div>
+        } @else {
+        <div class="apps-list">
+          @for (app of applications(); track app.id) {
+          <div class="app-card">
+            <div class="app-av">{{ app.vendorName.charAt(0) }}</div>
+            <div class="app-info">
+              <div class="app-name">{{ app.vendorName }}</div>
+              <div class="app-phone"><span class="material-icons-round">phone</span>{{ app.vendorPhone }}</div>
+              <div class="app-date">تقدم في {{ app.appliedAt | date:'dd/MM/yyyy — hh:mm a' }}</div>
             </div>
+            <div class="app-btns">
+              <button class="outline-btn sm" (click)="openVendorProfile(app.vendorId, $event)">
+                <span class="material-icons-round">person</span>الملف
+              </button>
+              <button class="btn-primary sm" (click)="acceptApplication(app.id)" [disabled]="acceptingId() === app.id">
+                <span class="material-icons-round">check</span>
+                @if (acceptingId() === app.id) { جاري... } @else { قبول }
+              </button>
+            </div>
+          </div>
           }
         </div>
+        }
       </div>
     </div>
+  </div>
   }
 
   <!-- FEEDBACK MODAL -->
   @if (showFeedbackModal()) {
-    <div class="overlay" (click)="closeFeedbackModal()">
-      <div class="modal modal-sm" (click)="$event.stopPropagation()">
-        <div class="modal-head">
-          <h2>تقييم الفني</h2>
-          <button class="close-btn" (click)="closeFeedbackModal()"><span class="material-icons-round">close</span></button>
+  <div class="overlay" (click)="closeFeedbackModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>تقييم الفني</h2>
+        <button class="close-btn" (click)="closeFeedbackModal()"><span
+            class="material-icons-round">close</span></button>
+      </div>
+      <div class="modal-body">
+        @if (feedbackSuccess()) {
+        <div class="success-box"><span class="material-icons-round">check_circle</span>
+          <p>تم إرسال التقييم بنجاح!</p>
         </div>
-        <div class="modal-body">
-          @if (feedbackSuccess()) {
-            <div class="success-box"><span class="material-icons-round">check_circle</span><p>تم إرسال التقييم بنجاح!</p></div>
-          } @else {
-            <p class="hint">شارك رأيك في أداء الفني على هذا الطلب</p>
-            <textarea class="ta" [(ngModel)]="feedbackComment" placeholder="اكتب تعليقك هنا..." rows="5"></textarea>
-            @if (feedbackError()) { <div class="err-box"><span class="material-icons-round">error_outline</span>{{ feedbackError() }}</div> }
-            <button class="btn-primary full" (click)="submitFeedback()" [disabled]="feedbackLoading()">
-              <span class="material-icons-round">send</span>
-              @if (feedbackLoading()) { جاري الإرسال... } @else { إرسال التقييم }
-            </button>
-          }
-        </div>
+        } @else {
+        <p class="hint">شارك رأيك في أداء الفني على هذا الطلب</p>
+        <textarea class="ta" [(ngModel)]="feedbackComment" placeholder="اكتب تعليقك هنا..." rows="5"></textarea>
+        @if (feedbackError()) { <div class="err-box"><span class="material-icons-round">error_outline</span>{{
+          feedbackError() }}</div> }
+        <button class="btn-primary full" (click)="submitFeedback()" [disabled]="feedbackLoading()">
+          <span class="material-icons-round">send</span>
+          @if (feedbackLoading()) { جاري الإرسال... } @else { إرسال التقييم }
+        </button>
+        }
       </div>
     </div>
+  </div>
   }
 
   <!-- PAYMENT MODAL — بياخد السعر اللي الفيندور حدده -->
   @if (showPaymentModal() && paymentTicket()) {
-    <app-payment-modal
-      [ticketId]="paymentTicket()!.id"
-      [ticketDescription]="paymentTicket()!.description"
-      [amount]="paymentTicket()!.price"
-      (closed)="onPaymentClosed()"
-      (paymentDone)="onPaymentDone()">
-    </app-payment-modal>
+  <app-payment-modal [ticketId]="paymentTicket()!.id" [ticketDescription]="paymentTicket()!.description"
+    [amount]="paymentTicket()!.price" (closed)="onPaymentClosed()" (paymentDone)="onPaymentDone()">
+  </app-payment-modal>
   }
 
   <!-- IMAGE VIEWER -->
   @if (previewImage()) {
-    <div class="img-viewer" (click)="closeImage()">
-      <button class="iv-close" (click)="closeImage()"><span class="material-icons-round">close</span></button>
-      <button class="iv-nav iv-prev" (click)="$event.stopPropagation(); prevImage()"><span class="material-icons-round">chevron_right</span></button>
-      <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
-      <button class="iv-nav iv-next" (click)="$event.stopPropagation(); nextImage()"><span class="material-icons-round">chevron_left</span></button>
-      <div class="iv-dots" (click)="$event.stopPropagation()">
-        @for (img of _currentImages; track img; let i = $index) {
-          <span class="iv-dot" [class.on]="i===currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
-        }
-      </div>
+  <div class="img-viewer" (click)="closeImage()">
+    <button class="iv-close" (click)="closeImage()"><span class="material-icons-round">close</span></button>
+    <button class="iv-nav iv-prev" (click)="$event.stopPropagation(); prevImage()"><span
+        class="material-icons-round">chevron_right</span></button>
+    <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+    <button class="iv-nav iv-next" (click)="$event.stopPropagation(); nextImage()"><span
+        class="material-icons-round">chevron_left</span></button>
+    <div class="iv-dots" (click)="$event.stopPropagation()">
+      @for (img of _currentImages; track img; let i = $index) {
+      <span class="iv-dot" [class.on]="i===currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
+      }
     </div>
+  </div>
   }
 
 </div>
