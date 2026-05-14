@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
+  
   "prettier": {
     "printWidth": 100,
     "singleQuote": true,
@@ -20,6 +21,8 @@
       }
     ]
   },
+  
+  
   "private": true,
   "packageManager": "npm@11.6.2",
   "dependencies": {
