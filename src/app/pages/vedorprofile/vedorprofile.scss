@@ -3,36 +3,36 @@
 :host { display: block; font-family: 'Cairo', sans-serif; direction: rtl; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-// ── Variables ─────────────────────────────────────────────
-$sand:        #F5F0E8;
-$sand2:       #EDE6D6;
-$sand3:       #D9CEB8;
-$brown:       #8B6F47;
-$brown2:      #6B5135;
-$brown3:      #4A3828;
-$brown4:      #32231B;
-$gold:        #E2B258;
-$gold2:       #C9933A;
-$gold3:       #F5C97A;
-$text:        #1C1917;
-$text2:       #44403C;
-$text3:       #78716C;
-$border:      #E8E0D0;
-$border2:     #D1C9B8;
-$white:       #FDFBF8;
-$green:       #2D6A4F;
-$green-bg:    #D1FAE5;
-$amber:       #92400E;
-$amber-bg:    #FEF3C7;
-$red:         #991B1B;
-$red-bg:      #FEE2E2;
+// ── Variables (landing design system) ─────────────────────
+$white:       #FFFFFF;
+$surface:     #F6F7F9;
+$surface2:    #EDEEF1;
+$surface3:    #E3E5E9;
+$border:      #DDE0E5;
+$border2:     #C8CCD3;
+$text:        #1E2532;
+$text2:       #404B5C;
+$text3:       #717D8F;
+$accent-light:#EAF0F7;
+$accent-mid:  #9DB5CC;
+$accent:      #4A7A9B;
+$accent-dark: #35607C;
+$brand-dark:  #1F2D3D;
+$green:       #2A6B4A;
+$green-light: #E8F3ED;
+$amber:       #7A5520;
+$amber-light: #F5EFE3;
+$red:         #8A2B2B;
+$red-light:   #F5E8E8;
 
 // ── Page Shell ────────────────────────────────────────────
 .vp-page {
   min-height: 100vh;
-  background: $sand;
+  background: $surface;
   display: flex;
   flex-direction: column;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
 }
 
 // ── Top Bar ───────────────────────────────────────────────
@@ -41,80 +41,110 @@ $red-bg:      #FEE2E2;
   align-items: center;
   justify-content: space-between;
   padding: 14px 28px;
-  background: $brown4;
-  border-bottom: 1px solid rgba($gold, 0.12);
+  background: $brand-dark;
+  border-bottom: 1px solid rgba($accent-mid, 0.15);
   position: sticky;
-  top: 0; z-index: 50;
+  top: 0;
+  z-index: 50;
 }
 
 .back-btn {
-  display: flex; align-items: center; gap: 7px;
-  background: rgba($gold, 0.12); border: 1px solid rgba($gold, 0.25);
-  color: rgba(255,255,255,0.8); border-radius: 10px;
-  padding: 8px 16px; font-family: 'Cairo', sans-serif;
-  font-size: 13px; font-weight: 700; cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba($accent-mid, 0.12);
+  border: 1px solid rgba($accent-mid, 0.25);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
   transition: all 0.18s;
+
   .material-icons-round { font-size: 18px; }
-  &:hover { background: rgba($gold, 0.2); color: #fff; }
+
+  &:hover {
+    background: rgba($accent-mid, 0.22);
+    color: #fff;
+  }
 }
 
 .bar-brand {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 17px; font-weight: 900; color: $gold;
-  .material-icons-round { font-size: 22px; color: $gold; }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 900;
+  color: $accent-mid;
+
+  .material-icons-round { font-size: 22px; color: $accent-mid; }
 }
 
 // ── Content Wrapper ───────────────────────────────────────
 .vp-content {
-  max-width: 820px; width: 100%;
-  margin: 0 auto; padding: 32px 20px;
-  display: flex; flex-direction: column; gap: 24px;
+  max-width: 820px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-// ══════════════════════════════════════════════════════════
-// ── Hero Card (الجزء الرئيسي المعدّل) ────────────────────
-// ══════════════════════════════════════════════════════════
+// ── Hero Card ─────────────────────────────────────────────
 .hero-card {
   background: $white;
   border-radius: 22px;
   border: 1.5px solid $border;
-  box-shadow: 0 4px 24px rgba(74,56,40,0.09);
+  box-shadow: 0 4px 24px rgba($brand-dark, 0.08);
   overflow: hidden;
 }
 
-// الجزء الملون العلوي
 .hero-top {
-  background: linear-gradient(135deg, $brown4 0%, $brown3 55%, $brown2 100%);
+  background: linear-gradient(135deg, $brand-dark 0%, $accent-dark 55%, $accent 100%);
   padding: 32px 32px 28px;
   position: relative;
   overflow: hidden;
 }
 
-// النمط الهندسي الخلفي
 .hero-top-bg {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 10% 60%, rgba($gold, 0.09) 0%, transparent 45%),
-    radial-gradient(circle at 90% 15%, rgba($gold, 0.06) 0%, transparent 38%);
+    radial-gradient(circle at 10% 60%, rgba($accent-mid, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba($accent-mid, 0.08) 0%, transparent 38%);
+
+  // grid overlay زي الـ hero section
+  background-image:
+    linear-gradient(rgba($accent-mid, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($accent-mid, 0.07) 1px, transparent 1px),
+    radial-gradient(circle at 10% 60%, rgba($accent-mid, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba($accent-mid, 0.08) 0%, transparent 38%);
+  background-size: 48px 48px, 48px 48px, auto, auto;
 
   &::before {
     content: '';
     position: absolute;
-    top: -50px; left: -50px;
-    width: 200px; height: 200px;
+    top: -50px;
+    left: -50px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
-    border: 45px solid rgba($gold, 0.06);
+    border: 45px solid rgba($accent-mid, 0.07);
   }
 
   &::after {
     content: '';
     position: absolute;
-    bottom: -35px; right: 10px;
-    width: 140px; height: 140px;
+    bottom: -35px;
+    right: 10px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
-    border: 30px solid rgba($gold, 0.04);
+    border: 30px solid rgba($accent-mid, 0.05);
   }
 }
 
@@ -127,45 +157,67 @@ $red-bg:      #FEE2E2;
 }
 
 .hero-av {
-  width: 92px; height: 92px;
+  width: 92px;
+  height: 92px;
   border-radius: 22px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, rgba($gold, 0.25), rgba($gold2, 0.4));
-  border: 3px solid rgba($gold, 0.45);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; font-weight: 900; color: #fff;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  background: linear-gradient(135deg, rgba($accent-mid, 0.3), rgba($accent, 0.5));
+  border: 3px solid rgba($accent-mid, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 900;
+  color: #fff;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 
-  img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: block; }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    display: block;
+  }
 }
 
 .hero-text { display: flex; flex-direction: column; gap: 8px; }
 
 .hero-name {
-  font-size: 26px; font-weight: 900; color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   line-height: 1.1;
 }
 
 .hero-badge {
-  display: inline-flex; align-items: center;
+  display: inline-flex;
+  align-items: center;
   gap: 5px;
-  background: rgba($gold, 0.18);
-  border: 1px solid rgba($gold, 0.35);
-  color: $gold3; border-radius: 20px;
-  padding: 5px 14px; font-size: 12px; font-weight: 700;
+  background: rgba($accent-mid, 0.2);
+  border: 1px solid rgba($accent-mid, 0.4);
+  color: $accent-mid;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 700;
   width: fit-content;
+
   .material-icons-round { font-size: 14px; }
 }
 
 .hero-phone {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 13px; color: rgba(255,255,255,0.6);
-  .material-icons-round { font-size: 15px; color: rgba(255,255,255,0.35); }
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+
+  .material-icons-round { font-size: 15px; color: rgba(255, 255, 255, 0.35); }
 }
 
-// ── Stats Row (أسفل hero، على خلفية بيضاء) ───────────────
+// ── Stats Row ─────────────────────────────────────────────
 .hero-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -173,88 +225,127 @@ $red-bg:      #FEE2E2;
 }
 
 .hstat {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 4px; padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 20px 16px;
   border-left: 1px solid $border;
-  position: relative;
   transition: background 0.15s;
 
   &:last-child { border-left: none; }
-  &:hover { background: $sand; }
+  &:hover { background: $surface; }
 
   .hstat-n {
-    font-size: 26px; font-weight: 900;
-    color: $brown2; line-height: 1;
+    font-size: 26px;
+    font-weight: 900;
+    color: $accent;
+    line-height: 1;
   }
 
   .hstat-l {
-    font-size: 11px; color: $text3;
-    font-weight: 700; white-space: nowrap;
+    font-size: 11px;
+    color: $text3;
+    font-weight: 700;
+    white-space: nowrap;
     text-align: center;
   }
 }
 
 // ── Section Card ──────────────────────────────────────────
 .section {
-  background: $white; border-radius: 18px;
+  background: $white;
+  border-radius: 18px;
   border: 1.5px solid $border;
-  box-shadow: 0 2px 12px rgba(74,56,40,0.06);
-  display: flex; flex-direction: column;
+  box-shadow: 0 2px 12px rgba($brand-dark, 0.05);
+  display: flex;
+  flex-direction: column;
 }
 
 .section-hd {
-  display: flex; align-items: center;
-  gap: 12px; padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px;
   border-bottom: 1px solid $border;
 
   .shd-icon {
-    width: 38px; height: 38px; border-radius: 11px;
-    background: $brown2; display: flex; align-items: center; justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: $accent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+
     .material-icons-round { font-size: 19px; color: #fff; }
   }
 
-  .shd-text { flex: 1; display: flex; flex-direction: column; gap: 1px; }
-  .shd-title { font-size: 14px; font-weight: 800; color: $brown4; }
+  .shd-text  { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .shd-title { font-size: 14px; font-weight: 800; color: $text; }
   .shd-sub   { font-size: 11px; color: $text3; }
 
   .count-pill {
-    background: $sand2; color: $brown2;
-    border: 1px solid $border2; border-radius: 20px;
-    padding: 3px 12px; font-size: 12px; font-weight: 700;
+    background: $surface2;
+    color: $accent;
+    border: 1px solid $border2;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 700;
     flex-shrink: 0;
   }
 }
 
 .hist-list {
-  display: flex; flex-direction: column;
-  gap: 14px; padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px;
 }
 
 // ── History Card ──────────────────────────────────────────
 .hist-card {
-  background: $sand; border: 1.5px solid $border;
-  border-radius: 14px; padding: 16px;
-  display: flex; flex-direction: column; gap: 12px;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   transition: all 0.2s ease;
-  &:hover { border-color: $brown; box-shadow: 0 4px 14px rgba(107,81,53,0.1); }
+
+  &:hover {
+    border-color: $accent-mid;
+    box-shadow: 0 4px 14px rgba($accent, 0.1);
+  }
 }
 
 .hist-top {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .hist-main { flex: 1; }
 
 .hist-meta {
-  display: flex; align-items: center;
-  gap: 14px; flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+
   span {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 12px; color: $text3;
-    .material-icons-round { font-size: 14px; color: $brown; }
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: $text3;
+
+    .material-icons-round { font-size: 14px; color: $accent-mid; }
   }
 }
 
@@ -262,61 +353,88 @@ $red-bg:      #FEE2E2;
 .fb-section {
   border-top: 1px solid $border2;
   padding-top: 12px;
-  display: flex; flex-direction: column; gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .fb-title {
-  display: flex; align-items: center;
-  gap: 6px; font-size: 12px; font-weight: 800; color: $brown2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: $accent-dark;
+
   .material-icons-round { font-size: 15px; }
 }
 
 .fb-list { display: flex; flex-direction: column; gap: 8px; }
 
 .fb-card {
-  background: $white; border-radius: 12px;
-  padding: 12px 14px; border: 1px solid $border;
-  border-right: 3px solid $gold;
+  background: $white;
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid $border;
+  border-right: 3px solid $accent;
 }
 
 .fb-head {
-  display: flex; align-items: center;
-  gap: 8px; margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
 }
 
 .fb-av {
-  width: 30px; height: 30px; border-radius: 9px;
-  background: $brown2; color: #fff;
-  font-weight: 900; font-size: 12px;
-  display: flex; align-items: center; justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: $accent;
+  color: #fff;
+  font-weight: 900;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.fb-name { font-size: 13px; font-weight: 800; color: $brown4; }
+.fb-name { font-size: 13px; font-weight: 800; color: $text; }
 .fb-text { font-size: 13px; color: $text2; line-height: 1.6; }
 
 // ── Empty & States ────────────────────────────────────────
 .empty-box {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 10px;
-  padding: 44px 0; text-align: center;
-  .material-icons-round { font-size: 46px; color: $sand3; }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 44px 0;
+  text-align: center;
+
+  .material-icons-round { font-size: 46px; color: $border2; }
   p { font-size: 14px; color: $text3; }
 }
 
 .center-state {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 100px 20px; gap: 14px;
-  text-align: center; flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  gap: 14px;
+  text-align: center;
+  flex: 1;
+
   .err-ico { font-size: 52px; color: #fca5a5; }
-  h3 { font-size: 18px; color: $brown4; font-weight: 800; }
+  h3 { font-size: 18px; color: $text; font-weight: 800; }
 }
 
 .loader {
-  width: 38px; height: 38px;
-  border: 3px solid $sand3;
-  border-top-color: $brown2;
+  width: 38px;
+  height: 38px;
+  border: 3px solid $surface3;
+  border-top-color: $accent;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -324,12 +442,21 @@ $red-bg:      #FEE2E2;
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .btn-primary {
-  display: inline-flex; align-items: center;
-  gap: 6px; background: $brown2; color: #fff;
-  padding: 10px 20px; border-radius: 10px;
-  font-family: 'Cairo', sans-serif; font-size: 13px;
-  font-weight: 700; cursor: pointer; border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: $accent;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
   transition: all 0.18s;
+  box-shadow: 0 4px 12px rgba($accent, 0.2);
+
   .material-icons-round { font-size: 17px; }
-  &:hover { background: $brown3; }
+  &:hover { background: $accent-dark; }
 }

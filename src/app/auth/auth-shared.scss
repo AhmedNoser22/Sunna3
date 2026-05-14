@@ -1,21 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
-// ── Variables ──────────────────────────────────────────────
-$sand: #F5F0E8;
-$sand2: #EDE6D6;
-$sand3: #D9CEB8;
-$brown: #8B6F47;
-$brown2: #6B5135;
-$brown3: #4A3828;
-$text: #1C1917;
-$text2: #44403C;
-$text3: #78716C;
-$border: #E8E0D0;
-$border2: #D1C9B8;
-$green: #2D6A4F;
-$green2: #D1FAE5;
-$red: #991B1B;
-$red2: #FEE2E2;
+// ── Design Tokens (Landing) ────────────────────────────────
+$white:        #FFFFFF;
+$surface:      #F6F7F9;
+$surface2:     #EDEEF1;
+$surface3:     #E3E5E9;
+$border:       #DDE0E5;
+$border2:      #C8CCD3;
+$text:         #1E2532;
+$text2:        #404B5C;
+$text3:        #717D8F;
+$accent-light: #EAF0F7;
+$accent-mid:   #9DB5CC;
+$accent:       #4A7A9B;
+$accent-dark:  #35607C;
+$brand-dark:   #1F2D3D;
+$green:        #2A6B4A;
+$green-light:  #E8F3ED;
+$amber:        #7A5520;
+$amber-light:  #F5EFE3;
+$red:          #8A2B2B;
+$red-light:    #F5E8E8;
 
 .auth-page {
   min-height: 100vh;
@@ -31,7 +36,7 @@ $red2: #FEE2E2;
 
 // ── Side panel ─────────────────────────────────────────────
 .auth-side {
-  background: $brown3;
+  background: $brand-dark;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -39,17 +44,15 @@ $red2: #FEE2E2;
   position: relative;
   overflow: hidden;
 
-  @media (max-width: 768px) {
-    display: none;
-  }
+  @media (max-width: 768px) { display: none; }
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
-      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.04) 0%, transparent 55%),
-      radial-gradient(circle at 80% 80%, rgba(139, 111, 71, 0.12) 0%, transparent 50%);
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 55%),
+      radial-gradient(circle at 80% 80%, rgba($accent, 0.12) 0%, transparent 50%);
   }
 }
 
@@ -57,73 +60,26 @@ $red2: #FEE2E2;
   position: relative;
   z-index: 1;
 
-  // المتغيرات الجديدة
-  $brand-dark: #4A3427; // بني غامق
-  $brand-accent: #E2B258; // نحاسي/ذهبي
-  $brand-light: #FDFBF8; // أوف وايت
-
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    .logo-mark {
-      width: 38px;
-      height: 38px;
-      background: $brand-dark;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.3s ease;
-
-      &:hover {
-        transform: rotate(-5deg) scale(1.05);
-      }
-
-      svg {
-        width: 24px;
-        height: 24px;
-      }
-    }
-
-    .logo-text {
-      font-size: 22px;
-      font-weight: 900;
-      color: $brand-dark;
-      font-family: 'Tajawal', sans-serif; // يفضل استخدام خط تجول
-    }
-  }
-
-  // ستايل صفحة الـ Auth (لوجو أكبر وأفخم)
   .as-logo {
     display: flex;
-    flex-direction: column; // لوجو فوق النص يعطي فخامة أكثر في الـ Auth
+    flex-direction: column;
     align-items: center;
     gap: 16px;
     margin-bottom: 40px;
 
     .as-logo-mark {
-      width: 42px;
-      height: 42px;
-      background: #4A3427;
+      width: 42px; height: 42px;
+      background: $brand-dark;
       border-radius: 12px;
-      border: 1.5px solid rgba(226, 178, 88, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      svg {
-        width: 28px;
-        height: 28px;
-        display: block;
-      }
+      border: 1.5px solid rgba($accent-mid, 0.45);
+      display: flex; align-items: center; justify-content: center;
+      svg { width: 28px; height: 28px; display: block; }
     }
 
     .as-logo-name {
       font-size: 28px;
       font-weight: 900;
-      color: #E2B258;
+      color: $accent-mid;
       letter-spacing: -0.5px;
     }
   }
@@ -131,19 +87,15 @@ $red2: #FEE2E2;
   .as-headline {
     font-size: 30px;
     font-weight: 900;
-    color: #E2B258;
+    color: $accent-mid;
     line-height: 1.3;
     margin-bottom: 18px;
-
-    span {
-      display: block;
-      color: #E2B258;
-    }
+    span { display: block; color: $accent-mid; }
   }
 
   .as-sub {
     font-size: 15px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255,255,255,0.5);
     line-height: 1.7;
     max-width: 320px;
   }
@@ -161,47 +113,30 @@ $red2: #FEE2E2;
     align-items: center;
     gap: 14px;
     padding: 15px 18px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 14px;
 
     .asf-icon {
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       border-radius: 11px;
-      background: rgba(139, 111, 71, 0.25);
-      border: 1px solid rgba(139, 111, 71, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: $sand3;
-      flex-shrink: 0;
-
-      svg {
-        width: 18px;
-        height: 18px;
-      }
+      background: rgba($accent, 0.2);
+      border: 1px solid rgba($accent, 0.3);
+      display: flex; align-items: center; justify-content: center;
+      color: $accent-mid; flex-shrink: 0;
+      svg { width: 18px; height: 18px; }
     }
 
     .asf-text {
-      .asf-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 2px;
-      }
-
-      .asf-desc {
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.45);
-      }
+      .asf-title { font-size: 14px; font-weight: 700; color: white; margin-bottom: 2px; }
+      .asf-desc  { font-size: 12px; color: rgba(255,255,255,0.45); }
     }
   }
 }
 
 // ── Main form area ─────────────────────────────────────────
 .auth-main {
-  background: $sand;
+  background: $surface;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,24 +150,13 @@ $red2: #FEE2E2;
   border-radius: 20px;
   padding: 40px 36px;
   border: 1px solid $border;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
 }
 
 .auth-box-head {
   margin-bottom: 32px;
-
-  h1 {
-    font-size: 24px;
-    font-weight: 900;
-    color: $brown3;
-    margin: 0 0 6px;
-  }
-
-  p {
-    font-size: 14px;
-    color: $text3;
-    margin: 0;
-  }
+  h1 { font-size: 24px; font-weight: 900; color: $brand-dark; margin: 0 0 6px; }
+  p  { font-size: 14px; color: $text3; margin: 0; }
 }
 
 // ── Form fields ────────────────────────────────────────────
@@ -246,12 +170,7 @@ $red2: #FEE2E2;
   display: flex;
   flex-direction: column;
   gap: 7px;
-
-  label {
-    font-size: 13px;
-    font-weight: 700;
-    color: $text2;
-  }
+  label { font-size: 13px; font-weight: 700; color: $text2; }
 }
 
 .input-wrap {
@@ -260,13 +179,9 @@ $red2: #FEE2E2;
   align-items: center;
 
   .iw-icon {
-    position: absolute;
-    right: 14px;
-    width: 18px;
-    height: 18px;
-    color: $text3;
-    pointer-events: none;
-    flex-shrink: 0;
+    position: absolute; right: 14px;
+    width: 18px; height: 18px;
+    color: $text3; pointer-events: none; flex-shrink: 0;
   }
 
   input {
@@ -275,188 +190,103 @@ $red2: #FEE2E2;
     border: 1.5px solid $border;
     border-radius: 11px;
     font-family: 'Cairo', sans-serif;
-    font-size: 14px;
-    color: $text;
-    background: $sand;
-    outline: none;
+    font-size: 14px; color: $text;
+    background: $surface; outline: none;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 
     &:focus {
-      border-color: $brown;
+      border-color: $accent;
       background: white;
-      box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.12);
+      box-shadow: 0 0 0 3px rgba($accent, 0.12);
     }
 
-    &::placeholder {
-      color: $text3;
-    }
+    &::placeholder { color: $text3; }
   }
 
-  &.with-toggle input {
-    padding-left: 44px;
-  }
+  &.with-toggle input { padding-left: 44px; }
 }
 
 .pass-toggle {
-  position: absolute;
-  left: 12px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  color: $text3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
+  position: absolute; left: 12px;
+  background: none; border: none; cursor: pointer;
+  padding: 0; color: $text3;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 7px;
   transition: color 0.2s, background 0.2s;
 
-  &:hover {
-    color: $brown2;
-    background: $sand2;
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+  &:hover { color: $accent-dark; background: $surface2; }
+  svg { width: 16px; height: 16px; }
 }
 
 // ── Confirmation banner ────────────────────────────────────
 .confirmed-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: $green2;
-  color: $green;
-  border: 1px solid darken($green2, 8%);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 20px;
-
-  svg {
-    flex-shrink: 0;
-  }
+  display: flex; align-items: center; gap: 10px;
+  background: $green-light; color: $green;
+  border: 1px solid darken($green-light, 8%);
+  border-radius: 12px; padding: 12px 16px;
+  font-size: 13px; font-weight: 700; margin-bottom: 20px;
+  svg { flex-shrink: 0; }
 }
 
 // ── Error message ──────────────────────────────────────────
 .error-msg {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; align-items: center; gap: 8px;
   padding: 11px 14px;
-  background: $red2;
-  border: 1px solid darken($red2, 6%);
-  color: $red;
-  border-radius: 11px;
-  font-size: 13px;
-  font-weight: 600;
-
-  svg {
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-  }
+  background: $red-light; border: 1px solid darken($red-light, 6%);
+  color: $red; border-radius: 11px;
+  font-size: 13px; font-weight: 600;
+  svg { flex-shrink: 0; width: 16px; height: 16px; }
 }
 
 // ── Submit button ──────────────────────────────────────────
 .submit-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px;
-  background: $brown2;
-  color: white;
-  border: none;
-  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 14px;
+  background: $accent-dark; color: white;
+  border: none; border-radius: 12px;
   font-family: 'Cairo', sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  margin-top: 4px;
+  font-size: 15px; font-weight: 800;
+  cursor: pointer; margin-top: 4px;
   transition: opacity 0.2s, transform 0.2s;
-  box-shadow: 0 4px 14px rgba(107, 81, 53, 0.3);
+  box-shadow: 0 4px 14px rgba($accent-dark, 0.3);
 
-  &:hover:not(:disabled) {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    transform: none;
-  }
+  &:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 }
 
 .spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.35);
   border-top-color: white;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 // ── Auth footer ────────────────────────────────────────────
 .auth-footer {
-  text-align: center;
-  font-size: 14px;
-  color: $text3;
-  margin-top: 6px;
-
+  text-align: center; font-size: 14px;
+  color: $text3; margin-top: 6px;
   a {
-    color: $brown2;
-    font-weight: 700;
-    text-decoration: none;
-    margin-right: 4px;
-
-    &:hover {
-      text-decoration: underline;
-    }
+    color: $accent-dark; font-weight: 700;
+    text-decoration: none; margin-right: 4px;
+    &:hover { text-decoration: underline; }
   }
 }
 
 // ── OTP ────────────────────────────────────────────────────
 .otp-wrap {
-  text-align: center;
-  margin-bottom: 8px;
+  text-align: center; margin-bottom: 8px;
 
   .otp-email-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: $sand2;
-    border: 1px solid $border2;
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    color: $brown2;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: $surface2; border: 1px solid $border2;
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 13px; font-weight: 600; color: $accent-dark;
     margin-bottom: 4px;
-
-    svg {
-      width: 14px;
-      height: 14px;
-      color: $brown;
-    }
-
-    .otp-email-text {
-      direction: ltr;
-      font-family: monospace;
-      font-size: 13px;
-    }
+    svg { width: 14px; height: 14px; color: $accent; }
+    .otp-email-text { direction: ltr; font-family: monospace; font-size: 13px; }
   }
 }
 
@@ -466,71 +296,40 @@ $red2: #FEE2E2;
   font-weight: 800 !important;
   letter-spacing: 12px !important;
   padding: 14px 16px !important;
-  color: $brown3 !important;
+  color: $brand-dark !important;
   border-radius: 14px !important;
-  background: $sand !important;
+  background: $surface !important;
 }
 
 .resend-btn {
-  background: none;
-  border: 1px solid $border2;
-  border-radius: 10px;
-  padding: 10px;
+  background: none; border: 1px solid $border2;
+  border-radius: 10px; padding: 10px;
   font-family: 'Cairo', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: $text3;
-  cursor: pointer;
-  transition: all 0.2s;
-  width: 100%;
+  font-size: 13px; font-weight: 700;
+  color: $text3; cursor: pointer;
+  transition: all 0.2s; width: 100%;
 
-  &:hover {
-    border-color: $brown;
-    color: $brown2;
-    background: $sand;
-  }
+  &:hover { border-color: $accent; color: $accent-dark; background: $surface; }
 }
 
 // ── Success state ──────────────────────────────────────────
 .success-view {
-  text-align: center;
-  padding: 20px 0;
+  text-align: center; padding: 20px 0;
 
   .sv-icon {
-    width: 72px;
-    height: 72px;
-    background: $green2;
-    border-radius: 50%;
+    width: 72px; height: 72px;
+    background: $green-light; border-radius: 50%;
     margin: 0 auto 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     color: $green;
   }
 
-  h2 {
-    font-size: 24px;
-    font-weight: 900;
-    color: $brown3;
-    margin-bottom: 8px;
-  }
-
-  p {
-    font-size: 14px;
-    color: $text3;
-    line-height: 1.7;
-  }
+  h2 { font-size: 24px; font-weight: 900; color: $brand-dark; margin-bottom: 8px; }
+  p  { font-size: 14px; color: $text3; line-height: 1.7; }
 }
 
 // ── Logo SVG helper ────────────────────────────────────────
 .logo-mark-inline {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-
-  svg {
-    width: 36px;
-    height: 36px;
-    display: block;
-  }
+  width: 36px; height: 36px; flex-shrink: 0;
+  svg { width: 36px; height: 36px; display: block; }
 }

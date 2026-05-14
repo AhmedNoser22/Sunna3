@@ -11,22 +11,22 @@ import { PaymentService } from '../../services/payment-service';
     <div style="display:flex;flex-direction:column;align-items:center;
                 justify-content:center;min-height:100vh;
                 font-family:'Cairo',sans-serif;direction:rtl;gap:16px;
-                background:#f5f3ff;">
+                background:#F6F7F9;">
       @if (status() === 'checking') {
-        <div style="width:48px;height:48px;border:4px solid #ede9fe;
-                    border-top-color:#7c3aed;border-radius:50%;
+        <div style="width:48px;height:48px;border:4px solid #EAF0F7;
+                    border-top-color:#4A7A9B;border-radius:50%;
                     animation:spin .7s linear infinite"></div>
-        <h2 style="color:#1e1b4b;margin:0">جاري تأكيد الدفع...</h2>
+        <h2 style="color:#1E2532;margin:0">جاري تأكيد الدفع...</h2>
       }
       @if (status() === 'success') {
         <div style="font-size:52px">✅</div>
-        <h2 style="color:#15803d;margin:0">تم الدفع بنجاح!</h2>
-        <p style="color:#6b7280;margin:0">جاري تحويلك...</p>
+        <h2 style="color:#2A6B4A;margin:0">تم الدفع بنجاح!</h2>
+        <p style="color:#717D8F;margin:0">جاري تحويلك...</p>
       }
       @if (status() === 'failed') {
         <div style="font-size:52px">❌</div>
-        <h2 style="color:#dc2626;margin:0">لم يتم الدفع</h2>
-        <p style="color:#6b7280;margin:0">جاري تحويلك...</p>
+        <h2 style="color:#8A2B2B;margin:0">لم يتم الدفع</h2>
+        <p style="color:#717D8F;margin:0">جاري تحويلك...</p>
       }
       <style>@keyframes spin { to { transform:rotate(360deg); } }</style>
     </div>

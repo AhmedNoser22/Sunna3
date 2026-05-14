@@ -98,7 +98,6 @@
       <button class="pay-btn" (click)="pay()" [disabled]="loading()">
         @if (loading()) {
         <span class="btn-spinner"></span>
-        <span>جاري التجهيز...</span>
         } @else {
         <span class="material-icons-round">lock</span>
         <span>ادفع {{ totalDisplay }} ج.م الآن</span>
@@ -120,25 +119,64 @@
         <span class="material-icons-round">arrow_forward_ios</span>
       </button>
       <div>
-        <h2>إدخال بيانات البطاقة</h2>
-        <p class="head-sub">أدخل بياناتك على صفحة Paymob الآمنة</p>
+        <h2>بيانات البطاقة البنكية</h2>
+        <p class="head-sub">مشفّر وآمن عبر Paymob</p>
       </div>
       <button class="close-btn" (click)="close()">
         <span class="material-icons-round">close</span>
       </button>
     </div>
 
-    <div class="iframe-wrap">
-      <iframe [src]="iframeUrl" frameborder="0" allowfullscreen>
-      </iframe>
+    <div class="modal-body">
+
+      <!-- ملخص المبلغ -->
+      <div class="iframe-amount-bar">
+        <div class="iab-right">
+          <span class="material-icons-round">receipt_long</span>
+          <span class="iab-desc">{{ ticketDescription }}</span>
+        </div>
+        <span class="iab-total">{{ totalDisplay }} ج.م</span>
+      </div>
+
+      <!-- بطاقة بصرية احترافية -->
+      <div class="card-visual">
+        <div class="card-circle"></div>
+        <div class="cv-top">
+          <div class="cv-chip">
+            <span class="material-icons-round">contactless</span>
+          </div>
+          <div class="cv-brand">
+            <span class="material-icons-round">credit_card</span>
+            <span class="brand-text">● CARD</span>
+          </div>
+        </div>
+        <div class="cv-number">••••  ••••  ••••  ••••</div>
+        <div class="cv-bottom">
+          <div class="cv-holder">
+            <span class="cv-lbl">حامل البطاقة</span>
+            <span class="cv-val">CARD HOLDER NAME</span>
+          </div>
+          <div class="cv-exp">
+            <span class="cv-lbl">تاريخ الانتهاء</span>
+            <span class="cv-val">MM/YY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- إطار Paymob -->
+      <div class="iframe-container">
+        <iframe [src]="iframeUrl" frameborder="0" allowfullscreen></iframe>
+      </div>
+
+      <!-- ملاحظة أمان -->
+      <div class="secure-note">
+        <span class="material-icons-round">verified_user</span>
+        <span>بياناتك مشفّرة ولا يتم تخزينها</span>
+      </div>
+
     </div>
 
     <div class="iframe-footer">
-      <div class="iframe-redirect-note">
-        <span class="material-icons-round">info</span>
-        <span>بعد إتمام الدفع، سيتم تحويلك تلقائياً</span>
-      </div>
-      <!-- اتركه كـ fallback لو ما حصلش redirect -->
       <button class="confirm-done-btn" (click)="confirmIframeDone()">
         <span class="material-icons-round">check_circle</span>
         تم الدفع — الرجوع لطلباتي
@@ -186,16 +224,13 @@
       </div>
     </div>
     }
+
     <!-- ══════════ STEP: verifying ══════════ -->
     @if (step() === 'verifying') {
-    <div class="modal-body" style="align-items:center; text-align:center; padding: 48px 22px; gap: 20px;">
+    <div class="modal-body verifying-body">
       <div class="verify-spinner"></div>
-      <h2 style="font-size:16px; font-weight:800; color:#1e1b4b; margin:0">
-        جاري التحقق من الدفع...
-      </h2>
-      <p style="font-size:13px; color:#9ca3af; margin:0; line-height:1.7">
-        بنتحقق من الـ server كل 5 ثواني — ممكن يفضل دقيقة أو اتنين
-      </p>
+      <h2>جاري التحقق من الدفع...</h2>
+      <p>بنتحقق من الـ server كل 5 ثواني — ممكن يفضل دقيقة أو اتنين</p>
     </div>
     }
 

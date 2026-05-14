@@ -1,8 +1,6 @@
 <div class="modal-backdrop" (click)="onBackdrop($event)">
   <div class="modal-box">
 
-    <button class="modal-close" (click)="close.emit()">✕</button>
-
     @if (submitted()) {
     <!-- SUCCESS STATE -->
     <div class="success-view">

@@ -1,11 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+// ── Variables (landing design system) ─────────────────────
+$white: #FFFFFF;
+$surface: #F6F7F9;
+$surface2: #EDEEF1;
+$surface3: #E3E5E9;
 
+$border: #DDE0E5;
+$border2: #C8CCD3;
+
+$text: #1E2532;
+$text2: #404B5C;
+$text3: #717D8F;
+
+$accent-light: #EAF0F7;
+$accent-mid: #9DB5CC;
+$accent: #4A7A9B;
+$accent-dark: #35607C;
+$brand-dark: #1F2D3D;
+
+$green: #2A6B4A;
+$green-light: #E8F3ED;
+$amber: #7A5520;
+$amber-light: #F5EFE3;
+$red: #8A2B2B;
+$red-light: #F5E8E8;
+
+// ── Animations ─────────────────────────────────────────────
+@keyframes spin       { to { transform: rotate(360deg); } }
+@keyframes loadBar    { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes float      { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes scaleIn    { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: scale(1); } }
+
+// ── Page ───────────────────────────────────────────────────
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -13,105 +40,104 @@
   justify-content: center;
   direction: rtl;
   font-family: 'Cairo', sans-serif;
-  background: #faf6f0;
+  background: $surface;
   position: relative;
   overflow: hidden;
   padding: 24px;
+
+  // grid overlay زي الـ hero
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient($border 1px, transparent 1px),
+      linear-gradient(90deg, $border 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.45;
+    pointer-events: none;
+  }
 }
 
-/* الخلفية */
-.auth-bg {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-}
+// blobs بألوان الـ landing
+.auth-bg { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
 
 .blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.22;
+  filter: blur(80px);
+  opacity: 0.15;
 }
+.b1 { width: 360px; height: 360px; background: $accent;      top: -130px; right: -130px; }
+.b2 { width: 300px; height: 300px; background: $accent-dark; bottom: -100px; left: -100px; }
 
-.b1 {
-  width: 340px;
-  height: 340px;
-  background: #E2B258;
-  top: -120px;
-  right: -120px;
-}
-
-.b2 {
-  width: 300px;
-  height: 300px;
-  background: #b45309;
-  bottom: -100px;
-  left: -100px;
-}
-
-/* الكارت */
+// ── Card ───────────────────────────────────────────────────
 .auth-card {
   position: relative;
   z-index: 2;
   width: 100%;
   max-width: 540px;
-  background: #fff;
-  border-radius: 32px;
-  padding: 42px 34px;
-  border: 1px solid rgba(226, 178, 88, 0.2);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+  background: $white;
+  border-radius: 20px;
+  padding: 40px 34px;
+  border: 1px solid $border;
+  box-shadow: 0 8px 32px rgba($brand-dark, 0.08);
+
+  @media (max-width: 640px) {
+    padding: 28px 20px;
+    border-radius: 16px;
+  }
 }
 
-/* اللوجو */
+// ── Logo ───────────────────────────────────────────────────
 .auth-logo {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 
   .logo-icon-svg {
     width: 48px;
     height: 48px;
-    background: rgba(226, 178, 88, 0.12);
-    border-radius: 14px;
+    background: $brand-dark;
+    border-radius: 13px;
+    border: 1.5px solid rgba($accent-mid, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
 
-    svg {
-      width: 28px;
-      height: 28px;
-    }
+    svg { width: 28px; height: 28px; display: block; }
   }
 
   span {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
-    color: #4a2a0e;
+    color: $brand-dark;
   }
 }
 
 h1 {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 900;
-  color: #4a2a0e;
-  margin-bottom: 8px;
+  color: $text;
+  margin-bottom: 6px;
 }
 
 .auth-sub {
-  font-size: 14px;
-  color: #a07a4a;
+  font-size: 13px;
+  color: $text3;
   margin-bottom: 28px;
+  line-height: 1.7;
 }
 
+// ── Form ───────────────────────────────────────────────────
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-/* الحقول */
+// ── Fields ─────────────────────────────────────────────────
 .field {
   display: flex;
   flex-direction: column;
@@ -119,29 +145,27 @@ h1 {
 
   label {
     font-size: 13px;
-    font-weight: 700;
-    color: #4a2a0e;
+    font-weight: 800;
+    color: $text2;
   }
 }
 
-.req {
-  color: #b45309;
-}
+.req { color: $accent; }
 
 .input-wrap {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fefcf8;
-  border: 1.5px solid #e8d5b5;
-  border-radius: 14px;
+  background: $surface;
+  border: 1.5px solid $border2;
+  border-radius: 12px;
   padding: 0 14px;
-  transition: 0.2s;
+  transition: all 0.2s ease;
 
   &:focus-within {
-    border-color: #E2B258;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(226, 178, 88, 0.12);
+    border-color: $accent;
+    background: $white;
+    box-shadow: 0 0 0 3px rgba($accent, 0.1);
   }
 
   input {
@@ -149,28 +173,23 @@ h1 {
     border: none;
     outline: none;
     background: transparent;
-    padding: 13px 0;
+    padding: 12px 0;
     font-family: 'Cairo', sans-serif;
     font-size: 13px;
-    color: #2d1a05;
+    color: $text;
 
-    &::placeholder {
-      color: #c4aa82;
-    }
+    &::placeholder { color: $text3; }
   }
 }
 
-.input-icon,
-.iw-icon {
+.input-icon, .iw-icon {
   width: 18px;
   height: 18px;
-  color: #a07a4a;
+  color: $accent-mid;
   flex-shrink: 0;
 }
 
-.with-toggle {
-  padding-left: 8px;
-}
+.with-toggle { padding-left: 8px; }
 
 .pass-toggle {
   background: none;
@@ -178,16 +197,12 @@ h1 {
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
 
-  svg {
-    width: 18px;
-    height: 18px;
-    color: #a07a4a;
-  }
+  svg { width: 18px; height: 18px; color: $accent-mid; transition: color 0.2s; }
+  &:hover svg { color: $accent; }
 }
 
-/* الصورة */
+// ── Avatar ─────────────────────────────────────────────────
 .avatar-upload-section {
   display: flex;
   flex-direction: column;
@@ -199,39 +214,37 @@ h1 {
   width: 84px;
   height: 84px;
   border-radius: 50%;
-  border: 2px dashed #d4a76a;
-  background: #faf6f0;
+  border: 2px dashed $border2;
+  background: $surface;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  transition: 0.2s;
+  transition: all 0.2s;
 
   &:hover {
-    border-color: #b45309;
-    background: #fff5eb;
+    border-color: $accent;
+    background: $accent-light;
   }
 }
 
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.avatar-img    { width: 100%; height: 100%; object-fit: cover; }
 
 .remove-img {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 24px;
-  height: 24px;
+  top: 0; left: 0;
+  width: 24px; height: 24px;
   border-radius: 50%;
   border: none;
-  background: #b45309;
-  color: #fff;
+  background: $red;
+  color: $white;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
 }
 
 .avatar-placeholder {
@@ -241,58 +254,53 @@ h1 {
   gap: 5px;
 }
 
-.avatar-icon {
-  font-size: 28px;
-}
-
-.avatar-hint,
-.avatar-label {
+.avatar-icon  { font-size: 28px; }
+.avatar-hint, .avatar-label {
   font-size: 11px;
-  color: #a07a4a;
+  color: $text3;
   font-weight: 700;
 }
 
-/* divider */
+// ── Divider ────────────────────────────────────────────────
 .section-divider {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 10px 0;
+  margin: 6px 0;
 
   span {
     font-size: 12px;
     font-weight: 800;
-    color: #b45309;
+    color: $accent;
     white-space: nowrap;
   }
 
-  &::before,
-  &::after {
+  &::before, &::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: #ead7b8;
+    background: $border;
   }
 }
 
-/* payment note */
+// ── Info note ──────────────────────────────────────────────
 .payment-info-note {
   display: flex;
   gap: 10px;
-  padding: 12px;
-  background: #fff8e7;
-  border: 1px solid #f3d48d;
-  border-radius: 14px;
+  padding: 12px 14px;
+  background: $accent-light;
+  border: 1px solid rgba($accent, 0.25);
+  border-radius: 12px;
 
   p {
     font-size: 12px;
-    color: #8b5a2b;
-    line-height: 1.6;
+    color: $accent-dark;
+    line-height: 1.7;
     font-weight: 700;
   }
 }
 
-/* payment methods */
+// ── Payment methods ────────────────────────────────────────
 .payment-methods-group {
   display: flex;
   flex-direction: column;
@@ -304,156 +312,124 @@ h1 {
   align-items: center;
   gap: 12px;
   padding: 14px;
-  border-radius: 16px;
-  border: 2px solid #ead7b8;
-  background: #fefcf8;
+  border-radius: 14px;
+  border: 2px solid $border;
+  background: $surface;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s;
 
-  &:hover {
-    border-color: #E2B258;
-  }
-
-  &.active {
-    border-color: #b45309;
-    background: #fff7ea;
-  }
+  &:hover     { border-color: $accent-mid; background: $accent-light; }
+  &.active    { border-color: $accent;     background: $accent-light; }
 }
 
 .pmt-icon {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
-  background: #f5ede0;
+  border-radius: 11px;
+  background: $surface2;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  .mat-icon {
-    color: #a07a4a;
-    font-size: 20px;
-  }
+  .mat-icon { color: $accent; font-size: 20px; }
 }
 
-.pmt-info {
-  flex: 1;
-}
-
-.pmt-name {
-  font-size: 14px;
-  font-weight: 800;
-  color: #4a2a0e;
-}
-
-.pmt-sub {
-  font-size: 11px;
-  color: #a07a4a;
-  margin-top: 3px;
-}
+.pmt-info  { flex: 1; }
+.pmt-name  { font-size: 14px; font-weight: 800; color: $text; }
+.pmt-sub   { font-size: 11px; color: $text3; margin-top: 3px; }
 
 .pmt-checkbox {
   width: 22px;
   height: 22px;
   border-radius: 7px;
-  border: 2px solid #d4a76a;
+  border: 2px solid $border2;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  .check {
-    display: none;
-    font-size: 14px;
-  }
+  .check { display: none; font-size: 14px; }
 }
 
 .payment-method-toggle.active .pmt-checkbox {
-  background: #b45309;
-  border-color: #b45309;
-
-  .check {
-    display: block;
-    color: #fff;
-  }
+  background: $accent;
+  border-color: $accent;
+  .check { display: block; color: $white; }
 }
 
-/* payment fields */
+// ── Payment fields container ───────────────────────────────
 .payment-fields-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 14px;
-  border-radius: 16px;
-  background: #fefaf2;
-  border: 1px solid #f5e6c4;
+  border-radius: 14px;
+  background: $surface;
+  border: 1px solid $border;
 }
 
-/* error */
+// ── Error ──────────────────────────────────────────────────
 .error-msg {
-  background: #fff1e8;
-  border: 1px solid #ffd0b0;
-  color: #b45309;
-  border-radius: 14px;
-  padding: 12px;
+  background: $red-light;
+  border: 1px solid rgba($red, 0.2);
+  color: $red;
+  border-radius: 12px;
+  padding: 12px 14px;
   font-size: 13px;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* button */
+// ── Button ─────────────────────────────────────────────────
 .btn-primary {
   width: 100%;
   border: none;
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 12px;
+  padding: 13px;
   cursor: pointer;
-  background: linear-gradient(135deg, #b45309, #E2B258);
-  color: #fff;
+  background: $accent;
+  color: $white;
   font-family: 'Cairo', sans-serif;
   font-size: 15px;
   font-weight: 800;
-  transition: 0.2s;
-  margin-top: 10px;
+  transition: all 0.25s ease;
+  margin-top: 8px;
+  box-shadow: 0 4px 14px rgba($accent, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
   &:hover:not(:disabled) {
+    background: $accent-dark;
     transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(180, 83, 9, 0.2);
+    box-shadow: 0 8px 20px rgba($accent-dark, 0.26);
   }
 
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
+  &:disabled { opacity: 0.65; cursor: not-allowed; }
 }
 
-.spinner,
-.check-spinner {
+// ── Spinner ────────────────────────────────────────────────
+.spinner, .check-spinner {
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
 .spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba($white, 0.3);
+  border-top-color: $white;
 }
 
 .check-spinner {
-  width: 44px;
-  height: 44px;
-  border: 3px solid #f3e2c0;
-  border-top-color: #b45309;
+  width: 44px; height: 44px;
+  border: 3px solid $surface3;
+  border-top-color: $accent;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* states */
-.checking-state,
-.invalid-state,
-.success-state {
+// ── States ─────────────────────────────────────────────────
+.checking-state, .invalid-state, .success-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -463,36 +439,22 @@ h1 {
 .checking-state {
   gap: 16px;
   padding: 40px 0;
-
-  p {
-    color: #a07a4a;
-    font-weight: 700;
-  }
+  p { color: $text3; font-weight: 700; }
 }
 
-.invalid-state,
-.success-state {
+.invalid-state, .success-state {
   gap: 12px;
   padding: 30px 0;
-
-  h2 {
-    color: #4a2a0e;
-    font-size: 22px;
-    font-weight: 900;
-  }
-
-  p {
-    color: #a07a4a;
-    line-height: 1.7;
-    font-size: 14px;
-  }
+  h2 { color: $text; font-size: 22px; font-weight: 900; }
+  p  { color: $text3; line-height: 1.7; font-size: 14px; }
 }
 
+// ── Success loader ─────────────────────────────────────────
 .success-loader {
   width: 180px;
   height: 4px;
-  background: #f3e2c0;
-  border-radius: 999px;
+  background: $surface2;
+  border-radius: 99px;
   overflow: hidden;
 
   &::after {
@@ -500,29 +462,12 @@ h1 {
     display: block;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, #b45309, #E2B258);
+    background: $accent;
     animation: loadBar 3s linear forwards;
   }
 }
 
-@keyframes loadBar {
-  from {
-    transform: translateX(-100%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* responsive */
 @media (max-width: 640px) {
-  .auth-card {
-    padding: 30px 20px;
-    border-radius: 24px;
-  }
-
-  h1 {
-    font-size: 24px;
-  }
+  .auth-card { padding: 28px 20px; border-radius: 16px; }
+  h1 { font-size: 22px; }
 }

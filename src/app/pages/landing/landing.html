@@ -61,51 +61,72 @@
       </div>
 
       <div class="hero-visual">
-        <div class="dashboard-card">
-          <div class="card-header">
-            <span class="card-title">
-              <span class="card-title-icon">
-                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M28 14C28 11.79 26.21 10 24 10H16C13.79 10 12 11.79 12 14V26C12 28.21 13.79 30 16 30H24C26.21 30 28 28.21 28 26"
-                    stroke="#E2B258" stroke-width="2.5" stroke-linecap="round" />
-                  <circle cx="28" cy="20" r="4" fill="#E2B258" />
-                  <path d="M20 18V22M18 20H22" stroke="#E2B258" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </span>
-              طلبات اليوم
-            </span>
-            <span class="badge-count">3 جارية</span>
-          </div>
-          @for (t of tickets; track t.title) {
-          <div class="ticket">
-            <div class="ticket-icon" [style.background]="t.color + '18'">
-              <span [style.color]="t.color">{{ t.icon }}</span>
-            </div>
-            <div class="ticket-info">
-              <div class="ticket-title">{{ t.title }}</div>
-              <div class="ticket-loc">{{ t.loc }}</div>
-            </div>
-            <div class="ticket-status-badge" [style.background]="t.color + '15'" [style.color]="t.color">{{ t.status }}
-            </div>
-          </div>
-          }
-        </div>
-        <div class="floating-card rating-card">
-          <svg viewBox="0 0 20 20" fill="#f59e0b" width="14" height="14">
-            <path
-              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-          4.9 أعلى تقييم
-        </div>
-        <div class="floating-card alert-card">
-          <svg viewBox="0 0 20 20" fill="#f97316" width="14" height="14">
-            <path fill-rule="evenodd"
-              d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-              clip-rule="evenodd" />
-          </svg>
-          تنبيه: تأخير في الوحدة 4
-        </div>
+        <svg width="100%" viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="phoneGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#5B8FD4" />
+              <stop offset="100%" stop-color="#3A5FA8" />
+            </linearGradient>
+            <linearGradient id="bgBlob" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#D6E8FF" stop-opacity="0.7" />
+              <stop offset="100%" stop-color="#C4D9F5" stop-opacity="0.4" />
+            </linearGradient>
+            <linearGradient id="leaf1Grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#A8C8F0" />
+              <stop offset="100%" stop-color="#7AAEE0" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="300" cy="280" rx="210" ry="200" fill="url(#bgBlob)" />
+          <ellipse cx="460" cy="300" rx="140" ry="130" fill="#D8ECF5" fill-opacity="0.5" />
+          <path d="M100 440 Q60 300 210 210 Q160 350 250 420 Z" fill="url(#leaf1Grad)" opacity="0.55" />
+          <path d="M480 160 Q570 100 600 240 Q520 200 470 320 Z" fill="#A8C8F0" opacity="0.4" />
+          <rect x="210" y="100" width="220" height="330" rx="24" fill="url(#phoneGrad)" />
+          <rect x="222" y="112" width="196" height="306" rx="16" fill="#4A7BBF" />
+          <rect x="234" y="128" width="172" height="272" rx="10" fill="#2B4D8A" />
+          <rect x="290" y="106" width="40" height="8" rx="4" fill="#3A5FA8" />
+          <g transform="translate(320,270)">
+            <circle r="42" fill="none" stroke="#FF7B5A" stroke-width="11" opacity="0.95" />
+            <circle r="24" fill="none" stroke="#FF7B5A" stroke-width="4" opacity="0.7" />
+            <rect x="-7" y="-55" width="14" height="15" rx="2.5" fill="#FF7B5A" />
+            <rect x="-7" y="40" width="14" height="15" rx="2.5" fill="#FF7B5A" />
+            <rect x="40" y="-7" width="15" height="14" rx="2.5" fill="#FF7B5A" />
+            <rect x="-55" y="-7" width="15" height="14" rx="2.5" fill="#FF7B5A" />
+            <rect x="28" y="-48" width="14" height="15" rx="2.5" fill="#FF7B5A" transform="rotate(45 35 -40)" />
+            <rect x="-42" y="-48" width="14" height="15" rx="2.5" fill="#FF7B5A" transform="rotate(-45 -35 -40)" />
+            <rect x="28" y="33" width="14" height="15" rx="2.5" fill="#FF7B5A" transform="rotate(-45 35 40)" />
+            <rect x="-42" y="33" width="14" height="15" rx="2.5" fill="#FF7B5A" transform="rotate(45 -35 40)" />
+          </g>
+          <g transform="translate(252,350)">
+            <circle r="26" fill="none" stroke="#FF9B7A" stroke-width="8" opacity="0.85" />
+            <circle r="14" fill="none" stroke="#FF9B7A" stroke-width="3" opacity="0.6" />
+            <rect x="-5" y="-34" width="10" height="10" rx="2" fill="#FF9B7A" />
+            <rect x="-5" y="24" width="10" height="10" rx="2" fill="#FF9B7A" />
+            <rect x="24" y="-5" width="10" height="10" rx="2" fill="#FF9B7A" />
+            <rect x="-34" y="-5" width="10" height="10" rx="2" fill="#FF9B7A" />
+          </g>
+          <path d="M360 92 Q450 55 490 120" fill="none" stroke="#FF7B5A" stroke-width="10" stroke-linecap="round" />
+          <polygon points="482,107 502,128 472,133" fill="#FF7B5A" />
+          <path d="M268 448 Q190 480 170 415" fill="none" stroke="#FF7B5A" stroke-width="10" stroke-linecap="round" />
+          <polygon points="178,402 160,422 184,428" fill="#FF7B5A" />
+          <circle cx="168" cy="168" r="58" fill="white" stroke="#E0E8F5" stroke-width="3" />
+          <circle cx="168" cy="168" r="50" fill="#EEF5FF" />
+          <path
+            d="M155 150 Q143 138 148 128 Q153 118 163 121 L158 131 L168 138 L173 133 L183 138 Q188 148 183 158 Q178 168 168 170 Z"
+            fill="#4A7BBF" />
+          <rect x="172" y="148" width="7" height="32" rx="3" fill="#6A9BD4" transform="rotate(40 175 164)" />
+          <rect x="173" y="174" width="9" height="6" rx="1.5" fill="#4A7BBF" transform="rotate(40 177 177)" />
+          <g transform="translate(510,230) rotate(-20)">
+            <rect x="-10" y="10" width="20" height="140" rx="10" fill="#4A7BBF" />
+            <ellipse cx="0" cy="8" rx="26" ry="20" fill="#4A7BBF" />
+            <ellipse cx="0" cy="8" rx="14" ry="11" fill="#3A60A0" />
+            <ellipse cx="-16" cy="-2" rx="11" ry="8" fill="#4A7BBF" />
+            <ellipse cx="16" cy="-2" rx="11" ry="8" fill="#4A7BBF" />
+          </g>
+          <circle cx="320" cy="270" r="62" fill="none" stroke="#8AADD4" stroke-width="1.5" stroke-dasharray="5,4"
+            opacity="0.6" />
+          <circle cx="252" cy="350" r="38" fill="none" stroke="#8AADD4" stroke-width="1.5" stroke-dasharray="4,4"
+            opacity="0.5" />
+        </svg>
       </div>
     </div>
   </section>
