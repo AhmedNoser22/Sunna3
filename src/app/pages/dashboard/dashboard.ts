@@ -4,8 +4,6 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Auth } from '../../services/auth';
-import { NotificationBell } from '../notification-bell/notification-bell';
-import { NotificationService } from '../../services/notification-service';
 import { PaymentModal } from '../payment-modal/payment-modal';
 import { PaymentService } from '../../services/payment-service';
 
@@ -51,13 +49,12 @@ interface TicketApplication {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, FormsModule, NotificationBell, PaymentModal],
+  imports: [CommonModule, RouterLink, DatePipe, FormsModule, PaymentModal],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
   private http = inject(HttpClient);
-  private ns = inject(NotificationService);
   private paymentSvc = inject(PaymentService);
   readonly API_URL = 'http://localhost:5001';
 
@@ -69,9 +66,7 @@ export class Dashboard implements OnInit {
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
 
-  notifications = signal<Notification[]>([]);
-  showNotifications = signal(false);
-  unreadCount = computed(() => this.notifications().filter(n => !n.isRead).length);
+
 
   applications = signal<TicketApplication[]>([]);
   loadingApplications = signal(false);
@@ -155,9 +150,8 @@ export class Dashboard implements OnInit {
   constructor(public auth: Auth, private router: Router) { }
 
   ngOnInit() {
-    this.loadNotifications();
     const token = localStorage.getItem('token');
-    if (token) this.ns.connect(token);
+
 
     const paymentId = localStorage.getItem('payment_just_done');
     const ticketId = localStorage.getItem('payment_done_ticket');
@@ -257,24 +251,6 @@ export class Dashboard implements OnInit {
     });
   }
 
-  loadNotifications() {
-    this.http.get<Notification[]>(`${this.API_URL}/api/Notifications`, { headers: this.getHeaders() }).subscribe({
-      next: (data) => this.notifications.set(data),
-      error: () => { },
-    });
-  }
-
-  toggleNotifications() {
-    this.showNotifications.update(v => !v);
-    if (this.showNotifications()) this.markAllRead();
-  }
-
-  markAllRead() {
-    this.notifications().filter(n => !n.isRead).forEach(n => {
-      this.http.patch(`${this.API_URL}/api/Notifications/${n.id}/read`, {}, { headers: this.getHeaders() }).subscribe();
-    });
-    this.notifications.update(list => list.map(n => ({ ...n, isRead: true })));
-  }
 
   // ── Payment ──────────────────────────────────────────────
   openPayment(ticket: Ticket, event: Event) {

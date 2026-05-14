@@ -1,9 +1,5 @@
-// ============================================================
-//  payment-modal.component.scss
-// ============================================================
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
 
-// ── Variables (مأخوذة من اللاندينج) ──────────────────────────────
 $white: #FFFFFF;
 $surface: #F6F7F9;
 $surface2: #EDEEF1;
@@ -29,14 +25,12 @@ $amber-light: #F5EFE3;
 $red: #8A2B2B;
 $red-light: #F5E8E8;
 
-// ── Mixins ────────────────────────────────────────────────
 @mixin flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-// ── Overlay ───────────────────────────────────────────────
 .overlay {
   position: fixed;
   inset: 0;
@@ -51,18 +45,18 @@ $red-light: #F5E8E8;
   direction: rtl;
 }
 
-// ── Modal container ──────────────────────────────────────
 .modal {
   background: $white;
   width: 100%;
   max-width: 460px;
+  height: 92vh;
+  max-height: 92vh;
   border-radius: 24px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 32px 80px rgba(31, 45, 61, 0.28);
   animation: modalPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-  max-height: 92vh;
 }
 
 @keyframes modalPop {
@@ -70,7 +64,6 @@ $red-light: #F5E8E8;
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-// ── Modal head ───────────────────────────────────────────
 .modal-head {
   display: flex;
   align-items: center;
@@ -155,7 +148,6 @@ $red-light: #F5E8E8;
   &:hover { background: $accent-light; }
 }
 
-// ── Modal body ───────────────────────────────────────────
 .modal-body {
   padding: 20px 22px;
   overflow-y: auto;
@@ -163,9 +155,9 @@ $red-light: #F5E8E8;
   flex-direction: column;
   gap: 16px;
   flex: 1;
+  min-height: 0;
 }
 
-// ── Amount summary ───────────────────────────────────────
 .amount-summary {
   background: $surface;
   border: 1px solid $border;
@@ -198,7 +190,6 @@ $red-light: #F5E8E8;
   }
 }
 
-// ── Methods ──────────────────────────────────────────────
 .methods-label {
   font-size: 12px;
   font-weight: 700;
@@ -250,7 +241,7 @@ $red-light: #F5E8E8;
   .material-icons-round { font-size: 22px; }
 
   &.card-icon   { background: $accent-light; .material-icons-round { color: $accent; } }
-  &.wallet-icon { background: $green-light; .material-icons-round { color: $green; } }
+  &.wallet-icon { background: $green-light;  .material-icons-round { color: $green; } }
 }
 
 .method-info {
@@ -268,7 +259,6 @@ $red-light: #F5E8E8;
   .material-icons-round { font-size: 20px; color: $border2; }
 }
 
-// ── Wallet field ─────────────────────────────────────────
 .wallet-field {
   display: flex;
   flex-direction: column;
@@ -313,7 +303,6 @@ $red-light: #F5E8E8;
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── Error ─────────────────────────────────────────────────
 .error-box {
   display: flex;
   align-items: center;
@@ -329,7 +318,6 @@ $red-light: #F5E8E8;
   .material-icons-round { font-size: 17px; flex-shrink: 0; }
 }
 
-// ── Pay button ───────────────────────────────────────────
 .pay-btn {
   width: 100%;
   display: flex;
@@ -371,7 +359,6 @@ $red-light: #F5E8E8;
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-// ── Secure note ──────────────────────────────────────────
 .secure-note {
   display: flex;
   align-items: center;
@@ -379,39 +366,19 @@ $red-light: #F5E8E8;
   gap: 6px;
   font-size: 12px;
   color: $text3;
+  flex-shrink: 0;
 
   .material-icons-round { font-size: 15px; color: $green; }
 }
 
-// ── iFrame container ─────────────────────────────────────
-.iframe-container {
-  border: 1px solid $border;
-  border-radius: 16px;
-  overflow: hidden;
-  background: $white;
-  min-height: 280px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-
-  iframe {
-    width: 100%;
-    flex: 1;
-    min-height: 280px;
-    border: none;
-    display: block;
-  }
-}
-
-// ── iFrame Amount Bar ────────────────────────────────────
+// ── iframe step ───────────────────────────────────────────
 .iframe-amount-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 12px 22px;
   background: $surface;
-  border: 1px solid $border;
-  border-radius: 14px;
+  border-bottom: 1px solid $border;
   flex-shrink: 0;
 
   .iab-right {
@@ -419,233 +386,30 @@ $red-light: #F5E8E8;
     align-items: center;
     gap: 10px;
 
-    .material-icons-round {
-      font-size: 18px;
-      color: $accent;
-    }
+    .material-icons-round { font-size: 18px; color: $accent; }
 
-    .iab-desc {
-      font-size: 13px;
-      color: $text2;
-      font-weight: 600;
-    }
+    .iab-desc { font-size: 13px; color: $text2; font-weight: 600; }
   }
 
-  .iab-total {
-    font-size: 18px;
-    font-weight: 900;
-    color: $accent;
-  }
+  .iab-total { font-size: 18px; font-weight: 900; color: $accent; }
 }
 
-// ── Card visual (بطاقة احترافية) ─────────────────────────
-.card-visual {
-  background: linear-gradient(135deg, $brand-dark 0%, $accent-dark 50%, $accent 100%);
-  border-radius: 20px;
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-  }
-
-  .card-circle {
-    position: absolute;
-    bottom: -20%;
-    left: -15%;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -40px;
-    right: -40px;
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.04);
-    pointer-events: none;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -30px;
-    left: -30px;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.03);
-    pointer-events: none;
-  }
-}
-
-.cv-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 32px;
-  position: relative;
-  z-index: 2;
-}
-
-.cv-chip {
-  width: 44px;
-  height: 32px;
-  background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #D4AF37 100%);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    width: 80%;
-    height: 2px;
-    background: rgba(0, 0, 0, 0.2);
-    top: 8px;
-    left: 10%;
-    border-radius: 1px;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    width: 60%;
-    height: 2px;
-    background: rgba(0, 0, 0, 0.15);
-    bottom: 8px;
-    left: 20%;
-    border-radius: 1px;
-  }
-
-  .material-icons-round {
-    font-size: 20px;
-    color: rgba(0, 0, 0, 0.4);
-    transform: rotate(90deg);
-  }
-}
-
-.cv-brand {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  .material-icons-round {
-    font-size: 32px;
-    color: rgba(255, 255, 255, 0.6);
-  }
-
-  .brand-text {
-    font-size: 14px;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.7);
-    letter-spacing: 2px;
-    font-family: monospace;
-  }
-}
-
-.cv-number {
-  font-size: 18px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 3px;
-  margin-bottom: 28px;
-  font-family: 'Courier New', monospace;
-  direction: ltr;
-  text-align: left;
-  position: relative;
-  z-index: 2;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.cv-bottom {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
-}
-
-.cv-holder, .cv-exp {
+.iframe-container {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
+  min-height: 0;
 
-.cv-lbl {
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-}
-
-.cv-val {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-// ── iFrame Footer ────────────────────────────────────────
-.iframe-footer {
-  padding: 16px 22px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border-top: 1px solid $border;
-  flex-shrink: 0;
-}
-
-.confirm-done-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px;
-  background: $green-light;
-  color: $green;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  font-family: 'Cairo', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  .material-icons-round {
-    font-size: 18px;
-  }
-
-  &:hover {
-    background: darken($green-light, 4%);
-    transform: translateY(-1px);
+  iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    display: block;
+    min-height: 0;
   }
 }
 
-.iframe-hint {
-  font-size: 11px;
-  color: $text3;
-  text-align: center;
-  margin: 0;
-}
-
-// ── Redirect ─────────────────────────────────────────────
+// ── Redirect ──────────────────────────────────────────────
 .redirect-card {
   display: flex;
   align-items: flex-start;
@@ -675,26 +439,15 @@ $red-light: #F5E8E8;
   .redirect-sub   { font-size: 13px; color: $accent; line-height: 1.6; margin: 0; }
 }
 
-// ── Verifying ────────────────────────────────────────────
+// ── Verifying ─────────────────────────────────────────────
 .verifying-body {
   align-items: center;
   text-align: center;
   padding: 48px 22px;
   gap: 20px;
 
-  h2 {
-    font-size: 16px;
-    font-weight: 800;
-    color: $text;
-    margin: 0;
-  }
-
-  p {
-    font-size: 13px;
-    color: $text3;
-    margin: 0;
-    line-height: 1.7;
-  }
+  h2 { font-size: 16px; font-weight: 800; color: $text; margin: 0; }
+  p  { font-size: 13px; color: $text3; margin: 0; line-height: 1.7; }
 }
 
 .verify-spinner {
@@ -706,7 +459,7 @@ $red-light: #F5E8E8;
   animation: spin 0.8s linear infinite;
 }
 
-// ── Success ──────────────────────────────────────────────
+// ── Success ───────────────────────────────────────────────
 .success-body {
   align-items: center;
   justify-content: center;
@@ -733,12 +486,7 @@ $red-light: #F5E8E8;
   to   { transform: scale(1); opacity: 1; }
 }
 
-.success-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: $text;
-  margin: 0;
-}
+.success-title { font-size: 20px; font-weight: 900; color: $text; margin: 0; }
 
 .success-sub {
   font-size: 14px;

@@ -114,6 +114,7 @@
 
     <!-- ══════════ STEP 2 — iframe الكارت ══════════ -->
     @if (step() === 'iframe') {
+
     <div class="modal-head">
       <button class="back-btn" (click)="step.set('choose')">
         <span class="material-icons-round">arrow_forward_ios</span>
@@ -127,62 +128,18 @@
       </button>
     </div>
 
-    <div class="modal-body">
-
-      <!-- ملخص المبلغ -->
-      <div class="iframe-amount-bar">
-        <div class="iab-right">
-          <span class="material-icons-round">receipt_long</span>
-          <span class="iab-desc">{{ ticketDescription }}</span>
-        </div>
-        <span class="iab-total">{{ totalDisplay }} ج.م</span>
+    <div class="iframe-amount-bar">
+      <div class="iab-right">
+        <span class="material-icons-round">receipt_long</span>
+        <span class="iab-desc">{{ ticketDescription }}</span>
       </div>
-
-      <!-- بطاقة بصرية احترافية -->
-      <div class="card-visual">
-        <div class="card-circle"></div>
-        <div class="cv-top">
-          <div class="cv-chip">
-            <span class="material-icons-round">contactless</span>
-          </div>
-          <div class="cv-brand">
-            <span class="material-icons-round">credit_card</span>
-            <span class="brand-text">● CARD</span>
-          </div>
-        </div>
-        <div class="cv-number">••••  ••••  ••••  ••••</div>
-        <div class="cv-bottom">
-          <div class="cv-holder">
-            <span class="cv-lbl">حامل البطاقة</span>
-            <span class="cv-val">CARD HOLDER NAME</span>
-          </div>
-          <div class="cv-exp">
-            <span class="cv-lbl">تاريخ الانتهاء</span>
-            <span class="cv-val">MM/YY</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- إطار Paymob -->
-      <div class="iframe-container">
-        <iframe [src]="iframeUrl" frameborder="0" allowfullscreen></iframe>
-      </div>
-
-      <!-- ملاحظة أمان -->
-      <div class="secure-note">
-        <span class="material-icons-round">verified_user</span>
-        <span>بياناتك مشفّرة ولا يتم تخزينها</span>
-      </div>
-
+      <span class="iab-total">{{ totalDisplay }} ج.م</span>
     </div>
 
-    <div class="iframe-footer">
-      <button class="confirm-done-btn" (click)="confirmIframeDone()">
-        <span class="material-icons-round">check_circle</span>
-        تم الدفع — الرجوع لطلباتي
-      </button>
-      <p class="iframe-hint">اضغط فقط لو لم يتم التحويل تلقائياً</p>
+    <div class="iframe-container">
+      <iframe [src]="iframeUrl" frameborder="0" allowfullscreen></iframe>
     </div>
+
     }
 
     <!-- ══════════ STEP 3 — wallet redirect ══════════ -->

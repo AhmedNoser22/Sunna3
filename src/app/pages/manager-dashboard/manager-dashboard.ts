@@ -7,7 +7,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../services/auth';
 import { NotificationBell } from "../notification-bell/notification-bell";
-import { NotificationService } from '../../services/notification-service';
 
 interface Ticket {
   id: string;
@@ -80,7 +79,6 @@ type UsersSubTab = 'tenants' | 'vendors';
 })
 export class ManagerDashboard implements OnInit {
   private http = inject(HttpClient);
-  private ns = inject(NotificationService);
   readonly API_URL = 'http://localhost:5001';
 
   activeTab = signal<ActiveTab>('tickets');
@@ -239,7 +237,6 @@ export class ManagerDashboard implements OnInit {
     this.loadTickets();
     this.loadVendors();
     const token = localStorage.getItem('token');
-    if (token) this.ns.connect(token);
   }
 
   private headers(): HttpHeaders {

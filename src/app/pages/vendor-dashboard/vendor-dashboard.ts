@@ -6,8 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Auth } from '../../services/auth';
 import { EGYPT_DATA, GOVERNORATES } from '../../data';
-import { NotificationBell } from "../notification-bell/notification-bell";
-import { NotificationService } from '../../services/notification-service';
+
 
 interface Ticket {
   id: string;
@@ -41,13 +40,12 @@ type ModalStep = 'details' | 'complete-form';
 @Component({
   selector: 'app-vendor-dashboard',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule, NotificationBell],
+  imports: [CommonModule, DatePipe, FormsModule],
   templateUrl: './vendor-dashboard.html',
   styleUrl: './vendor-dashboard.scss',
 })
 export class VendorDashboard implements OnInit {
   private http = inject(HttpClient);
-  private ns = inject(NotificationService);
   readonly API_URL = 'http://localhost:5001';
 
   activeTab = signal<ActiveTab>('my-tasks');
@@ -124,7 +122,6 @@ export class VendorDashboard implements OnInit {
     this.loadMyTickets();
     this.loadCurrentUserProfile();
     const token = localStorage.getItem('token');
-    if (token) this.ns.connect(token);
     setInterval(() => {
       this.today = new Date();
     }, 60000);

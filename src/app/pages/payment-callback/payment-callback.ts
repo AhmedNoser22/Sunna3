@@ -21,12 +21,10 @@ import { PaymentService } from '../../services/payment-service';
       @if (status() === 'success') {
         <div style="font-size:52px">✅</div>
         <h2 style="color:#2A6B4A;margin:0">تم الدفع بنجاح!</h2>
-        <p style="color:#717D8F;margin:0">جاري تحويلك...</p>
       }
       @if (status() === 'failed') {
         <div style="font-size:52px">❌</div>
         <h2 style="color:#8A2B2B;margin:0">لم يتم الدفع</h2>
-        <p style="color:#717D8F;margin:0">جاري تحويلك...</p>
       }
       <style>@keyframes spin { to { transform:rotate(360deg); } }</style>
     </div>
