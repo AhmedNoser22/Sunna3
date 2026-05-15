@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
 
-// ── Design Tokens (Landing) ────────────────────────────────
+// ── Design Tokens ────────────────────────────────────────────
 $white:        #FFFFFF;
 $surface:      #F6F7F9;
 $surface2:     #EDEEF1;
@@ -22,6 +22,16 @@ $amber-light:  #F5EFE3;
 $red:          #8A2B2B;
 $red-light:    #F5E8E8;
 
+// ── Breakpoints ──────────────────────────────────────────────
+$bp-mobile: 480px;
+$bp-tablet: 768px;
+$bp-laptop: 1024px;
+
+@mixin mobile    { @media (max-width: #{$bp-tablet - 1px})  { @content; } }
+@mixin tablet    { @media (min-width: #{$bp-tablet}) and (max-width: #{$bp-laptop - 1px}) { @content; } }
+@mixin small-mob { @media (max-width: #{$bp-mobile})         { @content; } }
+
+// ── Auth page layout ─────────────────────────────────────────
 .auth-page {
   min-height: 100vh;
   display: grid;
@@ -29,12 +39,16 @@ $red-light:    #F5E8E8;
   direction: rtl;
   font-family: 'Cairo', sans-serif;
 
-  @media (max-width: 768px) {
+  @include tablet {
+    grid-template-columns: 380px 1fr;
+  }
+
+  @include mobile {
     grid-template-columns: 1fr;
   }
 }
 
-// ── Side panel ─────────────────────────────────────────────
+// ── Side panel ───────────────────────────────────────────────
 .auth-side {
   background: $brand-dark;
   display: flex;
@@ -44,12 +58,18 @@ $red-light:    #F5E8E8;
   position: relative;
   overflow: hidden;
 
-  @media (max-width: 768px) { display: none; }
+  @include tablet {
+    padding: 36px 32px;
+  }
+
+  // hidden completely on mobile – form is the only thing shown
+  @include mobile {
+    display: none;
+  }
 
   &::before {
     content: '';
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background-image:
       radial-gradient(circle at 20% 20%, rgba(255,255,255,0.04) 0%, transparent 55%),
       radial-gradient(circle at 80% 80%, rgba($accent, 0.12) 0%, transparent 50%);
@@ -67,6 +87,8 @@ $red-light:    #F5E8E8;
     gap: 16px;
     margin-bottom: 40px;
 
+    @include tablet { margin-bottom: 28px; }
+
     .as-logo-mark {
       width: 42px; height: 42px;
       background: $brand-dark;
@@ -77,19 +99,19 @@ $red-light:    #F5E8E8;
     }
 
     .as-logo-name {
-      font-size: 28px;
-      font-weight: 900;
-      color: $accent-mid;
-      letter-spacing: -0.5px;
+      font-size: 28px; font-weight: 900;
+      color: $accent-mid; letter-spacing: -0.5px;
+      @include tablet { font-size: 22px; }
     }
   }
 
   .as-headline {
-    font-size: 30px;
-    font-weight: 900;
-    color: $accent-mid;
-    line-height: 1.3;
+    font-size: 30px; font-weight: 900;
+    color: $accent-mid; line-height: 1.3;
     margin-bottom: 18px;
+
+    @include tablet { font-size: 22px; }
+
     span { display: block; color: $accent-mid; }
   }
 
@@ -98,28 +120,28 @@ $red-light:    #F5E8E8;
     color: rgba(255,255,255,0.5);
     line-height: 1.7;
     max-width: 320px;
+
+    @include tablet { font-size: 13px; }
   }
 }
 
 .as-features {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   gap: 12px;
 
   .as-feat {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    display: flex; align-items: center; gap: 14px;
     padding: 15px 18px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 14px;
 
+    @include tablet { padding: 12px 14px; gap: 10px; }
+
     .asf-icon {
-      width: 40px; height: 40px;
-      border-radius: 11px;
+      width: 40px; height: 40px; border-radius: 11px;
       background: rgba($accent, 0.2);
       border: 1px solid rgba($accent, 0.3);
       display: flex; align-items: center; justify-content: center;
@@ -134,13 +156,27 @@ $red-light:    #F5E8E8;
   }
 }
 
-// ── Main form area ─────────────────────────────────────────
+// ── Main form area ────────────────────────────────────────────
 .auth-main {
   background: $surface;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 48px 32px;
+
+  @include tablet {
+    padding: 40px 24px;
+  }
+
+  @include mobile {
+    padding: 24px 16px;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  @include small-mob {
+    padding: 16px 12px;
+  }
 }
 
 .auth-box {
@@ -151,32 +187,84 @@ $red-light:    #F5E8E8;
   padding: 40px 36px;
   border: 1px solid $border;
   box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+
+  @include tablet {
+    padding: 32px 28px;
+    border-radius: 16px;
+  }
+
+  @include mobile {
+    padding: 28px 20px;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  @include small-mob {
+    padding: 24px 16px;
+    border-radius: 14px;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+
+// ── Mobile-only top logo (shown instead of side panel) ────────
+.auth-mobile-logo {
+  display: none;
+
+  @include mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+
+    .aml-mark {
+      width: 44px; height: 44px; border-radius: 13px;
+      background: $brand-dark;
+      border: 1.5px solid rgba($accent-mid, 0.4);
+      display: flex; align-items: center; justify-content: center;
+      svg { width: 28px; height: 28px; display: block; }
+    }
+
+    .aml-name {
+      font-size: 24px; font-weight: 900;
+      color: $brand-dark; letter-spacing: -0.5px;
+    }
+  }
 }
 
 .auth-box-head {
-  margin-bottom: 32px;
-  h1 { font-size: 24px; font-weight: 900; color: $brand-dark; margin: 0 0 6px; }
+  margin-bottom: 28px;
+
+  @include mobile { margin-bottom: 24px; }
+
+  h1 {
+    font-size: 24px; font-weight: 900; color: $brand-dark; margin: 0 0 6px;
+    @include mobile { font-size: 21px; }
+    @include small-mob { font-size: 19px; }
+  }
+
   p  { font-size: 14px; color: $text3; margin: 0; }
 }
 
-// ── Form fields ────────────────────────────────────────────
+// ── Form fields ───────────────────────────────────────────────
 .auth-form {
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   gap: 18px;
+
+  @include mobile { gap: 16px; }
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   gap: 7px;
   label { font-size: 13px; font-weight: 700; color: $text2; }
 }
 
 .input-wrap {
   position: relative;
-  display: flex;
-  align-items: center;
+  display: flex; align-items: center;
 
   .iw-icon {
     position: absolute; right: 14px;
@@ -193,6 +281,9 @@ $red-light:    #F5E8E8;
     font-size: 14px; color: $text;
     background: $surface; outline: none;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+
+    // bigger touch target on mobile
+    @include mobile { padding: 14px 44px 14px 16px; font-size: 16px; }
 
     &:focus {
       border-color: $accent;
@@ -218,7 +309,7 @@ $red-light:    #F5E8E8;
   svg { width: 16px; height: 16px; }
 }
 
-// ── Confirmation banner ────────────────────────────────────
+// ── Confirmation banner ───────────────────────────────────────
 .confirmed-banner {
   display: flex; align-items: center; gap: 10px;
   background: $green-light; color: $green;
@@ -228,7 +319,7 @@ $red-light:    #F5E8E8;
   svg { flex-shrink: 0; }
 }
 
-// ── Error message ──────────────────────────────────────────
+// ── Error message ─────────────────────────────────────────────
 .error-msg {
   display: flex; align-items: center; gap: 8px;
   padding: 11px 14px;
@@ -238,7 +329,7 @@ $red-light:    #F5E8E8;
   svg { flex-shrink: 0; width: 16px; height: 16px; }
 }
 
-// ── Submit button ──────────────────────────────────────────
+// ── Submit button ─────────────────────────────────────────────
 .submit-btn {
   display: flex; align-items: center; justify-content: center;
   gap: 8px; padding: 14px;
@@ -249,6 +340,9 @@ $red-light:    #F5E8E8;
   cursor: pointer; margin-top: 4px;
   transition: opacity 0.2s, transform 0.2s;
   box-shadow: 0 4px 14px rgba($accent-dark, 0.3);
+
+  // full-width & slightly larger on mobile for easy tap
+  width: 100%;
 
   &:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
   &:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
@@ -264,10 +358,11 @@ $red-light:    #F5E8E8;
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-// ── Auth footer ────────────────────────────────────────────
+// ── Auth footer ───────────────────────────────────────────────
 .auth-footer {
   text-align: center; font-size: 14px;
   color: $text3; margin-top: 6px;
+
   a {
     color: $accent-dark; font-weight: 700;
     text-decoration: none; margin-right: 4px;
@@ -275,7 +370,7 @@ $red-light:    #F5E8E8;
   }
 }
 
-// ── OTP ────────────────────────────────────────────────────
+// ── OTP ───────────────────────────────────────────────────────
 .otp-wrap {
   text-align: center; margin-bottom: 8px;
 
@@ -299,6 +394,11 @@ $red-light:    #F5E8E8;
   color: $brand-dark !important;
   border-radius: 14px !important;
   background: $surface !important;
+
+  @include small-mob {
+    font-size: 22px !important;
+    letter-spacing: 8px !important;
+  }
 }
 
 .resend-btn {
@@ -312,7 +412,7 @@ $red-light:    #F5E8E8;
   &:hover { border-color: $accent; color: $accent-dark; background: $surface; }
 }
 
-// ── Success state ──────────────────────────────────────────
+// ── Success state ─────────────────────────────────────────────
 .success-view {
   text-align: center; padding: 20px 0;
 
@@ -328,7 +428,7 @@ $red-light:    #F5E8E8;
   p  { font-size: 14px; color: $text3; line-height: 1.7; }
 }
 
-// ── Logo SVG helper ────────────────────────────────────────
+// ── Logo SVG helper ───────────────────────────────────────────
 .logo-mark-inline {
   width: 36px; height: 36px; flex-shrink: 0;
   svg { width: 36px; height: 36px; display: block; }

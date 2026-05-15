@@ -25,6 +25,11 @@ $amber-light: #F5EFE3;
 $red: #8A2B2B;
 $red-light: #F5E8E8;
 
+// ── Breakpoints ────────────────────────────────────────────
+$bp-mobile:  480px;
+$bp-tablet:  768px;
+$bp-laptop:  1024px;
+
 // ── Mixins ────────────────────────────────────────────────
 @mixin flex-center {
   display: flex;
@@ -32,53 +37,41 @@ $red-light: #F5E8E8;
   justify-content: center;
 }
 
+@mixin mobile {
+  @media (max-width: #{$bp-tablet - 1px}) { @content; }
+}
+
+@mixin tablet {
+  @media (min-width: #{$bp-tablet}) and (max-width: #{$bp-laptop - 1px}) { @content; }
+}
+
+@mixin tablet-down {
+  @media (max-width: #{$bp-laptop - 1px}) { @content; }
+}
+
+@mixin small-mobile {
+  @media (max-width: #{$bp-mobile}) { @content; }
+}
+
 // ── Animations ─────────────────────────────────────────────
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-8px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
 }
 
 @keyframes pulseDot {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.35);
-  }
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.35); }
 }
 
 @keyframes pulseWave {
-  0% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(3); opacity: 0; }
 }
 
 // ── Base ───────────────────────────────────────────────────
@@ -88,14 +81,13 @@ $red-light: #F5E8E8;
   direction: rtl;
   color: $text;
   background: $white;
+  overflow-x: hidden;
 }
 
 // ── NAV ────────────────────────────────────────────────────
 .nav {
   position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
+  top: 0; right: 0; left: 0;
   z-index: 100;
   background: $brand-dark;
   backdrop-filter: blur(16px);
@@ -105,7 +97,13 @@ $red-light: #F5E8E8;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 64px;
+    height: 60px;
+    padding: 0 24px;
+
+    @include mobile {
+      height: 56px;
+      padding: 0 16px;
+    }
   }
 
   .nav-logo {
@@ -118,35 +116,32 @@ $red-light: #F5E8E8;
     display: flex;
     align-items: center;
     gap: 8px;
+
+    @include small-mobile {
+      gap: 6px;
+    }
   }
 }
 
 .logo-mark {
-  width: 42px;
-  height: 42px;
+  width: 42px; height: 42px;
   flex-shrink: 0;
   background: $brand-dark;
   border-radius: 12px;
   border: 1.5px solid rgba($accent-mid, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 
-  svg {
-    width: 28px;
-    height: 28px;
-    display: block;
-  }
+  svg { width: 28px; height: 28px; display: block; }
 
   &.sm {
-    width: 34px;
-    height: 34px;
+    width: 34px; height: 34px;
     border-radius: 9px;
+    svg { width: 22px; height: 22px; }
+  }
 
-    svg {
-      width: 22px;
-      height: 22px;
-    }
+  @include mobile {
+    width: 36px; height: 36px;
+    svg { width: 24px; height: 24px; }
   }
 }
 
@@ -154,6 +149,8 @@ $red-light: #F5E8E8;
   font-size: 20px;
   font-weight: 900;
   color: $accent-mid;
+
+  @include mobile { font-size: 18px; }
 }
 
 // ── Buttons ────────────────────────────────────────────────
@@ -174,6 +171,17 @@ $red-light: #F5E8E8;
   transition: all 0.25s ease;
   box-shadow: 0 2px 10px rgba($accent, 0.2);
 
+  @include mobile {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  @include small-mobile {
+    padding: 7px 11px;
+    font-size: 11px;
+    gap: 5px;
+  }
+
   &:hover {
     background: $accent-dark;
     transform: translateY(-1px);
@@ -183,8 +191,7 @@ $red-light: #F5E8E8;
   .btn-pulse {
     position: relative;
     display: block;
-    width: 8px;
-    height: 8px;
+    width: 8px; height: 8px;
     border-radius: 50%;
     background: $accent-mid;
     flex-shrink: 0;
@@ -192,8 +199,7 @@ $red-light: #F5E8E8;
 
     &::after {
       content: '';
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       border-radius: 50%;
       background: rgba($accent-mid, 0.3);
       animation: pulseWave 1.4s ease-out infinite;
@@ -205,8 +211,7 @@ $red-light: #F5E8E8;
   padding: 8px 16px;
   border-radius: 8px;
   font-family: 'Cairo', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 14px; font-weight: 700;
   color: $accent-mid;
   background: none;
   border: 1px solid rgba($accent-mid, 0.3);
@@ -214,34 +219,45 @@ $red-light: #F5E8E8;
   text-decoration: none;
   transition: all 0.2s;
 
-  &:hover {
-    background: rgba($accent-mid, 0.08);
-    border-color: $accent-mid;
+  @include mobile {
+    padding: 7px 12px;
+    font-size: 12px;
   }
+
+  @include small-mobile {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  &:hover { background: rgba($accent-mid, 0.08); border-color: $accent-mid; }
 }
 
 .btn-primary {
   padding: 9px 20px;
   border-radius: 8px;
   font-family: 'Cairo', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 14px; font-weight: 700;
   color: white;
   background: $accent;
-  border: none;
-  cursor: pointer;
+  border: none; cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
   box-shadow: 0 2px 8px rgba($accent, 0.2);
 
-  &:hover {
-    background: $accent-dark;
-    transform: translateY(-1px);
+  @include mobile {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
   }
+
+  &:hover { background: $accent-dark; transform: translateY(-1px); }
 
   &.large {
     padding: 13px 28px;
     font-size: 15px;
+    @include mobile { padding: 12px 20px; font-size: 14px; width: 100%; }
   }
 }
 
@@ -249,28 +265,32 @@ $red-light: #F5E8E8;
   padding: 9px 20px;
   border-radius: 8px;
   font-family: 'Cairo', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 14px; font-weight: 700;
   color: $accent;
   background: white;
   border: 1.5px solid $accent;
-  cursor: pointer;
-  text-decoration: none;
+  cursor: pointer; text-decoration: none;
   transition: all 0.2s;
 
-  &:hover {
-    background: $accent-light;
+  @include mobile {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
   }
+
+  &:hover { background: $accent-light; }
 
   &.large {
     padding: 13px 28px;
     font-size: 15px;
+    @include mobile { padding: 12px 20px; font-size: 14px; width: 100%; }
   }
 }
 
 // ── HERO ───────────────────────────────────────────────────
 .hero {
-  padding-top: 64px;
+  padding-top: 60px;
   min-height: 100vh;
   display: flex;
   align-items: stretch;
@@ -278,20 +298,22 @@ $red-light: #F5E8E8;
   position: relative;
   overflow: hidden;
 
+  @include mobile { padding-top: 56px; min-height: auto; }
+
   .hero-bg {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     pointer-events: none;
   }
 
   .grid-overlay {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background-image:
       linear-gradient($border 1px, transparent 1px),
       linear-gradient(90deg, $border 1px, transparent 1px);
     background-size: 48px 48px;
     opacity: 0.45;
+
+    @include mobile { background-size: 32px 32px; opacity: 0.3; }
   }
 
   .hero-inner {
@@ -304,6 +326,17 @@ $red-light: #F5E8E8;
     margin: 0 auto;
     padding: 80px 0 80px 48px;
     position: relative;
+
+    @include tablet {
+      grid-template-columns: 1fr;
+      padding: 60px 32px;
+    }
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      padding: 48px 20px 60px;
+      gap: 32px;
+    }
   }
 
   .hero-content {
@@ -312,6 +345,12 @@ $red-light: #F5E8E8;
     flex-direction: column;
     justify-content: center;
     padding-left: 24px;
+
+    @include tablet-down {
+      padding-left: 0;
+      text-align: center;
+      align-items: center;
+    }
   }
 
   .section-tag {
@@ -320,30 +359,33 @@ $red-light: #F5E8E8;
     color: white;
     padding: 4px 14px;
     border-radius: 6px;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 12px; font-weight: 700;
     margin-bottom: 16px;
     letter-spacing: 0.3px;
     align-self: flex-start;
+
+    @include tablet-down { align-self: center; }
   }
 
   .hero-title {
-    font-size: clamp(26px, 3.5vw, 42px);
+    font-size: clamp(22px, 4vw, 42px);
     font-weight: 900;
     line-height: 1.3;
     margin: 0 0 18px;
     color: $text;
 
-    span {
-      color: $accent;
-    }
+    span { color: $accent; }
+
+    @include mobile { font-size: clamp(22px, 6vw, 30px); }
   }
 
   .hero-desc {
-    font-size: 16px;
+    font-size: 15px;
     color: $text2;
     line-height: 1.8;
     margin-bottom: 32px;
+
+    @include mobile { font-size: 14px; margin-bottom: 24px; }
   }
 
   .hero-ctas {
@@ -351,6 +393,22 @@ $red-light: #F5E8E8;
     gap: 12px;
     flex-wrap: wrap;
     margin-bottom: 40px;
+
+    @include tablet-down { justify-content: center; }
+
+    @include mobile {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      margin-bottom: 28px;
+
+      .btn-primary, .btn-outline {
+        width: 100%;
+        justify-content: center;
+        display: flex;
+        text-align: center;
+      }
+    }
   }
 
   .hero-stats {
@@ -360,19 +418,26 @@ $red-light: #F5E8E8;
     border-top: 1px solid $border2;
     flex-wrap: wrap;
 
+    @include tablet-down { justify-content: center; }
+
+    @include mobile {
+      gap: 20px;
+      justify-content: space-around;
+      padding-top: 20px;
+    }
+
     .stat {
       display: flex;
       flex-direction: column;
 
       .stat-value {
-        font-size: 22px;
-        font-weight: 900;
-        color: $accent;
+        font-size: 22px; font-weight: 900; color: $accent;
+        @include mobile { font-size: 18px; }
       }
 
       .stat-label {
-        font-size: 12px;
-        color: $text3;
+        font-size: 12px; color: $text3;
+        @include mobile { font-size: 11px; }
       }
     }
   }
@@ -387,36 +452,54 @@ $red-light: #F5E8E8;
   justify-content: center;
   overflow: hidden;
 
+  @include tablet {
+    max-height: 320px;
+    align-items: center;
+  }
+
+  @include mobile {
+    max-height: 240px;
+    align-items: center;
+  }
+
   .hero-img-wrapper {
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     display: flex;
     align-items: flex-end;
     justify-content: center;
 
+    @include tablet-down {
+      align-items: center;
+    }
+
     img {
-      width: 90%;
-      height: auto;
+      width: 90%; height: auto;
       object-fit: contain;
       display: block;
-      // إزالة الخلفية الفاتحة
       mix-blend-mode: multiply;
-      // تدرج من الأسفل لفوق بيشيل الحواف
-      -webkit-mask-image: radial-gradient(ellipse 85% 90% at 55% 55%,
-          black 60%,
-          transparent 100%);
-      mask-image: radial-gradient(ellipse 85% 90% at 55% 55%,
-          black 60%,
-          transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 85% 90% at 55% 55%, black 60%, transparent 100%);
+      mask-image: radial-gradient(ellipse 85% 90% at 55% 55%, black 60%, transparent 100%);
       filter: drop-shadow(0 12px 40px rgba(74, 122, 155, 0.2));
+
+      @include mobile { width: 85%; }
     }
   }
 }
 
 // ── Shared section styles ──────────────────────────────────
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @include mobile { padding: 0 16px; }
+}
+
 .section-header {
   text-align: center;
-  margin-bottom: 56px;
+  margin-bottom: 48px;
+
+  @include mobile { margin-bottom: 32px; }
 
   .section-tag {
     display: inline-block;
@@ -424,14 +507,13 @@ $red-light: #F5E8E8;
     color: $accent;
     padding: 4px 14px;
     border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 12px; font-weight: 700;
     margin-bottom: 12px;
     border: 1px solid $border2;
   }
 
   .section-title {
-    font-size: clamp(22px, 2.5vw, 32px);
+    font-size: clamp(20px, 2.5vw, 32px);
     font-weight: 900;
     color: $text;
     margin-bottom: 12px;
@@ -443,13 +525,18 @@ $red-light: #F5E8E8;
     color: $text3;
     font-size: 15px;
     line-height: 1.7;
+
+    @include mobile { font-size: 14px; }
   }
 }
 
 // ── SERVICES ───────────────────────────────────────────────
 .services {
-  padding: 100px 0;
+  padding: 80px 0;
   background: $surface;
+
+  @include tablet { padding: 60px 0; }
+  @include mobile { padding: 48px 0; }
 }
 
 .services-grid {
@@ -460,12 +547,16 @@ $red-light: #F5E8E8;
   margin: 0 auto;
   padding: 0 24px;
 
-  @media (max-width: 992px) {
+  @include tablet {
     grid-template-columns: repeat(2, 1fr);
+    padding: 0 32px;
+    gap: 18px;
   }
 
-  @media (max-width: 600px) {
+  @include mobile {
     grid-template-columns: 1fr;
+    padding: 0 16px;
+    gap: 16px;
   }
 }
 
@@ -483,79 +574,62 @@ $red-light: #F5E8E8;
     border-color: $accent-mid;
   }
 
+  // on touch devices disable hover lift
+  @media (hover: none) {
+    &:hover { transform: none; box-shadow: none; }
+  }
+
   .service-image {
-    width: 100%;
-    height: 180px;
+    width: 100%; height: 180px;
     background: $surface2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
     border-bottom: 1px solid $border;
 
+    @include mobile { height: 160px; }
+
     img {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: cover;
       transition: transform 0.5s ease;
     }
 
     .image-overlay {
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       background: linear-gradient(to bottom, transparent, rgba($brand-dark, 0.15));
-      opacity: 0;
-      transition: opacity 0.35s;
+      opacity: 0; transition: opacity 0.35s;
     }
   }
 
-  &:hover .service-image img {
-    transform: scale(1.1);
-  }
-
-  &:hover .image-overlay {
-    opacity: 1;
-  }
+  &:hover .service-image img { transform: scale(1.1); }
+  &:hover .image-overlay { opacity: 1; }
 
   .service-content {
     padding: 20px;
+    @include mobile { padding: 16px; }
 
-    h3 {
-      font-size: 15px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      color: $text;
-    }
-
-    p {
-      font-size: 13px;
-      color: $text3;
-      line-height: 1.7;
-    }
+    h3 { font-size: 15px; font-weight: 800; margin-bottom: 8px; color: $text; }
+    p  { font-size: 13px; color: $text3; line-height: 1.7; }
   }
 
   .service-line {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 4px;
+    position: absolute; bottom: 0; left: 50%;
+    width: 0; height: 4px;
     background: $accent;
     transition: all 0.35s ease;
     transform: translateX(-50%);
-    border-radius: 0;
   }
 
-  &:hover .service-line {
-    width: 100%;
-  }
+  &:hover .service-line { width: 100%; }
 }
 
 // ── FEATURES ───────────────────────────────────────────────
 .features {
-  padding: 100px 0;
+  padding: 80px 0;
   background: white;
+
+  @include tablet { padding: 60px 0; }
+  @include mobile { padding: 48px 0; }
 }
 
 .features-grid {
@@ -563,13 +637,8 @@ $red-light: #F5E8E8;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
+  @include tablet { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @include mobile { grid-template-columns: 1fr; gap: 14px; }
 }
 
 .feature-card {
@@ -581,61 +650,45 @@ $red-light: #F5E8E8;
   position: relative;
   overflow: hidden;
 
+  @include mobile { padding: 20px 18px; }
+
   &:hover {
     transform: translateY(-4px);
     border-color: $accent-mid;
     background: $surface2;
     box-shadow: 0 8px 24px rgba($accent, 0.08);
+
+    @media (hover: none) { transform: none; }
   }
 
   .feature-icon {
-    width: 48px;
-    height: 48px;
-    background: $accent;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 48px; height: 48px;
+    background: $accent; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
     margin-bottom: 16px;
-    color: white;
-    font-size: 22px;
+    color: white; font-size: 22px;
   }
 
-  h3 {
-    font-size: 15px;
-    font-weight: 800;
-    margin-bottom: 8px;
-    color: $text;
-  }
-
-  p {
-    font-size: 13px;
-    color: $text3;
-    line-height: 1.7;
-  }
+  h3 { font-size: 15px; font-weight: 800; margin-bottom: 8px; color: $text; }
+  p  { font-size: 13px; color: $text3; line-height: 1.7; }
 
   .feature-line {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 0;
-    height: 3px;
+    position: absolute; bottom: 0; right: 0;
+    width: 0; height: 3px;
     background: $accent;
     transition: width 0.35s ease;
-    border-radius: 0;
   }
 
-  &:hover .feature-line {
-    width: 100%;
-    right: auto;
-    left: 0;
-  }
+  &:hover .feature-line { width: 100%; right: auto; left: 0; }
 }
 
 // ── TRUST SECTION ──────────────────────────────────────────
 .trust-section {
-  padding: 100px 0;
+  padding: 80px 0;
   background: $surface;
+
+  @include tablet { padding: 60px 0; }
+  @include mobile { padding: 48px 0; }
 
   .trust-inner {
     display: grid;
@@ -643,194 +696,106 @@ $red-light: #F5E8E8;
     gap: 80px;
     align-items: center;
 
-    @media (max-width: 900px) {
-      grid-template-columns: 1fr;
-      gap: 48px;
-    }
+    @include tablet { grid-template-columns: 1fr; gap: 40px; }
+    @include mobile { grid-template-columns: 1fr; gap: 32px; }
   }
 
   .trust-content {
     .section-tag {
       display: inline-block;
-      background: $surface2;
-      color: $accent;
-      padding: 4px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      border: 1px solid $border2;
+      background: $surface2; color: $accent;
+      padding: 4px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 700;
+      margin-bottom: 14px; border: 1px solid $border2;
     }
 
     .section-title {
-      font-size: clamp(20px, 2.2vw, 30px);
-      font-weight: 900;
-      color: $text;
-      margin-bottom: 12px;
+      font-size: clamp(18px, 2.2vw, 30px);
+      font-weight: 900; color: $text; margin-bottom: 12px;
     }
 
     .section-sub {
-      font-size: 15px;
-      color: $text3;
-      line-height: 1.7;
-      margin-bottom: 36px;
+      font-size: 15px; color: $text3;
+      line-height: 1.7; margin-bottom: 36px;
+
+      @include mobile { font-size: 14px; margin-bottom: 24px; }
     }
   }
 
   .trust-points {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    margin-bottom: 36px;
+    display: flex; flex-direction: column;
+    gap: 22px; margin-bottom: 36px;
+
+    @include mobile { gap: 16px; margin-bottom: 24px; }
   }
 
   .trust-point {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
+    display: flex; gap: 16px; align-items: flex-start;
 
     .tp-icon {
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
       border-radius: 12px;
-      background: white;
-      border: 1px solid $border2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: $accent;
-      flex-shrink: 0;
+      background: white; border: 1px solid $border2;
+      display: flex; align-items: center; justify-content: center;
+      color: $accent; flex-shrink: 0;
 
-      svg {
-        width: 20px;
-        height: 20px;
-      }
+      svg { width: 20px; height: 20px; }
     }
 
-    strong {
-      font-size: 14px;
-      font-weight: 800;
-      color: $text;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    p {
-      font-size: 13px;
-      color: $text3;
-      line-height: 1.6;
-      margin: 0;
-    }
+    strong { font-size: 14px; font-weight: 800; color: $text; display: block; margin-bottom: 4px; }
+    p { font-size: 13px; color: $text3; line-height: 1.6; margin: 0; }
   }
 }
 
 // ── Trust visual card ──────────────────────────────────────
 .trust-visual {
   .tv-card {
-    background: white;
-    border-radius: 18px;
-    border: 1px solid $border;
-    padding: 8px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+    background: white; border-radius: 18px;
+    border: 1px solid $border; padding: 8px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.05);
   }
 
   .tv-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 13px 14px;
-    border-radius: 12px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px; border-radius: 12px;
     transition: background 0.2s;
 
-    &:hover {
-      background: $surface;
-    }
+    &:hover { background: $surface; }
   }
 
   .tv-av {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 900;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    width: 40px; height: 40px; border-radius: 10px;
+    font-size: 13px; font-weight: 900; color: white;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 
-    &.purple {
-      background: $accent;
-    }
-
-    &.green {
-      background: $green;
-    }
-
-    &.amber {
-      background: $accent-dark;
-    }
+    &.purple { background: $accent; }
+    &.green  { background: $green; }
+    &.amber  { background: $accent-dark; }
   }
 
   .tv-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-
-    .tv-name {
-      font-size: 13px;
-      font-weight: 800;
-      color: $text;
-    }
-
-    .tv-sub {
-      font-size: 11px;
-      color: $text3;
-      margin-top: 2px;
-    }
+    flex: 1; display: flex; flex-direction: column;
+    .tv-name { font-size: 13px; font-weight: 800; color: $text; }
+    .tv-sub  { font-size: 11px; color: $text3; margin-top: 2px; }
   }
 
   .tv-chip {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 12px;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 12px;
 
-    &.blue {
-      background: $accent-light;
-      color: $accent-dark;
-    }
-
-    &.green {
-      background: $green-light;
-      color: $green;
-    }
-
-    &.amber {
-      background: $red-light;
-      color: $red;
-    }
+    &.blue  { background: $accent-light;  color: $accent-dark; }
+    &.green { background: $green-light;   color: $green; }
+    &.amber { background: $red-light;     color: $red; }
   }
 
   .tv-footer {
-    display: flex;
-    justify-content: space-around;
-    padding: 14px 16px;
-    margin-top: 4px;
+    display: flex; justify-content: space-around;
+    padding: 14px 16px; margin-top: 4px;
     border-top: 1px solid $border;
 
     .tv-stat {
-      font-size: 12px;
-      color: $text3;
-      text-align: center;
-
-      strong {
-        display: block;
-        font-size: 18px;
-        font-weight: 900;
-        color: $accent;
-        margin-bottom: 2px;
-      }
+      font-size: 12px; color: $text3; text-align: center;
+      strong { display: block; font-size: 18px; font-weight: 900; color: $accent; margin-bottom: 2px; }
     }
   }
 }
@@ -842,74 +807,80 @@ $red-light: #F5E8E8;
   padding: 40px 0;
   border-top: 1px solid rgba($accent-mid, 0.1);
 
-  .footer-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
+  @include mobile { padding: 32px 0; }
 
-    @media (max-width: 600px) {
+  .footer-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 1200px; margin: 0 auto; padding: 0 24px;
+
+    @include mobile {
       flex-direction: column;
-      gap: 20px;
-      text-align: center;
+      gap: 16px; text-align: center;
+      padding: 0 16px;
     }
   }
 
   .footer-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    .logo-text {
-      font-size: 1.2rem;
-      font-weight: 900;
-      color: $accent-mid;
-    }
+    display: flex; align-items: center; gap: 10px;
+    .logo-text { font-size: 1.2rem; font-weight: 900; color: $accent-mid; }
   }
 
   .copyright {
-    font-size: 14px;
-    color: rgba(white, 0.4);
+    font-size: 14px; color: rgba(white, 0.4);
+    @include mobile { font-size: 12px; }
   }
 }
 
-// ── RESPONSIVE ─────────────────────────────────────────────
-@media (max-width: 900px) {
+// ── RESPONSIVE OVERRIDES ────────────────────────────────────
+@include tablet {
   .hero .hero-inner {
     grid-template-columns: 1fr;
-    padding: 80px 24px;
+    padding: 60px 32px;
   }
 
   .hero .hero-content {
     padding-left: 0;
     text-align: center;
+    align-items: center;
   }
 
-  .hero .section-tag {
-    align-self: center;
-  }
+  .hero .section-tag { align-self: center; }
+  .hero .hero-ctas   { justify-content: center; }
+  .hero .hero-stats  { justify-content: center; }
 
   .hero-visual {
+    max-height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeInUp 0.7s 0.15s ease both;
 
-    svg {
-      width: 100%;
-      height: auto;
-      max-width: 560px;
-    }
+    svg { width: 100%; height: auto; max-width: 480px; }
+  }
+}
+
+@include mobile {
+  .hero .hero-inner {
+    grid-template-columns: 1fr;
+    padding: 48px 16px 60px;
   }
 
+  .hero .hero-content {
+    padding-left: 0;
+    text-align: center;
+    align-items: center;
+  }
 
-  .hero .hero-ctas {
+  .hero .section-tag { align-self: center; }
+
+  .hero-visual {
+    max-height: 220px;
+    display: flex;
+    align-items: center;
     justify-content: center;
+
+    svg { width: 100%; height: auto; max-width: 320px; }
   }
 
-  .hero .hero-stats {
-    justify-content: center;
-  }
+  .hero .hero-ctas  { justify-content: center; flex-direction: column; }
+  .hero .hero-stats { justify-content: center; }
 }
