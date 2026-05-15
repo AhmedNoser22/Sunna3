@@ -210,24 +210,6 @@ $bp-laptop: 1024px;
   }
 }
 
-@mixin tablet {
-  @media (min-width: 768px) and (max-width: 1023px) {
-    @content;
-  }
-}
-
-@mixin mobile {
-  @media (max-width: 767px) {
-    @content;
-  }
-}
-
-@mixin tablet-down {
-  @media (max-width: 1023px) {
-    @content;
-  }
-}
-
 // ── Buttons ────────────────────────────────────────────────
 .vendor-apply-btn {
   position: relative;
@@ -720,45 +702,6 @@ $bp-laptop: 1024px;
     transform: translateY(-6px);
     box-shadow: 0 16px 36px rgba($accent, 0.09);
     border-color: $accent-mid;
-  }
-
-  @media (max-width: 767px) {
-
-    // الـ nav على الموبايل
-    .nav .nav-inner {
-      height: 56px;
-      padding: 0 14px;
-    }
-
-    // تصغير اللوجو
-    .logo-text {
-      font-size: 16px !important;
-    }
-
-    // الـ nav actions تتضغط
-    .nav .nav-actions {
-      gap: 5px;
-    }
-
-    // زر "انضم كفني" - تصغير على موبايل
-    .vendor-apply-btn {
-      padding: 7px 10px !important;
-      font-size: 11px !important;
-      gap: 4px !important;
-    }
-
-    // زر ghost - تصغير
-    .btn-ghost {
-      padding: 6px 9px !important;
-      font-size: 11px !important;
-    }
-
-    // زر دخول إخفاءه لو الشاشة صغيرة جداً
-    @media (max-width: 380px) {
-      .nav .nav-actions .btn-ghost:not(:last-child) {
-        display: none;
-      }
-    }
   }
 
   .service-image {
