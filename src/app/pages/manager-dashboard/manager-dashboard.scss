@@ -658,137 +658,280 @@ body { font-family: 'Cairo', sans-serif; background: var(--surface); }
 .iv-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s; }
 .iv-dot.active { background: var(--accent-mid); transform: scale(1.5); }
 
-// ══════════════════════════════════════════════════════════
-//  ✅ RESPONSIVE — هنا الـ media queries الحقيقية
-//  دي بتشتغل صح لأنها في global styles مش في component
-// ══════════════════════════════════════════════════════════
-
-// ── Tablet: 768px → 1023px ──────────────────────────────
-@media (min-width: 768px) and (max-width: 1023px) {
-  .sidebar { width: 220px; }
-  .main { margin-right: 220px; }
-  .topbar { padding: 16px 24px; }
-  .page-body { padding: 22px 24px; gap: 18px; }
-  .stats-row { grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .stat-card .stat-num { font-size: 22px; }
-  .filter-select { min-width: 120px; }
-}
-
-// ── Mobile: max 767px ───────────────────────────────────
 @media (max-width: 767px) {
-
-  // إخفاء الـ desktop sidebar وتوبار
-  .sidebar { display: none; }
-  .topbar  { display: none; }
-
-  // إظهار الـ mobile elements
-  .mobile-topbar      { display: flex; }
-  .mobile-page-title  { display: flex; }
-  .mobile-bottom-nav  { display: flex; }
-
-  // الـ main بياخد كل العرض
-  .main { margin-right: 0; }
-
-  // padding من تحت عشان الـ bottom nav
+ 
+  // ── إخفاء الـ sidebar تماماً ──
+  .sidebar {
+    display: none !important;
+    transform: translateX(100%) !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+ 
+  // ── الـ main بياخد كل العرض ──
+  .main {
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+ 
+  // ── إخفاء الـ desktop topbar ──
+  .topbar {
+    display: none !important;
+  }
+ 
+  // ── إظهار الـ mobile elements ──
+  .mobile-topbar {
+    display: flex !important;
+  }
+ 
+  .mobile-page-title {
+    display: flex !important;
+  }
+ 
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+ 
+  // ── page body padding من تحت عشان الـ bottom nav ──
   .page-body {
-    padding: 14px 14px calc(70px + env(safe-area-inset-bottom, 0px)) 14px;
-    gap: 14px;
+    padding: 14px 14px calc(72px + env(safe-area-inset-bottom, 8px)) 14px !important;
+    gap: 14px !important;
   }
-
-  // الـ stats بتتحول لـ 2 columns
+ 
+  // ── stats grid: عمودين ──
   .stats-row {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    flex-wrap: unset !important;
   }
+ 
   .stat-card {
-    padding: 14px;
-    gap: 10px;
-    border-radius: 12px;
+    min-width: unset !important;
+    padding: 13px 14px !important;
+    gap: 10px !important;
+    border-radius: 12px !important;
   }
-  .stat-card .stat-icon { width: 38px; height: 38px; border-radius: 10px; }
-  .stat-card .stat-icon .material-icons-round { font-size: 18px; }
-  .stat-card .stat-num { font-size: 20px; }
-  .stat-card .stat-lbl { font-size: 11px; }
-
-  // الـ filters تتلف
-  .filters-bar { gap: 6px; }
-  .filter-select { min-width: unset; font-size: 12px; padding: 9px 14px 9px 36px; }
-  .select-wrap { flex: 1 1 calc(50% - 3px); }
-
-  // الـ table بتتعامل مع overflow
-  .table-wrap { border-radius: 12px; }
-
-  // الـ review grid
-  .review-grid { grid-template-columns: 1fr; gap: 12px; }
-  .review-header-bar { padding: 16px; border-radius: 12px; }
-  .review-header-icon { font-size: 28px; }
-  .review-card { padding: 14px; border-radius: 12px; }
-
-  // الـ users
-  .users-sub-tabs { padding: 10px 12px; border-radius: 12px; gap: 6px; }
-  .users-sub-tab { flex: 1; justify-content: center; padding: 8px 10px; font-size: 12px; }
-  .users-search-wrap { width: 100%; margin-right: 0; }
-  .users-search-wrap input { width: 100%; }
-  .users-grid { grid-template-columns: 1fr; gap: 10px; }
-  .user-card { padding: 12px 14px; border-radius: 10px; }
-
-  // الـ vendors
-  .vendors-grid { grid-template-columns: 1fr; gap: 12px; }
-  .vcard { padding: 16px; border-radius: 12px; }
-
-  // الـ payouts
-  .payout-card { padding: 16px; border-radius: 16px; }
-  .payout-tabs-bar { gap: 6px; }
-  .payout-tab { padding: 9px 14px; font-size: 12px; }
-
-  // الـ invitations
-  .inv-page { max-width: 100%; gap: 14px; }
-  .inv-header { padding: 16px; border-radius: 12px; gap: 12px; }
-  .inv-header-icon { font-size: 28px; }
-  .inv-card { padding: 18px; border-radius: 12px; gap: 14px; }
-  .inv-result-card { padding: 18px; border-radius: 12px; }
-  .inv-actions { flex-direction: column; gap: 8px; }
-  .inv-action-btn { width: 100%; justify-content: center; }
-
-  // الـ modal بيتحول لـ bottom sheet
-  .overlay { align-items: flex-end; padding: 0; }
+ 
+  .stat-card .stat-num,
+  .stat-card .sc-body .stat-num {
+    font-size: 20px !important;
+  }
+ 
+  .stat-card .stat-lbl,
+  .stat-card .sc-body .stat-lbl {
+    font-size: 10.5px !important;
+  }
+ 
+  .stat-icon {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+  }
+ 
+  .stat-icon .material-icons-round {
+    font-size: 18px !important;
+  }
+ 
+  // ── filters ──
+  .filters-bar {
+    gap: 7px !important;
+  }
+ 
+  .search-wrap {
+    flex: 1 1 100% !important;
+    order: -1;
+  }
+ 
+  .select-wrap {
+    flex: 1 1 calc(50% - 4px) !important;
+  }
+ 
+  .filter-select {
+    width: 100% !important;
+    min-width: unset !important;
+    font-size: 12px !important;
+    padding: 9px 14px 9px 36px !important;
+  }
+ 
+  // ── table ──
+  .table-wrap {
+    border-radius: 12px !important;
+  }
+ 
+  // ── review grid ──
+  .review-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+ 
+  .review-header-bar {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+ 
+  .review-card {
+    padding: 14px !important;
+    border-radius: 12px !important;
+  }
+ 
+  // ── vendors ──
+  .vendors-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+ 
+  .vcard {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+ 
+  // ── users ──
+  .users-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+ 
+  .user-card {
+    padding: 12px 14px !important;
+  }
+ 
+  .users-sub-tabs {
+    padding: 10px 12px !important;
+    gap: 6px !important;
+  }
+ 
+  .users-sub-tab {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+ 
+  .users-search-wrap {
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+ 
+  .users-search-wrap input {
+    width: 100% !important;
+  }
+ 
+  // ── payouts ──
+  .payout-card {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+ 
+  .payout-tabs-bar {
+    gap: 6px !important;
+  }
+ 
+  .payout-tab {
+    padding: 9px 14px !important;
+    font-size: 12px !important;
+  }
+ 
+  // ── modal → bottom sheet ──
+  .overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+ 
   .modal {
-    max-width: 100%;
-    max-height: 92vh;
-    border-radius: 20px 20px 0 0;
-    animation: slideUp 0.25s ease;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: 20px 20px 0 0 !important;
   }
-  .modal::before {
-    content: '';
-    display: block;
-    width: 40px; height: 4px;
-    background: var(--border2);
-    border-radius: 2px;
-    margin: 10px auto 0;
-    flex-shrink: 0;
+ 
+  .modal-hd {
+    padding: 14px 18px 12px !important;
   }
-  .modal-hd { padding: 14px 18px 12px; }
-  .modal-bd { padding: 16px 18px; gap: 13px; }
-  .modal-dates { grid-template-columns: 1fr; }
-  .modal-imgs-grid img { width: 72px; height: 72px; }
-
-  // الـ image viewer
-  .img-viewer img { max-width: 95%; max-height: 75vh; border-radius: 8px; }
-  .iv-btn { width: 42px; height: 42px; }
-  .iv-btn .material-icons-round { font-size: 22px; }
-  .iv-prev { right: 10px; }
-  .iv-next { left: 10px; }
+ 
+  .modal-bd {
+    padding: 16px 18px !important;
+    gap: 13px !important;
+  }
+ 
+  // ── stats-row.four override ──
+  .stats-row.four {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
-
-// ── Small mobile: max 480px ─────────────────────────────
+ 
+// ── Small mobile: 480px وأقل ────────────────────────────────
 @media (max-width: 480px) {
-  .page-body { padding: 12px 12px calc(70px + env(safe-area-inset-bottom, 0px)) 12px; gap: 12px; }
-  .stats-row { gap: 8px; }
-  .stat-card { padding: 12px; gap: 8px; }
-  .stat-card .stat-num { font-size: 18px; }
-  .stat-card .stat-lbl { font-size: 10px; }
-  .payout-card { padding: 14px; }
-  .payout-amounts { padding: 12px 14px; }
+  .page-body {
+    padding: 12px 12px calc(72px + env(safe-area-inset-bottom, 8px)) 12px !important;
+    gap: 12px !important;
+  }
+ 
+  .stats-row {
+    gap: 8px !important;
+  }
+ 
+  .stat-card {
+    padding: 11px 12px !important;
+    gap: 8px !important;
+  }
+ 
+  .stat-card .stat-num,
+  .stat-card .sc-body .stat-num {
+    font-size: 17px !important;
+  }
+ 
+  .payout-amounts {
+    padding: 12px 14px !important;
+  }
+ 
+  // الـ nav على الشاشات الصغيرة جداً
+  .nav .nav-inner {
+    padding: 0 10px;
+  }
+ 
+  .logo-text {
+    font-size: 15px !important;
+  }
+ 
+  .vendor-apply-btn {
+    padding: 6px 9px !important;
+    font-size: 10px !important;
+  }
+ 
+  .btn-ghost {
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+  }
 }
-
+ 
+// ── Tablet fixes: 768px → 1023px ─────────────────────────────
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar {
+    width: 220px !important;
+  }
+ 
+  .main {
+    margin-right: 220px !important;
+  }
+ 
+  .topbar {
+    padding: 16px 24px !important;
+  }
+ 
+  .page-body {
+    padding: 22px 24px !important;
+    gap: 18px !important;
+  }
+ 
+  // stats: 3 columns على التابلت
+  .stats-row {
+    grid-template-columns: repeat(3, 1fr) !important;
+    display: grid !important;
+  }
+ 
+  .stats-row.four {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
