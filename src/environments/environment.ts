@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://sunna3.runasp.net'
+  apiUrl: 'https://sunna3.runasp.net'
 };
