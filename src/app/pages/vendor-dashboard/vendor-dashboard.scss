@@ -29,6 +29,23 @@ $red-light: #F5E8E8;
 // ── Breakpoints ──────────────────────────────────────────────
 $bp-mobile: 768px;
 $bp-tablet: 1024px;
+@mixin mobile {
+  @media (max-width: #{$bp-mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: $bp-mobile) and (max-width: #{$bp-tablet - 1px}) {
+    @content;
+  }
+}
+
+@mixin sm-mob {
+  @media (max-width: 400px) {
+    @content;
+  }
+}
 
 // ══════════════════════════════════════════════════════════
 //  RESPONSIVE GLOBAL FIX
