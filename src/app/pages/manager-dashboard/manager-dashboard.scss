@@ -688,323 +688,257 @@ body { font-family: 'Cairo', sans-serif; background: var(--surface); }
 }
 
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-
-
 *,
 *::before,
 *::after {
-  min-width: 0;
+  box-sizing: border-box;
+  min-width: 0; /* This is good! Keep it for flex/grid overflow */
 }
 
-html,
-body {
+html, body {
   width: 100%;
   overflow-x: hidden;
 }
 
-img,
-svg,
-video,
-canvas {
+img, svg, video, canvas {
   max-width: 100%;
+  height: auto;
 }
 
-.dash {
-  display: grid !important;
-  grid-template-columns: 256px minmax(0, 1fr);
-  overflow-x: hidden;
-}
-
-.sidebar {
-  position: sticky !important;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.main {
-  margin-right: 0 !important;
-  min-width: 0;
-  width: 100%;
-  overflow-x: hidden;
-}
-
-.page-body,
-.table-wrap,
-.review-grid,
-.users-grid,
-.payouts-list,
-.review-header-info,
-.user-info,
-.sb-user-info,
-.pts-method-info,
-.payout-vendor-info,
-.stat-card,
-.modal,
-.modal-bd {
-  min-width: 0;
-  max-width: 100%;
-}
-
-.review-header-info,
-.payout-card-top,
-.payout-method-row,
-.modal-price-row,
-.review-card-actions,
-.users-sub-tabs,
-.payout-tabs-bar,
-.filters-bar {
-  min-width: 0;
-  flex-wrap: wrap;
-}
-
-.table-wrap {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.td-desc .desc-text {
-  max-width: 100%;
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-
-.review-grid,
-.users-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
-.stats-row,
-.stats-row.four {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-@media (max-width: 767px) {
-
+/* --- 2. TABLET LAYOUT (من 768px لـ 1023px) --- */
+@media (min-width: 768px) and (max-width: 1023px) {
   .dash {
-    grid-template-columns: 1fr !important;
+    /* خليها Grid عشان تتحكم في المساحات بسهولة */
+    display: grid !important;
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 
   .sidebar {
-    display: none !important;
+    width: auto !important; /* تخليها تاخد الـ 220px من الـ Grid */
+    position: sticky !important;
+    top: 0;
+    height: 100vh;
   }
 
+  .main {
+    margin-right: 0 !important; /* نشيل الـ margin القديم */
+    min-width: 0; /* مهم عشان الـ grid */
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* تعديلات بسيطة في الـ Stats Cards */
+  .stats-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .stats-row.four {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* بقية العناصر هتتصرف كويس لوحدها */
+  .page-body {
+    padding: 22px 24px;
+  }
+}
+
+/* --- 3. MOBILE LAYOUT (أقل من 768px) --- */
+@media (max-width: 767px) {
+  /* 🟢 الـ LAYOUT الرئيسي: Grid من صف واحد */
+  .dash {
+    display: block !important; /* نفس فكرة الـ block عشان نتحكم بالكامل */
+  }
+
+  /* 🟢 أخفي الـ Sidebar والـ Desktop Topbar */
+  .sidebar,
   .topbar {
     display: none !important;
   }
 
-  .main {
-    margin-right: 0 !important;
-    width: 100%;
-    padding-bottom: calc(74px + env(safe-area-inset-bottom));
-  }
-
+  /* 🟢 شغّل الـ Mobile Topbar والـ Bottom Nav */
   .mobile-topbar {
     display: flex !important;
   }
-
   .mobile-bottom-nav {
     display: flex !important;
     position: fixed;
-    right: 0;
-    left: 0;
     bottom: 0;
-    z-index: 999;
+    left: 0;
+    right: 0;
+    z-index: 1000;
     background: var(--brand-dark);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding-bottom: env(safe-area-inset-bottom);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
 
+  /* 🟢 الـ Main area */
+  .main {
+    margin-right: 0 !important;
+    padding-bottom: 74px; /* مساحة للـ Bottom Nav */
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* 🟢 الـ Page Title الخاص بالـ Mobile */
+  .mobile-page-title {
+    display: block !important;
+    padding: 16px 16px 0;
+  }
+  .mobile-page-title h1 {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+  }
+
+  /* 🟢 الـ Page Body */
   .page-body {
-    padding: 14px;
-    gap: 14px;
+    padding: 14px 16px 20px;
+    gap: 18px;
   }
 
-  .stats-row,
-  .stats-row.four {
+  /* 🟢 تحسين الـ Stats Cards للـ Mobile */
+  .stats-row {
+    display: grid;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px;
+    gap: 12px;
   }
-
   .stat-card {
-    padding: 14px;
-    border-radius: 12px;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  .stat-card .stat-num {
+    font-size: 1.4rem;
+  }
+  .stat-card .stat-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  /* 🟢 الـ Filters تاخد عرض كامل */
+  .filters-bar {
+    flex-direction: column;
     gap: 10px;
   }
-
-  .stat-card .stat-num {
-    font-size: 20px;
-  }
-
-  .stat-card .stat-icon {
-    width: 40px;
-    height: 40px;
-  }
-
-  .filters-bar {
-    gap: 8px;
-  }
-
   .select-wrap {
-    flex: 1 1 calc(50% - 4px);
+    width: 100%;
   }
-
   .filter-select {
     width: 100%;
-    min-width: unset;
+    min-width: auto;
   }
 
+  /* 🟢 الـ Table لازمها Scroll أفقي */
   .table-wrap {
-    border-radius: 12px;
+    overflow-x: auto;
+    border-radius: 16px;
   }
-
   .data-table {
-    min-width: 620px;
+    min-width: 700px; /* عشان تضمن إنها تظهر كويس */
   }
 
-  .data-table th,
-  .data-table td {
-    padding: 10px 12px;
-    font-size: 12px;
-  }
-
+  /* 🟢 الـ Review و Users Cards */
   .review-grid,
   .users-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 
-  .review-card,
-  .user-card {
-    padding: 14px;
-    border-radius: 12px;
-  }
-
-  .review-header-bar,
-  .inv-header,
-  .inv-card,
-  .inv-result-card,
+  /* 🟢 الـ Payouts */
   .payout-card {
-    padding: 16px;
-    border-radius: 12px;
+    padding: 18px;
   }
-
-  .review-header-info,
-  .payout-card-top,
-  .payout-method-row,
-  .modal-price-row,
-  .modal-vendor-row {
+  .payout-card-top {
     flex-direction: column;
     align-items: flex-start;
   }
-
-  .users-sub-tabs,
-  .payout-tabs-bar {
-    gap: 6px;
+  .payout-amounts {
+    padding: 12px;
   }
-
-  .users-sub-tab,
-  .payout-tab {
-    flex: 1 1 calc(50% - 3px);
+  .payout-transfer-section .pts-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .pts-tab {
+    flex: 1;
+    text-align: center;
     justify-content: center;
   }
 
-  .users-search-wrap {
-    width: 100%;
-    margin-right: 0;
-  }
-
-  .users-search-wrap input {
-    width: 100%;
-  }
-
+  /* 🟢 الـ Invitations */
   .inv-actions {
     flex-direction: column;
   }
-
   .inv-action-btn {
     width: 100%;
     justify-content: center;
   }
 
+  /* 🟢 تحسين الـ Modal (تبقى Bottom Sheet) */
   .overlay {
     align-items: flex-end;
     padding: 0;
   }
-
   .modal {
     max-width: 100%;
-    max-height: 92vh;
+    max-height: 85vh;
     border-radius: 20px 20px 0 0;
-    animation: mobileSheet 0.25s ease;
+    animation: slideUp 0.25s ease-out;
   }
-
+  /* إضافة الخط الأبيض الصغير اللي في الـ iOS sheets */
   .modal::before {
     content: '';
-    width: 42px;
-    height: 4px;
-    border-radius: 999px;
-    background: var(--border2);
-    margin: 10px auto 0;
     display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--border2);
+    border-radius: 2px;
+    margin: 12px auto 0;
   }
-
   .modal-hd {
-    padding: 14px 18px 12px;
+    padding: 12px 18px 8px;
   }
-
   .modal-bd {
     padding: 16px 18px;
   }
-
   .modal-dates {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .modal-imgs-grid img {
-    width: 72px;
-    height: 72px;
-  }
-
-  .img-viewer img {
-    max-width: 95%;
-  }
-
-  .iv-btn {
-    width: 42px;
-    height: 42px;
-  }
-
+  /* 🟢 تحسين صورة الـ Viewer */
   .iv-prev {
-    right: 10px;
+    right: 12px;
   }
-
   .iv-next {
-    left: 10px;
+    left: 12px;
+  }
+  .iv-btn {
+    width: 40px;
+    height: 40px;
   }
 }
 
-@media (max-width: 420px) {
-
-  .stats-row,
-  .stats-row.four {
-    grid-template-columns: 1fr !important;
+/* --- 4. للشاشات الصغيرة جداً (أقل من 480px) --- */
+@media (max-width: 480px) {
+  .stats-row {
+    grid-template-columns: 1fr !important; /* كارتين تحت بعض عشان الشاشة صغيرة */
   }
-
-  .select-wrap,
-  .users-sub-tab,
-  .payout-tab {
-    flex: 1 1 100%;
+  .users-sub-tabs {
+    flex-direction: column;
+  }
+  .users-search-wrap {
+    width: 100%;
+    margin-right: 0;
+  }
+  .review-card-actions {
+    flex-direction: column;
+  }
+  .approve-btn, .reject-btn {
+    width: 100%;
   }
 }
 
-@keyframes mobileSheet {
+/* Animation for the bottom sheet modal */
+@keyframes slideUp {
   from {
     transform: translateY(100%);
   }
@@ -1012,3 +946,13 @@ canvas {
     transform: translateY(0);
   }
 }
+
+
+
+
+
+
+
+
+
+
