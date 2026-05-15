@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface InitiatePaymentDto {
   ticketId: string;
@@ -22,7 +23,7 @@ export interface VerifyPaymentResponseDto {
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   private http = inject(HttpClient);
-  readonly API_URL = 'http://localhost:5001';
+  readonly API_URL = environment.apiUrl;
 
   private headers(): HttpHeaders {
     const token = localStorage.getItem('token');

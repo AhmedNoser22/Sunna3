@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../services/auth';
 import { NotificationBell } from "../notification-bell/notification-bell";
+import { environment } from '../../../environments/environment';
 
 interface Ticket {
   id: string;
@@ -79,7 +80,7 @@ type UsersSubTab = 'tenants' | 'vendors';
 })
 export class ManagerDashboard implements OnInit {
   private http = inject(HttpClient);
-  readonly API_URL = 'http://localhost:5001';
+  readonly API_URL = environment.apiUrl;
 
   activeTab = signal<ActiveTab>('tickets');
   usersSubTab = signal<UsersSubTab>('tenants');

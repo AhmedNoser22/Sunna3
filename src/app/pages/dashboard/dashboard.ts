@@ -6,6 +6,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Auth } from '../../services/auth';
 import { PaymentModal } from '../payment-modal/payment-modal';
 import { PaymentService } from '../../services/payment-service';
+import { environment } from '../../../environments/environment';
 
 interface Ticket {
   id: string;
@@ -56,7 +57,7 @@ interface TicketApplication {
 export class Dashboard implements OnInit {
   private http = inject(HttpClient);
   private paymentSvc = inject(PaymentService);
-  readonly API_URL = 'http://localhost:5001';
+  readonly API_URL = environment.apiUrl;
 
   tickets = signal<Ticket[]>([]);
   loading = signal(true);

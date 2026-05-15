@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Auth } from '../../services/auth';
 import { EGYPT_DATA, GOVERNORATES } from '../../data';
+import { environment } from '../../../environments/environment';
 
 
 interface Ticket {
@@ -46,7 +47,7 @@ type ModalStep = 'details' | 'complete-form';
 })
 export class VendorDashboard implements OnInit {
   private http = inject(HttpClient);
-  readonly API_URL = 'http://localhost:5001';
+  readonly API_URL = environment.apiUrl;
 
   activeTab = signal<ActiveTab>('my-tasks');
   myTickets = signal<Ticket[]>([]);

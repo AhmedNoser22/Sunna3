@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Auth } from '../../services/auth';
+import { environment } from '../../../environments/environment';
 
 interface FeedbackItem {
   id: string;
@@ -39,7 +40,7 @@ export class VendorProfile implements OnInit {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  readonly API_URL = 'http://localhost:5001';
+ readonly API_URL = environment.apiUrl;
 
   profile = signal<VendorProfileData | null>(null);
   loading = signal(true);
