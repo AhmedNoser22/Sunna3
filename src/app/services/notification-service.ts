@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as signalR from '@microsoft/signalr';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 
 export type NotificationType =
   | 'NewTicket'
