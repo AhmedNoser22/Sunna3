@@ -25,7 +25,7 @@
         </div>
       </div>
       <button class="btn-primary" (click)="goToDashboard()">
-        الانتقال إلى الرئيسية 
+        الانتقال إلى الرئيسية
       </button>
     </div>
   </div>
@@ -35,7 +35,11 @@
   <div class="ticket-container">
 
     <div class="page-header">
-      
+      <button class="back-dashboard-btn" (click)="goToDashboard()">
+        <span class="back-icon">→</span>
+        <span>الرجوع للرئيسية</span>
+      </button>
+
       <div class="header-user">
         <span>👋 {{ auth.currentUser()?.fullName }}</span>
       </div>
