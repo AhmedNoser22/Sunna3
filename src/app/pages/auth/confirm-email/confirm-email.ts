@@ -49,7 +49,7 @@ export class ConfirmEmail implements OnInit {
         localStorage.setItem('token', res.token);
 
         setTimeout(() => {
-          this.router.navigate(['/create-ticket']);
+          this.router.navigate(['/dashboard']);
         }, 1200);
       },
       error: (err) => {
