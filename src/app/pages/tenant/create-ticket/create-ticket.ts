@@ -56,30 +56,30 @@ export class CreateTicket implements AfterViewInit {
     deadline: '',
     companyId: '',
   };
-  
+
 
   selectedImages: File[] = [];
   imagePreviews: string[] = [];
 
   priorities: { value: Priority; label: string; color: string; icon: string }[] = [
-    { value: 'Low',      label: 'منخفضة', color: '#10b981', icon: '🟢' },
-    { value: 'Medium',   label: 'متوسطة', color: '#f59e0b', icon: '🟡' },
-    { value: 'High',     label: 'عالية',  color: '#ef4444', icon: '🔴' },
-    { value: 'Critical', label: 'حرجة',   color: '#7c3aed', icon: '🚨' },
+    { value: 'Low', label: 'منخفضة', color: '#10b981', icon: '🟢' },
+    { value: 'Medium', label: 'متوسطة', color: '#f59e0b', icon: '🟡' },
+    { value: 'High', label: 'عالية', color: '#ef4444', icon: '🔴' },
+    { value: 'Critical', label: 'حرجة', color: '#7c3aed', icon: '🚨' },
   ];
 
   problemTypes: { value: ProblemType; label: string; icon: string }[] = [
-    { value: 'Electrical', label: 'كهرباء',   icon: '⚡️' },
-    { value: 'Plumbing',   label: 'سباكة',    icon: '🚿' },
-    { value: 'AC',         label: 'تكييف',    icon: '❄️' },
-    { value: 'Carpentry',  label: 'نجارة',    icon: '🪚' },
-    { value: 'Painting',   label: 'دهانات',   icon: '🎨' },
-    { value: 'Masonry',    label: 'بناء',     icon: '🧱' },
-    { value: 'Flooring',   label: 'أرضيات',   icon: '🏗️' },
-    { value: 'Welding',    label: 'حدادة',    icon: '🔩' },
-    { value: 'Pest',       label: 'حشرات',    icon: '🪲' },
-    { value: 'Cleaning',   label: 'تنظيف',    icon: '🧹' },
-    { value: 'Other',      label: 'أخرى',     icon: '🔧' },
+    { value: 'Electrical', label: 'كهرباء', icon: '⚡️' },
+    { value: 'Plumbing', label: 'سباكة', icon: '🚿' },
+    { value: 'AC', label: 'تكييف', icon: '❄️' },
+    { value: 'Carpentry', label: 'نجارة', icon: '🪚' },
+    { value: 'Painting', label: 'دهانات', icon: '🎨' },
+    { value: 'Masonry', label: 'بناء', icon: '🧱' },
+    { value: 'Flooring', label: 'أرضيات', icon: '🏗️' },
+    { value: 'Welding', label: 'حدادة', icon: '🔩' },
+    { value: 'Pest', label: 'حشرات', icon: '🪲' },
+    { value: 'Cleaning', label: 'تنظيف', icon: '🧹' },
+    { value: 'Other', label: 'أخرى', icon: '🔧' },
   ];
 
   get totalPages(): number {
@@ -102,9 +102,9 @@ export class CreateTicket implements AfterViewInit {
       this.typeCarouselIndex.set(this.typeCarouselIndex() - 1);
     }
   }
-  
 
-  ngAfterViewInit() {}
+
+  ngAfterViewInit() { }
 
   /** Returns current datetime string formatted for datetime-local input */
   get nowDateTimeLocal(): string {
@@ -207,16 +207,29 @@ export class CreateTicket implements AfterViewInit {
       },
       error: (err) => {
         this.loading.set(false);
-        const msg = err?.error?.errors
-          ? Object.values(err.error.errors).flat().join(', ')
-          : (err?.error?.message ?? 'حصل خطأ في البيانات المرسلة');
+
+        // تجاهل Error الصور لو مفيش صور مرفوعة
+        if (
+          err?.error?.errors?.Images &&
+          this.selectedImages.length === 0
+        ) {
+          delete err.error.errors.Images;
+        }
+
+        const errors = err?.error?.errors;
+
+        const msg =
+          errors && Object.keys(errors).length > 0
+            ? Object.values(errors).flat().join(', ')
+            : (err?.error?.message ?? 'حصل خطأ في البيانات المرسلة');
+
         this.error.set(msg);
       },
     });
   }
 
-  getPriorityLabel(v: Priority)  { return this.priorities.find(p => p.value === v)?.label ?? v; }
-  getProblemLabel(v: ProblemType){ return this.problemTypes.find(t => t.value === v)?.label ?? v; }
+  getPriorityLabel(v: Priority) { return this.priorities.find(p => p.value === v)?.label ?? v; }
+  getProblemLabel(v: ProblemType) { return this.problemTypes.find(t => t.value === v)?.label ?? v; }
   getProblemIcon(v: ProblemType) { return this.problemTypes.find(t => t.value === v)?.icon ?? '🔧'; }
-  getPriorityColor(v: Priority)  { return this.priorities.find(p => p.value === v)?.color ?? '#7c3aed'; }
+  getPriorityColor(v: Priority) { return this.priorities.find(p => p.value === v)?.color ?? '#7c3aed'; }
 }
