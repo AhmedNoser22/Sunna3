@@ -95,7 +95,7 @@ export class Auth {
     return this.currentUser()?.roles?.includes('Tenant') ?? false;
   }
 
-  // ✅ FIX مهم
+  
   isManager(): boolean {
     return this.currentUser()?.roles?.includes('Manager') ?? false;
   }

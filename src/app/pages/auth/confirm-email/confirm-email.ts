@@ -49,7 +49,13 @@ export class ConfirmEmail implements OnInit {
         localStorage.setItem('token', res.token);
 
         setTimeout(() => {
-          this.router.navigate(['/dashboard']);
+          if (this.auth.isManager()) {
+            this.router.navigate(['/manager-dashboard']);
+          } else if (this.auth.isVendor()) {
+            this.router.navigate(['/vendor-dashboard']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         }, 1200);
       },
       error: (err) => {
@@ -58,11 +64,11 @@ export class ConfirmEmail implements OnInit {
       }
     });
   }
-  
+
   resend() {
     this.auth.resendCode(this.email()).subscribe({
       next: () => alert('تم إرسال الكود'),
-      
+
     });
   }
 }
