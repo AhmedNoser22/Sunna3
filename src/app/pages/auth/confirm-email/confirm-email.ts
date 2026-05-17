@@ -86,7 +86,14 @@ export class ConfirmEmail implements OnInit {
 
       error: (err) => {
         this.resending.set(false);
-        this.resendError.set(err?.error || 'فشل إرسال الكود');
+
+        const msg =
+          err?.error?.message ||
+          err?.error?.error ||
+          err?.message ||
+          'فشل إرسال الكود';
+
+        this.resendError.set(msg);
       }
     });
   }
