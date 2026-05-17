@@ -448,3 +448,31 @@ $bp-laptop: 1024px;
   height: 1px;
   background: var(--color-border-tertiary);
 }
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border: 1.5px solid $border;
+  border-radius: 12px;
+  background: $white;
+  color: $text;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+
+  &:hover:not(:disabled) {
+    background: $surface;
+    border-color: $border2;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
