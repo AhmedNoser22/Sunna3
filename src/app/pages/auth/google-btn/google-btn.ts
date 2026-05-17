@@ -44,7 +44,7 @@ export class GoogleBtn implements OnInit {
   private ngZone = inject(NgZone);
   loading = false;
 
-  readonly CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+  readonly CLIENT_ID = '797767670488-acbfjsrhclh93c7auo6jp44rgsq38gt0.apps.googleusercontent.com';
 
   ngOnInit() {
     google.accounts.id.initialize({
