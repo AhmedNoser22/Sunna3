@@ -143,7 +143,10 @@
           @if (loading()) { <span class="spinner"></span> }
           @else { دخول }
         </button>
-
+        <div class="auth-divider">
+          <span>أو</span>
+        </div>
+        <app-google-btn />
         <div class="auth-footer">
           <span>لا أمتلك حساب ؟</span>
           <a routerLink="/register">إنشاء حساب جديد </a>

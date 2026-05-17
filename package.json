@@ -8,7 +8,6 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
-  
   "prettier": {
     "printWidth": 100,
     "singleQuote": true,
@@ -21,11 +20,10 @@
       }
     ]
   },
-  
-  
   "private": true,
   "packageManager": "npm@11.6.2",
   "dependencies": {
+    "@abacritt/angularx-social-login": "^2.6.0",
     "@angular/animations": "^21.2.8",
     "@angular/common": "^21.1.0",
     "@angular/compiler": "^21.1.0",

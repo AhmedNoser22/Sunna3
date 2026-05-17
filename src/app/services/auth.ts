@@ -33,7 +33,7 @@ export interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class Auth {
   currentUser = signal<AuthResponse | null>(this.loadUser());
-    private notificationService = inject(NotificationService);
+  private notificationService = inject(NotificationService);
   constructor(private api: Api, private router: Router) {
     const token = localStorage.getItem('token');
     if (token) this.notificationService.connect(token);
@@ -78,6 +78,16 @@ export class Auth {
   resendCode(email: string): Observable<any> {
     return this.api.post('/api/Auth/resend-code', { email });
   }
+  googleLogin(idToken: string): Observable<AuthResponse> {
+    return this.api.post<AuthResponse>('/api/Auth/google-login', { idToken }).pipe(
+      tap((res) => {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res));
+        this.currentUser.set(res);
+        this.notificationService.connect(res.token);
+      })
+    );
+  }
 
   logout(): void {
     localStorage.removeItem('token');
@@ -95,7 +105,7 @@ export class Auth {
     return this.currentUser()?.roles?.includes('Tenant') ?? false;
   }
 
-  
+
   isManager(): boolean {
     return this.currentUser()?.roles?.includes('Manager') ?? false;
   }
