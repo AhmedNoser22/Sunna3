@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { SocialAuthService, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { Component, inject, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from '../../../services/auth';
+
+declare const google: any;
 
 @Component({
   selector: 'app-google-btn',
@@ -37,24 +38,42 @@ import { Auth } from '../../../services/auth';
     .google-btn:disabled { opacity: .6; cursor: not-allowed; }
   `]
 })
-export class GoogleBtn {
-  private socialAuth = inject(SocialAuthService);
+export class GoogleBtn implements OnInit {
   private auth = inject(Auth);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
   loading = false;
 
+  readonly CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+
+  ngOnInit() {
+    google.accounts.id.initialize({
+      client_id: this.CLIENT_ID,
+      callback: (response: any) => {
+        this.ngZone.run(() => {
+          this.handleCredential(response.credential);
+        });
+      }
+    });
+  }
+
   signInWithGoogle() {
+    google.accounts.id.prompt();
+  }
+
+  private handleCredential(idToken: string) {
     this.loading = true;
-    this.socialAuth.signIn(GoogleLoginProvider.PROVIDER_ID).then(user => {
-      this.auth.googleLogin(user.idToken!).subscribe({
-        next: (res) => {
-          const role = res.roles[0];
-          if (role === 'Manager') this.router.navigate(['/manager-dashboard']);
-          else if (role === 'Vendor') this.router.navigate(['/vendor-dashboard']);
-          else this.router.navigate(['/dashboard']);
-        },
-        error: () => { this.loading = false; }
-      });
-    }).catch(() => { this.loading = false; });
+    this.auth.googleLogin(idToken).subscribe({
+      next: (res) => {
+        this.loading = false;
+        const role = res.roles[0];
+        if (role === 'Manager') this.router.navigate(['/manager-dashboard']);
+        else if (role === 'Vendor') this.router.navigate(['/vendor-dashboard']);
+        else this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 }
