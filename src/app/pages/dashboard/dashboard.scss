@@ -558,6 +558,7 @@ $blue-light:   #DBEAFE;
     color: $text3;
     pointer-events: none;
     z-index: 1;
+    font-family: 'Material Icons Round' !important;
   }
 
   select {
@@ -565,7 +566,7 @@ $blue-light:   #DBEAFE;
     background: $white;
     border: 1.5px solid $border;
     border-radius: 11px;
-    padding: 10px 14px 10px 36px;
+    padding: 10px 38px 10px 14px;
     font-family: 'Cairo', sans-serif;
     font-size: 12px; font-weight: 700; color: $text;
     cursor: pointer; outline: none;
