@@ -18,7 +18,37 @@ declare const google: any;
       <span>{{ loading ? 'جارٍ التسجيل...' : 'المتابعة باستخدام Google' }}</span>
     </button>
   `,
-  styles: []
+  styles: [`
+  button {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 13px 20px;
+    border: 1.5px solid #DDE0E5;
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: #1E2532;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    white-space: nowrap;
+  }
+  button:hover:not(:disabled) {
+    background: #F6F7F9;
+    border-color: #9DB5CC;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  svg { flex-shrink: 0; }
+  span { white-space: nowrap; }
+`]
 })
 export class GoogleBtn {
   private auth = inject(Auth);
