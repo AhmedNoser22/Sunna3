@@ -5,7 +5,7 @@ import { provideZoneChangeDetection } from '@angular/core';
 import { provideBrowserGlobalErrorListeners } from '@angular/core';
 import { routes } from './app.routes';
 import { auth } from './interceptors/auth';
-import { SocialAuthServiceConfig, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { SocialAuthServiceConfig, GoogleLoginProvider, SocialAuthService } from '@abacritt/angularx-social-login';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +16,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([auth])
     ),
+    SocialAuthService,   // ← السطر ده مهم جداً
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {
