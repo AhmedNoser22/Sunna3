@@ -456,7 +456,7 @@ $bp-laptop: 1024px;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 13px 16px;
+  padding: 13px 20px;
   border: 1.5px solid $border;
   border-radius: 12px;
   background: $white;
@@ -465,16 +465,28 @@ $bp-laptop: 1024px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  white-space: nowrap;
+
+  span {
+    flex: 1;
+    text-align: center;
+  }
 
   &:hover:not(:disabled) {
     background: $surface;
-    border-color: $border2;
+    border-color: $accent-mid;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  @include mobile {
+    font-size: 13px;
+    padding: 12px 16px;
   }
 }
