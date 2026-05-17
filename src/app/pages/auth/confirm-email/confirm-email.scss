@@ -16,6 +16,23 @@
   font-weight: 800 !important;
   letter-spacing: 10px;
 }
+.toast-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #e8fff1;
+  color: #1f8f4a;
+  font-weight: 600;
+  font-size: 14px;
+  animation: fadeInUp 0.3s ease;
+}
+
+.toast-success .icon {
+  font-size: 16px;
+}
 
 .success-view {
   padding: 16px 0 8px;
