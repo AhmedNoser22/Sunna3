@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { Auth } from '../../../services/auth';
+import { GoogleBtn } from "../google-btn/google-btn";
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, GoogleBtn],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
