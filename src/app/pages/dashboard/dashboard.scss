@@ -947,9 +947,13 @@ $blue-light:   #DBEAFE;
 //  PROFILE
 // ══════════════════════════════════
 .profile-wrap {
-  display: flex; flex-direction: column; gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 20px 28px 40px;
   max-width: 680px;
+  margin: 0 auto;  // ← دي بس اللي محتاج تضيفها
+  width: 100%;
 }
 
 .prof-hero {
