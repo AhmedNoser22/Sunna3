@@ -71,7 +71,7 @@ export class Register {
       next: () => {
         this.loading.set(false);
         this.router.navigate(['/confirm-email'], {
-          queryParams: { email: this.form.email },
+          state: { email: this.form.email }
         });
       },
       error: (err) => {

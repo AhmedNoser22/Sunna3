@@ -27,10 +27,12 @@ export class ConfirmEmail implements OnInit {
   ) { }
 
   ngOnInit() {
-    const email = this.route.snapshot.queryParamMap.get('email');
-    if (email) this.email.set(email);
-  }
+    const nav = history.state as { email?: string };
 
+    if (nav?.email) {
+      this.email.set(nav.email);
+    }
+  }
   submit() {
     if (!this.code || this.code.length < 6) {
       this.error.set('أدخل الكود المكون من 6 أرقام');
