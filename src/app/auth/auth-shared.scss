@@ -433,20 +433,22 @@ $bp-laptop: 1024px;
   width: 36px; height: 36px; flex-shrink: 0;
   svg { width: 36px; height: 36px; display: block; }
 }
+// ── Auth divider ──────────────────────────────────────────────
 .auth-divider {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 16px 0;
-  color: var(--color-text-tertiary);
+  margin: 4px 0;
+  color: $text3;
   font-size: 13px;
-}
-.auth-divider::before,
-.auth-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--color-border-tertiary);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $border;
+  }
 }
 .google-btn {
   width: 100%;
