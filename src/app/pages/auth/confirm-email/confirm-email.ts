@@ -17,7 +17,9 @@ export class ConfirmEmail implements OnInit {
   loading = signal(false);
   error = signal('');
   success = signal(false);
-
+  resending = signal(false);
+  resendSuccess = signal(false);
+  resendError = signal('');
   constructor(
     private auth: Auth,
     private router: Router,
@@ -66,9 +68,26 @@ export class ConfirmEmail implements OnInit {
   }
 
   resend() {
-    this.auth.resendCode(this.email()).subscribe({
-      next: () => alert('تم إرسال الكود'),
+    if (!this.email()) return;
 
+    this.resending.set(true);
+    this.resendSuccess.set(false);
+    this.resendError.set('');
+
+    this.auth.resendCode(this.email()).subscribe({
+      next: () => {
+        this.resending.set(false);
+        this.resendSuccess.set(true);
+
+        setTimeout(() => {
+          this.resendSuccess.set(false);
+        }, 3000);
+      },
+
+      error: (err) => {
+        this.resending.set(false);
+        this.resendError.set(err?.error || 'فشل إرسال الكود');
+      }
     });
   }
 }

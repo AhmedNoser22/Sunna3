@@ -112,9 +112,25 @@
           @else { تأكيد الرمز }
         </button>
 
-        <button class="resend-btn" (click)="resend()">
+        <button class="resend-btn" (click)="resend()" [disabled]="resending()">
+          @if (resending()) {
+          <span class="spinner"></span>
+          جاري الإرسال...
+          } @else {
           إعادة إرسال الرمز
+          }
         </button>
+        @if (resendSuccess()) {
+        <div class="success-msg">
+          تم إرسال الكود مرة أخرى ✉️
+        </div>
+        }
+
+        @if (resendError()) {
+        <div class="error-msg">
+          {{ resendError() }}
+        </div>
+        }
 
         <div class="auth-footer">
           <span>هل تحتاج إلى إنشاء حساب جديد؟</span>
