@@ -94,6 +94,10 @@ export class Dashboard implements OnInit {
   showPaymentModal = signal(false);
   paymentTicket = signal<Ticket | null>(null);
 
+  // ── Closed Success Popup ──────────────────────────────────
+  showClosedSuccessModal = signal(false);
+  closedTicketRef = signal<Ticket | null>(null);
+
   // ── Profile ───────────────────────────────────────────────
   profileFullName   = signal('');
   profilePhone      = signal('');
@@ -506,11 +510,39 @@ export class Dashboard implements OnInit {
 
   // ── Methods: Close Ticket ─────────────────────────────────
   closeTicketAction(ticketId: string, event: Event) {
-    event.stopPropagation(); this.closingTicketId.set(ticketId);
+    event.stopPropagation();
+    this.closingTicketId.set(ticketId);
+    // احتفظ بمرجع التذكرة قبل الإغلاق لعرضها في الـ popup
+    const ticketSnapshot = this.selectedTicket() ?? this.tickets().find(t => t.id === ticketId) ?? null;
     this.http.patch(`${this.API_URL}/api/Tickets/${ticketId}/close`, {}, { headers: this.getHeaders() }).subscribe({
-      next:  () => { this.closingTicketId.set(null); this.loadTickets(); this.closeTicket(); },
+      next: () => {
+        this.closingTicketId.set(null);
+        this.closeTicket();
+        this.loadTickets();
+        // أظهر الـ success popup مع بيانات التذكرة
+        if (ticketSnapshot) this.closedTicketRef.set(ticketSnapshot);
+        this.showClosedSuccessModal.set(true);
+      },
       error: (err) => { console.error(err); this.closingTicketId.set(null); },
     });
+  }
+
+  // ── Methods: Closed Success Popup ─────────────────────────
+  dismissClosedModal() {
+    this.showClosedSuccessModal.set(false);
+    this.closedTicketRef.set(null);
+  }
+
+  openFeedbackFromClosed() {
+    const t = this.closedTicketRef();
+    if (!t) return;
+    this.dismissClosedModal();
+    this.feedbackTicketId.set(t.id);
+    this.feedbackVendorId.set(t.vendorId ?? null);
+    this.feedbackComment.set('');
+    this.feedbackError.set('');
+    this.feedbackSuccess.set(false);
+    this.showFeedbackModal.set(true);
   }
 
   // ── Methods: Vendor ───────────────────────────────────────
@@ -538,6 +570,10 @@ export class Dashboard implements OnInit {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboard(event: KeyboardEvent) {
+    if (this.showClosedSuccessModal()) {
+      if (event.key === 'Escape') this.dismissClosedModal();
+      return;
+    }
     if (!this.previewImage()) return;
     switch (event.key) {
       case 'ArrowRight': this.nextImage(); break;

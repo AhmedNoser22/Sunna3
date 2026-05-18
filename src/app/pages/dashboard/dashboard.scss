@@ -3024,3 +3024,175 @@ $blue-light: #DBEAFE;
     min-width: unset;
   }
 }
+// ══════════════════════════════════════════════
+// TICKET CLOSED SUCCESS POPUP — أضف في dashboard.scss
+// ══════════════════════════════════════════════
+
+.csm-overlay {
+  z-index: 1100;
+}
+
+.csm-modal {
+  text-align: center;
+  padding: 28px 24px 24px !important;
+  max-width: 400px;
+  animation: csmSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes csmSlideIn {
+  from { opacity: 0; transform: scale(0.88) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.csm-confetti {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 18px;
+
+  .csm-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: csmBounce 0.6s ease-out both;
+
+    @for $i from 1 through 7 {
+      &:nth-child(#{$i}) { animation-delay: #{$i * 0.06}s; }
+    }
+  }
+}
+
+@keyframes csmBounce {
+  from { opacity: 0; transform: translateY(-10px) scale(0); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.csm-icon-wrap {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  animation: csmPop 0.4s 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@keyframes csmPop {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.csm-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.csm-sub {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+
+.csm-summary {
+  background: #f9fafb;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  text-align: right;
+
+  .csm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+    }
+  }
+
+  .csm-row-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #6b7280;
+
+    .material-icons-round {
+      font-size: 16px;
+      color: #9ca3af;
+    }
+  }
+
+  .csm-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #EAF3DE;
+    color: #3B6D11;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+
+    .material-icons-round { font-size: 12px; }
+  }
+
+  .csm-val {
+    font-weight: 500;
+    color: #1a1a2e;
+    font-size: 13px;
+
+    &.csm-green {
+      color: #3B6D11;
+      font-weight: 600;
+    }
+  }
+}
+
+.csm-btn-rate {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 20px;
+  background: #639922;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background 0.2s, transform 0.15s;
+
+  .material-icons-round { font-size: 20px; }
+
+  &:hover  { background: #3B6D11; }
+  &:active { transform: scale(0.98); }
+}
+
+.csm-btn-skip {
+  width: 100%;
+  padding: 11px 20px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: #f9fafb; }
+}

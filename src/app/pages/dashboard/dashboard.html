@@ -317,7 +317,8 @@
               @if (closingTicketId() === t.id) { جاري... } @else { إغلاق الطلب }
             </button>
             }
-            @if ((t.status === 'Resolved' || t.status === 'Closed') && t.vendorId) {
+            <!-- ✅ التقييم يظهر فقط بعد الإغلاق (Closed) -->
+            @if (t.status === 'Closed' && t.vendorId) {
             <button class="act-btn act-amber" (click)="openFeedback(t, $event)">
               <span class="material-icons-round">rate_review</span>تقييم الفني
             </button>
@@ -336,7 +337,7 @@
     } <!-- end tickets tab -->
 
     <!-- ══════════════════════════════════════════════════
-         TAB: STATISTICS  (المحسّن)
+         TAB: STATISTICS
     ══════════════════════════════════════════════════ -->
     @if (activeTab() === 'statistics') {
 
@@ -593,7 +594,7 @@
     } <!-- end statistics tab -->
 
     <!-- ══════════════════════════════════════════════════
-         TAB: PROFILE  (المحسّن)
+         TAB: PROFILE
     ══════════════════════════════════════════════════ -->
     @if (activeTab() === 'profile') {
 
@@ -784,7 +785,6 @@
 </main>
 
 <!-- ══ MODALS ══ -->
-<!-- (نفس الـ modals الموجودة — ما اتغيرتش) -->
 
 @if (selectedTicket()) {
 <div class="overlay" (click)="closeTicket()">
@@ -902,8 +902,8 @@
           @if (closingTicketId() === selectedTicket()!.id) { جاري الإغلاق... } @else { تأكيد إغلاق الطلب }
         </button>
         }
-        @if ((selectedTicket()!.status === 'Resolved' || selectedTicket()!.status === 'Closed') &&
-        selectedTicket()!.vendorId) {
+        <!-- ✅ التقييم في الـ modal يظهر فقط بعد الإغلاق (Closed) -->
+        @if (selectedTicket()!.status === 'Closed' && selectedTicket()!.vendorId) {
         <button class="btn-outline full" (click)="openFeedback(selectedTicket()!, $event)"><span
             class="material-icons-round">rate_review</span>كتابة تقييم للفني</button>
         }
@@ -1002,6 +1002,81 @@
     @for (img of _currentImages; track img; let i = $index) {
     <span class="iv-dot" [class.on]="i===currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
     }
+  </div>
+</div>
+}
+
+<!-- ══════════════════════════════════════════════════
+     TICKET CLOSED SUCCESS POPUP
+══════════════════════════════════════════════════ -->
+@if (showClosedSuccessModal()) {
+<div class="overlay csm-overlay" (click)="dismissClosedModal()">
+  <div class="modal modal-sm csm-modal" (click)="$event.stopPropagation()">
+
+    <!-- Confetti dots -->
+    <div class="csm-confetti" aria-hidden="true">
+      <span class="csm-dot" style="background:#97C459"></span>
+      <span class="csm-dot" style="background:#FAC775"></span>
+      <span class="csm-dot" style="background:#378ADD"></span>
+      <span class="csm-dot" style="background:#97C459"></span>
+      <span class="csm-dot" style="background:#F09595"></span>
+      <span class="csm-dot" style="background:#FAC775"></span>
+      <span class="csm-dot" style="background:#8B5CF6"></span>
+    </div>
+
+    <!-- Check icon -->
+    <div class="csm-icon-wrap" aria-hidden="true">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <circle cx="26" cy="26" r="26" fill="#EAF3DE"/>
+        <path d="M15 26.5L22 33.5L37 18" stroke="#3B6D11" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h2 class="csm-title">تم إغلاق التذكرة بنجاح 🎉</h2>
+    <p class="csm-sub">طلبك أُغلق رسمياً — شكراً لاستخدامك منصة صُنّاع. نتمنى أن تكون الخدمة كانت على مستوى توقعاتك.</p>
+
+    <!-- Ticket summary card -->
+    <div class="csm-summary">
+      <div class="csm-row">
+        <span class="csm-row-label"><span class="material-icons-round">flag</span>الحالة</span>
+        <span class="csm-pill"><span class="material-icons-round" style="font-size:12px">lock</span>مغلق</span>
+      </div>
+      @if (closedTicketRef()?.problemType) {
+      <div class="csm-row">
+        <span class="csm-row-label">
+          <span class="material-icons-round">{{ problemIconMap[closedTicketRef()!.problemType] || 'build' }}</span>
+          نوع المشكلة
+        </span>
+        <span class="csm-val">{{ closedTicketRef()!.problemType === 'Electrical' ? 'كهرباء' :
+          closedTicketRef()!.problemType === 'Plumbing' ? 'سباكة' :
+          closedTicketRef()!.problemType === 'AC' ? 'تكييف' : 'أخرى' }}</span>
+      </div>
+      }
+      @if (closedTicketRef()?.price) {
+      <div class="csm-row">
+        <span class="csm-row-label"><span class="material-icons-round">payments</span>المبلغ المدفوع</span>
+        <span class="csm-val csm-green">{{ closedTicketRef()!.price }} ج.م ✓</span>
+      </div>
+      }
+      @if (closedTicketRef()?.vendorName) {
+      <div class="csm-row">
+        <span class="csm-row-label"><span class="material-icons-round">engineering</span>الفني</span>
+        <span class="csm-val">{{ closedTicketRef()!.vendorName }}</span>
+      </div>
+      }
+    </div>
+
+    <!-- Action buttons -->
+    @if (closedTicketRef()?.vendorId) {
+    <button class="csm-btn-rate" (click)="openFeedbackFromClosed()">
+      <span class="material-icons-round">star</span>
+      قيّم الفني الآن
+    </button>
+    }
+    <button class="csm-btn-skip" (click)="dismissClosedModal()">
+      تخطّي — سأقيّم لاحقاً
+    </button>
+
   </div>
 </div>
 }
