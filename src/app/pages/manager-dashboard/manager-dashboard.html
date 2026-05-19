@@ -42,12 +42,16 @@
         <span>الطلبات</span>
         <span class="sb-badge">{{ ticketStats().total }}</span>
       </button>
-
+      <button class="sb-link" [class.active]="activeTab() === 'vendors'" (click)="switchTab('vendors')">
+        <span class="material-icons-round">engineering</span>
+        <span>طلبات التوظيف</span>
+        <span class="sb-badge">{{ vendorStats().total }}</span>
+      </button>
       <button class="sb-link" [class.active]="activeTab() === 'review'" (click)="switchTab('review')">
         <span class="material-icons-round">manage_search</span>
         <span>مراجعة الطلبات</span>
         @if (reviewStats().total > 0) {
-          <span class="sb-badge review-badge">{{ reviewStats().total }}</span>
+        <span class="sb-badge review-badge">{{ reviewStats().total }}</span>
         }
       </button>
 
@@ -61,7 +65,7 @@
         <span class="material-icons-round">account_balance_wallet</span>
         <span>المدفوعات</span>
         @if (payoutsStats().pending > 0) {
-          <span class="sb-badge pay-badge">{{ payoutsStats().pending }}</span>
+        <span class="sb-badge pay-badge">{{ payoutsStats().pending }}</span>
         }
       </button>
 
@@ -98,6 +102,7 @@
       <h1>
         @if (activeTab() === 'tickets') { الطلبات }
         @else if (activeTab() === 'review') { مراجعة الطلبات }
+        @else if (activeTab() === 'vendors') { طلبات التوظيف }
         @else if (activeTab() === 'users') { المستخدمون }
         @else if (activeTab() === 'payouts') { المدفوعات }
         @else if (activeTab() === 'invitations') { دعوة فنيين }
@@ -109,486 +114,583 @@
 
       <!-- ══════════ TICKETS TAB ══════════ -->
       @if (activeTab() === 'tickets') {
-        <div class="stats-row">
-          <div class="stat-card s-purple">
-            <div class="stat-icon"><span class="material-icons-round">assignment</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ ticketStats().total }}</div>
-              <div class="stat-lbl">إجمالي الطلبات</div>
-            </div>
-          </div>
-          <div class="stat-card s-amber">
-            <div class="stat-icon"><span class="material-icons-round">schedule</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ ticketStats().pending }}</div>
-              <div class="stat-lbl">انتظار</div>
-            </div>
-          </div>
-          <div class="stat-card s-blue">
-            <div class="stat-icon"><span class="material-icons-round">construction</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ ticketStats().inProgress }}</div>
-              <div class="stat-lbl">جارٍ التنفيذ</div>
-            </div>
-          </div>
-          <div class="stat-card s-green">
-            <div class="stat-icon"><span class="material-icons-round">task_alt</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ ticketStats().resolved }}</div>
-              <div class="stat-lbl">تم الإنجاز</div>
-            </div>
-          </div>
-          <div class="stat-card s-gray">
-            <div class="stat-icon"><span class="material-icons-round">lock</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ ticketStats().closed }}</div>
-              <div class="stat-lbl">مغلق</div>
-            </div>
-          </div>
-          <div class="stat-card s-red">
-            <div class="stat-icon"><span class="material-icons-round">warning</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ ticketStats().emergency }}</div>
-              <div class="stat-lbl">طارئ</div>
-            </div>
+      <div class="stats-row">
+        <div class="stat-card s-purple">
+          <div class="stat-icon"><span class="material-icons-round">assignment</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ ticketStats().total }}</div>
+            <div class="stat-lbl">إجمالي الطلبات</div>
           </div>
         </div>
-
-        <div class="filters-bar">
-          <div class="select-wrap">
-            <select [value]="sortOrder()" (change)="sortOrder.set($any($event.target).value)" class="filter-select">
-              <option value="newest">الأحدث أولاً</option>
-              <option value="oldest">الأقدم أولاً</option>
-            </select>
-          </div>
-          <div class="select-wrap">
-            <select [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)" class="filter-select">
-              <option value="all">كل الحالات</option>
-              <option value="Pending">انتظار</option>
-              <option value="vendorAccepted">جارٍ التنفيذ</option>
-              <option value="Resolved">تم الإنجاز</option>
-              <option value="Closed">مغلق</option>
-              <option value="Rejected">مرفوض</option>
-              <option value="ManagerReview">قيد المراجعة</option>
-            </select>
-          </div>
-          <div class="select-wrap">
-            <select [value]="priorityFilter()" (change)="priorityFilter.set($any($event.target).value)" class="filter-select">
-              <option value="all">كل الأولويات</option>
-              <option value="Low">منخفضة</option>
-              <option value="Medium">متوسطة</option>
-              <option value="High">عالية</option>
-              <option value="Emergency">طارئة</option>
-            </select>
+        <div class="stat-card s-amber">
+          <div class="stat-icon"><span class="material-icons-round">schedule</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ ticketStats().pending }}</div>
+            <div class="stat-lbl">انتظار</div>
           </div>
         </div>
+        <div class="stat-card s-blue">
+          <div class="stat-icon"><span class="material-icons-round">construction</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ ticketStats().inProgress }}</div>
+            <div class="stat-lbl">جارٍ التنفيذ</div>
+          </div>
+        </div>
+        <div class="stat-card s-green">
+          <div class="stat-icon"><span class="material-icons-round">task_alt</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ ticketStats().resolved }}</div>
+            <div class="stat-lbl">تم الإنجاز</div>
+          </div>
+        </div>
+        <div class="stat-card s-gray">
+          <div class="stat-icon"><span class="material-icons-round">lock</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ ticketStats().closed }}</div>
+            <div class="stat-lbl">مغلق</div>
+          </div>
+        </div>
+        <div class="stat-card s-red">
+          <div class="stat-icon"><span class="material-icons-round">warning</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ ticketStats().emergency }}</div>
+            <div class="stat-lbl">طارئ</div>
+          </div>
+        </div>
+      </div>
 
-        @if (loadingTickets()) {
-          <div class="state-center">
-            <div class="spin"></div>
-            <p>جاري التحميل...</p>
-          </div>
-        } @else if (filteredTickets().length === 0) {
-          <div class="state-center">
-            <div class="empty-icon">📭</div>
-            <h3>لا توجد طلبات</h3>
-          </div>
-        } @else {
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>الوصف</th>
-                  <th>المستأجر</th>
-                  <th>الحالة</th>
-                  <th>الأولوية</th>
-                  <th>الفني</th>
-                  <th>السعر</th>
-                  <th>الدفع</th>
-                  <th>الموعد</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (t of filteredTickets(); track t.id) {
-                  <tr class="trow" (click)="openTicket(t)">
-                    <td class="td-desc"><span class="desc-text">{{ t.description }}</span></td>
-                    <td>{{ t.tenantName }}</td>
-                    <td>
-                      <span class="chip" [style.background]="getStatus(t.status).bg" [style.color]="getStatus(t.status).color">
-                        {{ getStatus(t.status).label }}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="chip" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">
-                        {{ getPriority(t.priority).label }}
-                      </span>
-                    </td>
-                    <td>
-                      @if (t.vendorName) { <span class="vendor-name">{{ t.vendorName }}</span> }
-                      @else { <span class="no-vendor">غير محدد</span> }
-                    </td>
-                    <td>
-                      @if (t.price > 0) { <span class="price-cell">{{ t.price }} ج.م</span> }
-                      @else { <span style="color:#9ca3af;font-size:12px">—</span> }
-                    </td>
-                    <td>
-                      @if (t.isPaid) {
-                        <span class="pay-chip paid"><span class="material-icons-round">check_circle</span>مدفوع</span>
-                      } @else if (t.status === 'Resolved' && t.price > 0) {
-                        <span class="pay-chip awaiting"><span class="material-icons-round">hourglass_empty</span>انتظار</span>
-                      } @else {
-                        <span style="color:#9ca3af;font-size:12px">—</span>
-                      }
-                    </td>
-                    <td class="td-date">{{ t.deadline | date:'dd/MM/yy' }}</td>
-                    <td>
-                      <button class="row-btn" (click)="$event.stopPropagation(); openTicket(t)">
-                        <span class="material-icons-round">visibility</span>
-                      </button>
-                    </td>
-                  </tr>
+      <div class="filters-bar">
+        <div class="select-wrap">
+          <select [value]="sortOrder()" (change)="sortOrder.set($any($event.target).value)" class="filter-select">
+            <option value="newest">الأحدث أولاً</option>
+            <option value="oldest">الأقدم أولاً</option>
+          </select>
+        </div>
+        <div class="select-wrap">
+          <select [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)" class="filter-select">
+            <option value="all">كل الحالات</option>
+            <option value="Pending">انتظار</option>
+            <option value="vendorAccepted">جارٍ التنفيذ</option>
+            <option value="Resolved">تم الإنجاز</option>
+            <option value="Closed">مغلق</option>
+            <option value="Rejected">مرفوض</option>
+            <option value="ManagerReview">قيد المراجعة</option>
+          </select>
+        </div>
+        <div class="select-wrap">
+          <select [value]="priorityFilter()" (change)="priorityFilter.set($any($event.target).value)"
+            class="filter-select">
+            <option value="all">كل الأولويات</option>
+            <option value="Low">منخفضة</option>
+            <option value="Medium">متوسطة</option>
+            <option value="High">عالية</option>
+            <option value="Emergency">طارئة</option>
+          </select>
+        </div>
+      </div>
+
+      @if (loadingTickets()) {
+      <div class="state-center">
+        <div class="spin"></div>
+        <p>جاري التحميل...</p>
+      </div>
+      } @else if (filteredTickets().length === 0) {
+      <div class="state-center">
+        <div class="empty-icon">📭</div>
+        <h3>لا توجد طلبات</h3>
+      </div>
+      } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>الوصف</th>
+              <th>المستأجر</th>
+              <th>الحالة</th>
+              <th>الأولوية</th>
+              <th>الفني</th>
+              <th>السعر</th>
+              <th>الدفع</th>
+              <th>الموعد</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of filteredTickets(); track t.id) {
+            <tr class="trow" (click)="openTicket(t)">
+              <td class="td-desc"><span class="desc-text">{{ t.description }}</span></td>
+              <td>{{ t.tenantName }}</td>
+              <td>
+                <span class="chip" [style.background]="getStatus(t.status).bg"
+                  [style.color]="getStatus(t.status).color">
+                  {{ getStatus(t.status).label }}
+                </span>
+              </td>
+              <td>
+                <span class="chip" [style.background]="getPriority(t.priority).bg"
+                  [style.color]="getPriority(t.priority).color">
+                  {{ getPriority(t.priority).label }}
+                </span>
+              </td>
+              <td>
+                @if (t.vendorName) { <span class="vendor-name">{{ t.vendorName }}</span> }
+                @else { <span class="no-vendor">غير محدد</span> }
+              </td>
+              <td>
+                @if (t.price > 0) { <span class="price-cell">{{ t.price }} ج.م</span> }
+                @else { <span style="color:#9ca3af;font-size:12px">—</span> }
+              </td>
+              <td>
+                @if (t.isPaid) {
+                <span class="pay-chip paid"><span class="material-icons-round">check_circle</span>مدفوع</span>
+                } @else if (t.status === 'Resolved' && t.price > 0) {
+                <span class="pay-chip awaiting"><span class="material-icons-round">hourglass_empty</span>انتظار</span>
+                } @else {
+                <span style="color:#9ca3af;font-size:12px">—</span>
                 }
-              </tbody>
-            </table>
-          </div>
-        }
+              </td>
+              <td class="td-date">{{ t.deadline | date:'dd/MM/yy' }}</td>
+              <td>
+                <button class="row-btn" (click)="$event.stopPropagation(); openTicket(t)">
+                  <span class="material-icons-round">visibility</span>
+                </button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
       }
+      }
+      <!-- ══════════ VENDORS TAB ══════════ -->
+      @if (activeTab() === 'vendors') {
 
+      <div class="filters-bar">
+        <div class="select-wrap">
+          <select [value]="specialtyFilter()" (change)="specialtyFilter.set($any($event.target).value)"
+            class="filter-select">
+            <option value="all">كل التخصصات</option>
+            @for (s of specialties; track s) {
+            <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="users-search-wrap" style="margin-right:0">
+          <span class="material-icons-round">search</span>
+          <input type="text" placeholder="ابحث باسم الفني..." [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)" />
+        </div>
+        <button class="refresh-btn" (click)="loadVendors()" [disabled]="loadingVendors()">
+          <span class="material-icons-round">refresh</span> تحديث
+        </button>
+      </div>
+
+      @if (loadingVendors()) {
+      <div class="state-center">
+        <div class="spin"></div>
+        <p>جاري التحميل...</p>
+      </div>
+      } @else if (filteredVendors().length === 0) {
+      <div class="state-center">
+        <div class="empty-icon">👷</div>
+        <h3>لا توجد طلبات توظيف</h3>
+      </div>
+      } @else {
+      <div class="vendors-grid">
+        @for (v of filteredVendors(); track v.fullName) {
+        <div class="vendor-app-card">
+
+          <div class="vac-header">
+            <div class="vac-avatar">{{ v.fullName.charAt(0) }}</div>
+            <div class="vac-info">
+              <div class="vac-name">{{ v.fullName }}</div>
+              <div class="vac-specialty">{{ v.specialty }}</div>
+            </div>
+            <span class="vac-exp">{{ v.yearsExperience }} سنة خبرة</span>
+          </div>
+
+          <div class="vac-meta">
+            <span><span class="material-icons-round">phone</span>{{ v.phone }}</span>
+            <span><span class="material-icons-round">schedule</span>{{ v.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          @if (v.bio) {
+          <p class="vac-bio">{{ v.bio }}</p>
+          }
+
+          <!-- صور البطاقة -->
+          @if (v.idCardFront || v.idCardBack) {
+          <div class="vac-id-section">
+            <span class="vac-id-title">
+              <span class="material-icons-round">badge</span>
+              صور بطاقة الهوية
+            </span>
+            <div class="vac-id-imgs">
+              @if (v.idCardFront) {
+              <div class="vac-id-img" (click)="openImage(
+                         [v.idCardFront, v.idCardBack].filter(Boolean) as string[], 0)">
+                <img [src]="API_URL + '/' + v.idCardFront" />
+                <span>الوجه</span>
+              </div>
+              }
+              @if (v.idCardBack) {
+              <div class="vac-id-img" (click)="openImage(
+                         [v.idCardFront, v.idCardBack].filter(Boolean) as string[], 1)">
+                <img [src]="API_URL + '/' + v.idCardBack" />
+                <span>الظهر</span>
+              </div>
+              }
+            </div>
+          </div>
+          }
+
+        </div>
+        }
+      </div>
+      }
+      }
       <!-- ══════════ REVIEW TAB ══════════ -->
       @if (activeTab() === 'review') {
-        <div class="review-header-bar">
-          <div class="review-header-info">
-            <div class="review-header-icon">🔍</div>
-            <div>
-              <h2>الطلبات الجديدة</h2>
-              <p>طلبات قيد المراجعة قبل إتاحتها للفنيين</p>
-            </div>
+      <div class="review-header-bar">
+        <div class="review-header-info">
+          <div class="review-header-icon">🔍</div>
+          <div>
+            <h2>الطلبات الجديدة</h2>
+            <p>طلبات قيد المراجعة قبل إتاحتها للفنيين</p>
           </div>
-          <button class="refresh-btn" (click)="loadReviewTickets()" [disabled]="loadingReview()">
-            <span class="material-icons-round">refresh</span> تحديث
-          </button>
         </div>
+        <button class="refresh-btn" (click)="loadReviewTickets()" [disabled]="loadingReview()">
+          <span class="material-icons-round">refresh</span> تحديث
+        </button>
+      </div>
 
-        @if (loadingReview()) {
-          <div class="state-center"><div class="spin"></div><p>جاري التحميل...</p></div>
-        } @else if (reviewTickets().length === 0) {
-          <div class="state-center">
-            <div class="empty-icon">✅</div>
-            <h3>مفيش طلبات قيد المراجعة</h3>
+      @if (loadingReview()) {
+      <div class="state-center">
+        <div class="spin"></div>
+        <p>جاري التحميل...</p>
+      </div>
+      } @else if (reviewTickets().length === 0) {
+      <div class="state-center">
+        <div class="empty-icon">✅</div>
+        <h3>مفيش طلبات قيد المراجعة</h3>
+      </div>
+      } @else {
+      <div class="review-grid">
+        @for (t of reviewTickets(); track t.id) {
+        <div class="review-card">
+          <div class="review-card-header">
+            <span class="chip" [style.background]="getPriority(t.priority).bg"
+              [style.color]="getPriority(t.priority).color">
+              {{ getPriority(t.priority).label }}
+            </span>
+            <span class="review-date">{{ t.createdAt | date:'dd/MM/yyyy' }}</span>
+            <button class="review-detail-btn" (click)="openTicket(t)">
+              <span class="material-icons-round">visibility</span> تفاصيل
+            </button>
           </div>
-        } @else {
-          <div class="review-grid">
-            @for (t of reviewTickets(); track t.id) {
-              <div class="review-card">
-                <div class="review-card-header">
-                  <span class="chip" [style.background]="getPriority(t.priority).bg" [style.color]="getPriority(t.priority).color">
-                    {{ getPriority(t.priority).label }}
-                  </span>
-                  <span class="review-date">{{ t.createdAt | date:'dd/MM/yyyy' }}</span>
-                  <button class="review-detail-btn" (click)="openTicket(t)">
-                    <span class="material-icons-round">visibility</span> تفاصيل
-                  </button>
-                </div>
-                <p class="review-card-desc">{{ t.description }}</p>
-                <div class="review-info-item">
-                  <span class="material-icons-round">person</span> {{ t.tenantName }}
-                </div>
-                <div class="review-card-actions">
-                  <button class="approve-btn" (click)="approveTicket(t.id)" [disabled]="approvingId() === t.id">
-                    @if (approvingId() === t.id) { <span class="btn-spin"></span> جاري... }
-                    @else { <span class="material-icons-round">check</span> قبول }
-                  </button>
-                  <button class="reject-btn" (click)="openRejectModal(t.id)" [disabled]="rejectingId() === t.id">
-                    @if (rejectingId() === t.id) { <span class="btn-spin"></span> جاري... }
-                    @else { <span class="material-icons-round">close</span> رفض }
-                  </button>
-                </div>
-              </div>
-            }
+          <p class="review-card-desc">{{ t.description }}</p>
+          <div class="review-info-item">
+            <span class="material-icons-round">person</span> {{ t.tenantName }}
           </div>
+          <div class="review-card-actions">
+            <button class="approve-btn" (click)="approveTicket(t.id)" [disabled]="approvingId() === t.id">
+              @if (approvingId() === t.id) { <span class="btn-spin"></span> جاري... }
+              @else { <span class="material-icons-round">check</span> قبول }
+            </button>
+            <button class="reject-btn" (click)="openRejectModal(t.id)" [disabled]="rejectingId() === t.id">
+              @if (rejectingId() === t.id) { <span class="btn-spin"></span> جاري... }
+              @else { <span class="material-icons-round">close</span> رفض }
+            </button>
+          </div>
+        </div>
         }
+      </div>
+      }
       }
 
       <!-- ══════════ USERS TAB ══════════ -->
       @if (activeTab() === 'users') {
-        <div class="users-sub-tabs">
-          <button class="users-sub-tab" [class.active]="usersSubTab() === 'tenants'" (click)="switchUsersSubTab('tenants')">
-            <span class="material-icons-round">person</span> المستأجرون
-            <span class="ust-count">{{ usersStats().tenants }}</span>
-          </button>
-          <button class="users-sub-tab" [class.active]="usersSubTab() === 'vendors'" (click)="switchUsersSubTab('vendors')">
-            <span class="material-icons-round">engineering</span> الفنيون
-            <span class="ust-count">{{ usersStats().vendors }}</span>
-          </button>
-          <div class="users-search-wrap">
-            <span class="material-icons-round">search</span>
-            <input type="text"
-              [placeholder]="usersSubTab() === 'tenants' ? 'ابحث عن مستأجر...' : 'ابحث عن فني...'"
-              [value]="usersSearchQuery()"
-              (input)="usersSearchQuery.set($any($event.target).value)" />
-          </div>
+      <div class="users-sub-tabs">
+        <button class="users-sub-tab" [class.active]="usersSubTab() === 'tenants'"
+          (click)="switchUsersSubTab('tenants')">
+          <span class="material-icons-round">person</span> المستأجرون
+          <span class="ust-count">{{ usersStats().tenants }}</span>
+        </button>
+        <button class="users-sub-tab" [class.active]="usersSubTab() === 'vendors'"
+          (click)="switchUsersSubTab('vendors')">
+          <span class="material-icons-round">engineering</span> الفنيون
+          <span class="ust-count">{{ usersStats().vendors }}</span>
+        </button>
+        <div class="users-search-wrap">
+          <span class="material-icons-round">search</span>
+          <input type="text" [placeholder]="usersSubTab() === 'tenants' ? 'ابحث عن مستأجر...' : 'ابحث عن فني...'"
+            [value]="usersSearchQuery()" (input)="usersSearchQuery.set($any($event.target).value)" />
         </div>
+      </div>
 
-        @if (loadingUsers()) {
-          <div class="state-center"><div class="spin"></div><p>جاري التحميل...</p></div>
-        } @else {
-          @if (usersSubTab() === 'tenants') {
-            <div class="users-grid">
-              @for (t of filteredTenants(); track t.id) {
-                <div class="user-card">
-                  <div class="user-avatar tenant-av">{{ t.fullName.charAt(0) }}</div>
-                  <div class="user-info">
-                    <div class="user-name">{{ t.fullName }}</div>
-                    <div class="user-meta">{{ t.email }}</div>
-                    @if (t.phone) { <div class="user-sub">{{ t.phone }}</div> }
-                  </div>
-                  <span class="user-badge tenant-badge">مستأجر</span>
-                </div>
-              }
-            </div>
-          }
-          @if (usersSubTab() === 'vendors') {
-            <div class="users-grid">
-              @for (v of filteredAllVendors(); track v.fullName) {
-                <div class="user-card" (click)="openVendor(v)" style="cursor:pointer">
-                  <div class="user-avatar vendor-av">{{ v.fullName.charAt(0) }}</div>
-                  <div class="user-info">
-                    <div class="user-name">{{ v.fullName }}</div>
-                    <div class="user-meta">{{ v.specialty }}</div>
-                    <div class="user-sub">{{ v.phone }}</div>
-                  </div>
-                  <span class="user-badge vendor-badge">فني</span>
-                </div>
-              }
-            </div>
-          }
+      @if (loadingUsers()) {
+      <div class="state-center">
+        <div class="spin"></div>
+        <p>جاري التحميل...</p>
+      </div>
+      } @else {
+      @if (usersSubTab() === 'tenants') {
+      <div class="users-grid">
+        @for (t of filteredTenants(); track t.id) {
+        <div class="user-card">
+          <div class="user-avatar tenant-av">{{ t.fullName.charAt(0) }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ t.fullName }}</div>
+            <div class="user-meta">{{ t.email }}</div>
+            @if (t.phone) { <div class="user-sub">{{ t.phone }}</div> }
+          </div>
+          <span class="user-badge tenant-badge">مستأجر</span>
+        </div>
         }
+      </div>
+      }
+      @if (usersSubTab() === 'vendors') {
+      <div class="users-grid">
+        @for (v of filteredAllVendors(); track v.fullName) {
+        <div class="user-card" (click)="openVendor(v)" style="cursor:pointer">
+          <div class="user-avatar vendor-av">{{ v.fullName.charAt(0) }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ v.fullName }}</div>
+            <div class="user-meta">{{ v.specialty }}</div>
+            <div class="user-sub">{{ v.phone }}</div>
+          </div>
+          <span class="user-badge vendor-badge">فني</span>
+        </div>
+        }
+      </div>
+      }
+      }
       }
 
       <!-- ══════════ PAYOUTS TAB ══════════ -->
       @if (activeTab() === 'payouts') {
-        <div class="stats-row">
-          <div class="stat-card s-amber">
-            <div class="stat-icon"><span class="material-icons-round">pending</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ payoutsStats().pending }}</div>
-              <div class="stat-lbl">في انتظار الصرف</div>
-            </div>
-          </div>
-          <div class="stat-card s-purple">
-            <div class="stat-icon"><span class="material-icons-round">payments</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ payoutsStats().pendingAmount | number:'1.0-0' }} ج.م</div>
-              <div class="stat-lbl">مبلغ الفنيين المعلق</div>
-            </div>
-          </div>
-          <div class="stat-card s-green">
-            <div class="stat-icon"><span class="material-icons-round">receipt_long</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ payoutsStats().total }}</div>
-              <div class="stat-lbl">إجمالي المعاملات</div>
-            </div>
-          </div>
-          <div class="stat-card s-blue">
-            <div class="stat-icon"><span class="material-icons-round">store</span></div>
-            <div class="sc-body">
-              <div class="stat-num">{{ payoutsStats().totalPlatform | number:'1.0-0' }} ج.م</div>
-              <div class="stat-lbl">رسوم المنصة</div>
-            </div>
+      <div class="stats-row">
+        <div class="stat-card s-amber">
+          <div class="stat-icon"><span class="material-icons-round">pending</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ payoutsStats().pending }}</div>
+            <div class="stat-lbl">في انتظار الصرف</div>
           </div>
         </div>
-
-        <div class="payout-tabs-bar">
-          <button class="payout-tab" [class.on]="payoutsSubTab() === 'pending'" (click)="payoutsSubTab.set('pending')">
-            <span class="material-icons-round">hourglass_empty</span>
-            في انتظار الصرف
-            @if (payoutsStats().pending > 0) { <span class="ptab-count">{{ payoutsStats().pending }}</span> }
-          </button>
-          <button class="payout-tab" [class.on]="payoutsSubTab() === 'all'" (click)="payoutsSubTab.set('all')">
-            <span class="material-icons-round">receipt_long</span>
-            كل المعاملات
-            <span class="ptab-count">{{ payoutsStats().total }}</span>
-          </button>
-          <button class="refresh-btn" (click)="loadPayouts()" [disabled]="loadingPayouts()">
-            <span class="material-icons-round">refresh</span> تحديث
-          </button>
-        </div>
-
-        @if (loadingPayouts()) {
-          <div class="state-center"><div class="spin"></div><p>جاري التحميل...</p></div>
-        } @else if (displayedPayouts().length === 0) {
-          <div class="state-center">
-            <div class="empty-icon">💸</div>
-            <h3>{{ payoutsSubTab() === 'pending' ? 'مفيش مدفوعات معلقة' : 'مفيش مدفوعات بعد' }}</h3>
+        <div class="stat-card s-purple">
+          <div class="stat-icon"><span class="material-icons-round">payments</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ payoutsStats().pendingAmount | number:'1.0-0' }} ج.م</div>
+            <div class="stat-lbl">مبلغ الفنيين المعلق</div>
           </div>
-        } @else {
-          <div class="payouts-list">
-            @for (p of displayedPayouts(); track p.paymentId) {
-              <div class="payout-card" [class.disbursed]="p.isDisbursed">
-                <div class="payout-card-top">
-                  <div class="payout-vendor-info">
-                    <div class="payout-av">{{ p.vendorName.charAt(0) }}</div>
-                    <div>
-                      <div class="payout-vendor-name">{{ p.vendorName }}</div>
-                      <div class="payout-ticket-id">طلب رقم: {{ p.ticketId.slice(0,8) }}...</div>
-                    </div>
-                  </div>
-                  @if (p.isDisbursed) {
-                    <span class="payout-status-chip disbursed-chip">
-                      <span class="material-icons-round">check_circle</span> تم الصرف
-                    </span>
-                  } @else {
-                    <span class="payout-status-chip pending-chip">
-                      <span class="material-icons-round">hourglass_empty</span> معلق
-                    </span>
-                  }
-                </div>
+        </div>
+        <div class="stat-card s-green">
+          <div class="stat-icon"><span class="material-icons-round">receipt_long</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ payoutsStats().total }}</div>
+            <div class="stat-lbl">إجمالي المعاملات</div>
+          </div>
+        </div>
+        <div class="stat-card s-blue">
+          <div class="stat-icon"><span class="material-icons-round">store</span></div>
+          <div class="sc-body">
+            <div class="stat-num">{{ payoutsStats().totalPlatform | number:'1.0-0' }} ج.م</div>
+            <div class="stat-lbl">رسوم المنصة</div>
+          </div>
+        </div>
+      </div>
 
-                <div class="payout-amounts">
-                  <div class="pamt-item">
-                    <span class="pamt-lbl">نصيب الفني (٩٠٪)</span>
-                    <span class="pamt-val vendor-amount">{{ p.vendorAmount | number:'1.2-2' }} ج.م</span>
-                  </div>
-                  <div class="pamt-item">
-                    <span class="pamt-lbl">رسوم المنصة (١٠٪)</span>
-                    <span class="pamt-val platform-amount">{{ p.platformAmount | number:'1.2-2' }} ج.م</span>
-                  </div>
-                  <div class="pamt-item total-row">
-                    <span class="pamt-lbl">المبلغ الكلي</span>
-                    <span class="pamt-val total-amount">{{ p.totalAmount | number:'1.2-2' }} ج.م</span>
-                  </div>
-                </div>
+      <div class="payout-tabs-bar">
+        <button class="payout-tab" [class.on]="payoutsSubTab() === 'pending'" (click)="payoutsSubTab.set('pending')">
+          <span class="material-icons-round">hourglass_empty</span>
+          في انتظار الصرف
+          @if (payoutsStats().pending > 0) { <span class="ptab-count">{{ payoutsStats().pending }}</span> }
+        </button>
+        <button class="payout-tab" [class.on]="payoutsSubTab() === 'all'" (click)="payoutsSubTab.set('all')">
+          <span class="material-icons-round">receipt_long</span>
+          كل المعاملات
+          <span class="ptab-count">{{ payoutsStats().total }}</span>
+        </button>
+        <button class="refresh-btn" (click)="loadPayouts()" [disabled]="loadingPayouts()">
+          <span class="material-icons-round">refresh</span> تحديث
+        </button>
+      </div>
 
-                <div class="payout-method-row">
-                  <div class="pmethod-badge">
-                    <span class="material-icons-round">{{ getPaymentMethodIcon(p.paymentMethod) }}</span>
-                    {{ getPaymentMethodLabel(p.paymentMethod) }}
-                  </div>
-                  <span class="payout-date">{{ p.paidAt | date:'dd/MM/yyyy — hh:mm a' }}</span>
-                </div>
-
-                <div class="payout-transfer-section">
-                  <div class="pts-label">بيانات التحويل للفني</div>
-                  @if (!p.vendorIBAN && !p.vendorInstapay && !p.vendorWallet) {
-                    <div class="pts-empty">
-                      <span class="material-icons-round">info_outline</span>
-                      لم يسجل الفني بيانات تحويل بعد
-                    </div>
-                  } @else {
-                    @let methods = getPaymentMethods(p);
-                    @if (methods.length > 1) {
-                      <div class="pts-tabs">
-                        @for (m of methods; track m.key) {
-                          <button class="pts-tab" [class.active]="getActiveMethod(p.paymentId) === m.key"
-                            (click)="setActiveMethod(p.paymentId, m.key); $event.stopPropagation()">
-                            <span class="material-icons-round">{{ m.icon }}</span>
-                            {{ m.label }}
-                          </button>
-                        }
-                      </div>
-                    }
-                    @for (m of methods; track m.key) {
-                      @if (methods.length === 1 || getActiveMethod(p.paymentId) === m.key) {
-                        <div class="pts-method-card">
-                          <div class="pts-method-icon">
-                            <span class="material-icons-round">{{ m.icon }}</span>
-                          </div>
-                          <div class="pts-method-info">
-                            <span class="pts-method-label">{{ m.label }}</span>
-                            <span class="pts-method-value" dir="ltr">{{ m.value }}</span>
-                          </div>
-                          <button class="pts-copy-btn"
-                            (click)="copyPaymentInfo(m.value, p.paymentId + m.key); $event.stopPropagation()" title="نسخ">
-                            <span class="material-icons-round">
-                              {{ copiedField() === p.paymentId + m.key ? 'check' : 'content_copy' }}
-                            </span>
-                          </button>
-                        </div>
-                      }
-                    }
-                  }
-                </div>
-
-                @if (!p.isDisbursed) {
-                  <button class="confirm-payout-btn" (click)="confirmPayout(p.paymentId)"
-                    [disabled]="confirmingId() === p.paymentId">
-                    @if (confirmingId() === p.paymentId) {
-                      <span class="btn-spin"></span> جاري التأكيد...
-                    } @else {
-                      <span class="material-icons-round">payments</span>
-                      تأكيد الصرف لـ {{ p.vendorName }}
-                    }
-                  </button>
-                } @else {
-                  <div class="disbursed-info">
-                    <span class="material-icons-round">check_circle</span>
-                    تم الصرف في {{ p.disbursedAt | date:'dd/MM/yyyy — hh:mm a' }}
-                  </div>
-                }
+      @if (loadingPayouts()) {
+      <div class="state-center">
+        <div class="spin"></div>
+        <p>جاري التحميل...</p>
+      </div>
+      } @else if (displayedPayouts().length === 0) {
+      <div class="state-center">
+        <div class="empty-icon">💸</div>
+        <h3>{{ payoutsSubTab() === 'pending' ? 'مفيش مدفوعات معلقة' : 'مفيش مدفوعات بعد' }}</h3>
+      </div>
+      } @else {
+      <div class="payouts-list">
+        @for (p of displayedPayouts(); track p.paymentId) {
+        <div class="payout-card" [class.disbursed]="p.isDisbursed">
+          <div class="payout-card-top">
+            <div class="payout-vendor-info">
+              <div class="payout-av">{{ p.vendorName.charAt(0) }}</div>
+              <div>
+                <div class="payout-vendor-name">{{ p.vendorName }}</div>
+                <div class="payout-ticket-id">طلب رقم: {{ p.ticketId.slice(0,8) }}...</div>
               </div>
+            </div>
+            @if (p.isDisbursed) {
+            <span class="payout-status-chip disbursed-chip">
+              <span class="material-icons-round">check_circle</span> تم الصرف
+            </span>
+            } @else {
+            <span class="payout-status-chip pending-chip">
+              <span class="material-icons-round">hourglass_empty</span> معلق
+            </span>
             }
           </div>
+
+          <div class="payout-amounts">
+            <div class="pamt-item">
+              <span class="pamt-lbl">نصيب الفني (٩٠٪)</span>
+              <span class="pamt-val vendor-amount">{{ p.vendorAmount | number:'1.2-2' }} ج.م</span>
+            </div>
+            <div class="pamt-item">
+              <span class="pamt-lbl">رسوم المنصة (١٠٪)</span>
+              <span class="pamt-val platform-amount">{{ p.platformAmount | number:'1.2-2' }} ج.م</span>
+            </div>
+            <div class="pamt-item total-row">
+              <span class="pamt-lbl">المبلغ الكلي</span>
+              <span class="pamt-val total-amount">{{ p.totalAmount | number:'1.2-2' }} ج.م</span>
+            </div>
+          </div>
+
+          <div class="payout-method-row">
+            <div class="pmethod-badge">
+              <span class="material-icons-round">{{ getPaymentMethodIcon(p.paymentMethod) }}</span>
+              {{ getPaymentMethodLabel(p.paymentMethod) }}
+            </div>
+            <span class="payout-date">{{ p.paidAt | date:'dd/MM/yyyy — hh:mm a' }}</span>
+          </div>
+
+          <div class="payout-transfer-section">
+            <div class="pts-label">بيانات التحويل للفني</div>
+            @if (!p.vendorIBAN && !p.vendorInstapay && !p.vendorWallet) {
+            <div class="pts-empty">
+              <span class="material-icons-round">info_outline</span>
+              لم يسجل الفني بيانات تحويل بعد
+            </div>
+            } @else {
+            @let methods = getPaymentMethods(p);
+            @if (methods.length > 1) {
+            <div class="pts-tabs">
+              @for (m of methods; track m.key) {
+              <button class="pts-tab" [class.active]="getActiveMethod(p.paymentId) === m.key"
+                (click)="setActiveMethod(p.paymentId, m.key); $event.stopPropagation()">
+                <span class="material-icons-round">{{ m.icon }}</span>
+                {{ m.label }}
+              </button>
+              }
+            </div>
+            }
+            @for (m of methods; track m.key) {
+            @if (methods.length === 1 || getActiveMethod(p.paymentId) === m.key) {
+            <div class="pts-method-card">
+              <div class="pts-method-icon">
+                <span class="material-icons-round">{{ m.icon }}</span>
+              </div>
+              <div class="pts-method-info">
+                <span class="pts-method-label">{{ m.label }}</span>
+                <span class="pts-method-value" dir="ltr">{{ m.value }}</span>
+              </div>
+              <button class="pts-copy-btn"
+                (click)="copyPaymentInfo(m.value, p.paymentId + m.key); $event.stopPropagation()" title="نسخ">
+                <span class="material-icons-round">
+                  {{ copiedField() === p.paymentId + m.key ? 'check' : 'content_copy' }}
+                </span>
+              </button>
+            </div>
+            }
+            }
+            }
+          </div>
+
+          @if (!p.isDisbursed) {
+          <button class="confirm-payout-btn" (click)="confirmPayout(p.paymentId)"
+            [disabled]="confirmingId() === p.paymentId">
+            @if (confirmingId() === p.paymentId) {
+            <span class="btn-spin"></span> جاري التأكيد...
+            } @else {
+            <span class="material-icons-round">payments</span>
+            تأكيد الصرف لـ {{ p.vendorName }}
+            }
+          </button>
+          } @else {
+          <div class="disbursed-info">
+            <span class="material-icons-round">check_circle</span>
+            تم الصرف في {{ p.disbursedAt | date:'dd/MM/yyyy — hh:mm a' }}
+          </div>
+          }
+        </div>
         }
+      </div>
+      }
       }
 
       <!-- ══════════ INVITATIONS TAB ══════════ -->
       @if (activeTab() === 'invitations') {
-        <div class="inv-page">
-          <div class="inv-header">
-            <div class="inv-header-icon">📲</div>
-            <div>
-              <h2>دعوة فني جديد</h2>
-              <p>ادخل رقم الفني وسيتم توليد رابط تسجيل خاص بيه</p>
+      <div class="inv-page">
+        <div class="inv-header">
+          <div class="inv-header-icon">📲</div>
+          <div>
+            <h2>دعوة فني جديد</h2>
+            <p>ادخل رقم الفني وسيتم توليد رابط تسجيل خاص بيه</p>
+          </div>
+        </div>
+
+        @if (!generatedLink()) {
+        <div class="inv-card">
+          <div class="inv-field">
+            <label>رقم هاتف الفني</label>
+            <div class="inv-input-wrap">
+              <span class="material-icons-round">phone_iphone</span>
+              <input type="tel" placeholder="01xxxxxxxxx" dir="ltr" [value]="invitePhone()"
+                (input)="invitePhone.set($any($event.target).value)" (keyup.enter)="sendInvitation()" />
             </div>
           </div>
-
-          @if (!generatedLink()) {
-            <div class="inv-card">
-              <div class="inv-field">
-                <label>رقم هاتف الفني</label>
-                <div class="inv-input-wrap">
-                  <span class="material-icons-round">phone_iphone</span>
-                  <input type="tel" placeholder="01xxxxxxxxx" dir="ltr"
-                    [value]="invitePhone()"
-                    (input)="invitePhone.set($any($event.target).value)"
-                    (keyup.enter)="sendInvitation()" />
-                </div>
-              </div>
-              @if (inviteError()) { <div class="inv-error">{{ inviteError() }}</div> }
-              <button class="inv-btn" (click)="sendInvitation()" [disabled]="inviteLoading()">
-                @if (inviteLoading()) { <span class="inv-spinner"></span> جارٍ الإنشاء... }
-                @else { <span class="material-icons-round">send</span> إنشاء رابط الدعوة }
-              </button>
-            </div>
-          }
-
-          @if (generatedLink()) {
-            <div class="inv-result-card">
-              <div class="inv-result-badge">✅ تم إنشاء الرابط</div>
-              <p class="inv-result-hint">{{ inviteSuccess() }}</p>
-              <div class="inv-link-box">
-                <span class="inv-link-text" dir="ltr">{{ generatedLink() }}</span>
-              </div>
-              <div class="inv-actions">
-                <button class="inv-action-btn copy-btn" (click)="copyLink()">
-                  <span class="material-icons-round">{{ copiedLink() ? 'check' : 'content_copy' }}</span>
-                  {{ copiedLink() ? 'تم النسخ!' : 'نسخ الرابط' }}
-                </button>
-                <button class="inv-action-btn whatsapp-btn" (click)="openWhatsApp()">
-                  <span class="material-icons-round">chat</span> إرسال على الواتس
-                </button>
-                <button class="inv-action-btn reset-btn" (click)="resetInvite()">
-                  <span class="material-icons-round">refresh</span> دعوة جديدة
-                </button>
-              </div>
-            </div>
-            <div class="inv-tip">
-              <span class="material-icons-round">lightbulb</span>
-              <p>الرابط صالح لمدة <strong>3 أيام</strong> فقط.</p>
-            </div>
-          }
+          @if (inviteError()) { <div class="inv-error">{{ inviteError() }}</div> }
+          <button class="inv-btn" (click)="sendInvitation()" [disabled]="inviteLoading()">
+            @if (inviteLoading()) { <span class="inv-spinner"></span> جارٍ الإنشاء... }
+            @else { <span class="material-icons-round">send</span> إنشاء رابط الدعوة }
+          </button>
         </div>
+        }
+
+        @if (generatedLink()) {
+        <div class="inv-result-card">
+          <div class="inv-result-badge">✅ تم إنشاء الرابط</div>
+          <p class="inv-result-hint">{{ inviteSuccess() }}</p>
+          <div class="inv-link-box">
+            <span class="inv-link-text" dir="ltr">{{ generatedLink() }}</span>
+          </div>
+          <div class="inv-actions">
+            <button class="inv-action-btn copy-btn" (click)="copyLink()">
+              <span class="material-icons-round">{{ copiedLink() ? 'check' : 'content_copy' }}</span>
+              {{ copiedLink() ? 'تم النسخ!' : 'نسخ الرابط' }}
+            </button>
+            <button class="inv-action-btn whatsapp-btn" (click)="openWhatsApp()">
+              <span class="material-icons-round">chat</span> إرسال على الواتس
+            </button>
+            <button class="inv-action-btn reset-btn" (click)="resetInvite()">
+              <span class="material-icons-round">refresh</span> دعوة جديدة
+            </button>
+          </div>
+        </div>
+        <div class="inv-tip">
+          <span class="material-icons-round">lightbulb</span>
+          <p>الرابط صالح لمدة <strong>3 أيام</strong> فقط.</p>
+        </div>
+        }
+      </div>
       }
 
     </div><!-- /page-body -->
@@ -600,14 +702,21 @@
       <span class="material-icons-round">assignment</span>
       <span>الطلبات</span>
       @if (ticketStats().total > 0) {
-        <span class="mbn-badge">{{ ticketStats().total }}</span>
+      <span class="mbn-badge">{{ ticketStats().total }}</span>
+      }
+    </button>
+    <button class="mbn-item" [class.active]="activeTab() === 'vendors'" (click)="switchTab('vendors')">
+      <span class="material-icons-round">engineering</span>
+      <span>التوظيف</span>
+      @if (vendorStats().total > 0) {
+      <span class="mbn-badge">{{ vendorStats().total }}</span>
       }
     </button>
     <button class="mbn-item" [class.active]="activeTab() === 'review'" (click)="switchTab('review')">
       <span class="material-icons-round">manage_search</span>
       <span>مراجعة</span>
       @if (reviewStats().total > 0) {
-        <span class="mbn-badge">{{ reviewStats().total }}</span>
+      <span class="mbn-badge">{{ reviewStats().total }}</span>ب
       }
     </button>
     <button class="mbn-item" [class.active]="activeTab() === 'users'" (click)="switchTab('users')">
@@ -618,7 +727,7 @@
       <span class="material-icons-round">account_balance_wallet</span>
       <span>المدفوعات</span>
       @if (payoutsStats().pending > 0) {
-        <span class="mbn-badge">{{ payoutsStats().pending }}</span>
+      <span class="mbn-badge">{{ payoutsStats().pending }}</span>
       }
     </button>
     <button class="mbn-item" [class.active]="activeTab() === 'invitations'" (click)="switchTab('invitations')">
@@ -629,159 +738,158 @@
 
   <!-- ═══════════════════ TICKET MODAL ═══════════════════════ -->
   @if (selectedTicket()) {
-    <div class="overlay" (click)="closeTicket()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <div class="modal-hd">
-          <h2>تفاصيل الطلب</h2>
-          <button class="modal-close" (click)="closeTicket()">
-            <span class="material-icons-round">close</span>
-          </button>
+  <div class="overlay" (click)="closeTicket()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-hd">
+        <h2>تفاصيل الطلب</h2>
+        <button class="modal-close" (click)="closeTicket()">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="modal-bd">
+        <div class="modal-badges">
+          <span class="chip lg" [style.background]="getStatus(selectedTicket()!.status).bg"
+            [style.color]="getStatus(selectedTicket()!.status).color">
+            {{ getStatus(selectedTicket()!.status).label }}
+          </span>
+          <span class="chip lg" [style.background]="getPriority(selectedTicket()!.priority).bg"
+            [style.color]="getPriority(selectedTicket()!.priority).color">
+            {{ getPriority(selectedTicket()!.priority).label }}
+          </span>
         </div>
-        <div class="modal-bd">
-          <div class="modal-badges">
-            <span class="chip lg" [style.background]="getStatus(selectedTicket()!.status).bg"
-              [style.color]="getStatus(selectedTicket()!.status).color">
-              {{ getStatus(selectedTicket()!.status).label }}
-            </span>
-            <span class="chip lg" [style.background]="getPriority(selectedTicket()!.priority).bg"
-              [style.color]="getPriority(selectedTicket()!.priority).color">
-              {{ getPriority(selectedTicket()!.priority).label }}
-            </span>
-          </div>
 
-          <div class="modal-section">
-            <div class="modal-lbl">الوصف</div>
-            <div class="modal-val">{{ selectedTicket()!.description }}</div>
-          </div>
-          <div class="modal-section">
-            <div class="modal-lbl">المستأجر</div>
-            <div class="modal-val">{{ selectedTicket()!.tenantName }}</div>
-          </div>
+        <div class="modal-section">
+          <div class="modal-lbl">الوصف</div>
+          <div class="modal-val">{{ selectedTicket()!.description }}</div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-lbl">المستأجر</div>
+          <div class="modal-val">{{ selectedTicket()!.tenantName }}</div>
+        </div>
 
-          @if (selectedTicket()!.vendorName) {
-            <div class="modal-vendor-row">
-              <div class="modal-vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
-              <div>
-                <div class="modal-lbl">الفني</div>
-                <div class="modal-val">{{ selectedTicket()!.vendorName }}</div>
-              </div>
-            </div>
-          }
+        @if (selectedTicket()!.vendorName) {
+        <div class="modal-vendor-row">
+          <div class="modal-vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
+          <div>
+            <div class="modal-lbl">الفني</div>
+            <div class="modal-val">{{ selectedTicket()!.vendorName }}</div>
+          </div>
+        </div>
+        }
 
-          <div class="modal-section">
-            <div class="modal-lbl">السعر والدفع</div>
-            @if (selectedTicket()!.price > 0) {
-              <div class="modal-price-row">
-                <span class="price-big">{{ selectedTicket()!.price }} ج.م</span>
-                @if (selectedTicket()!.isPaid) {
-                  <span class="pay-chip paid"><span class="material-icons-round">check_circle</span>تم الدفع</span>
-                } @else {
-                  <span class="pay-chip awaiting"><span class="material-icons-round">hourglass_empty</span>لم يُدفع بعد</span>
-                }
-              </div>
+        <div class="modal-section">
+          <div class="modal-lbl">السعر والدفع</div>
+          @if (selectedTicket()!.price > 0) {
+          <div class="modal-price-row">
+            <span class="price-big">{{ selectedTicket()!.price }} ج.م</span>
+            @if (selectedTicket()!.isPaid) {
+            <span class="pay-chip paid"><span class="material-icons-round">check_circle</span>تم الدفع</span>
             } @else {
-              <div class="modal-val" style="color:#9ca3af">لم يُحدد السعر بعد</div>
+            <span class="pay-chip awaiting"><span class="material-icons-round">hourglass_empty</span>لم يُدفع بعد</span>
             }
           </div>
-
-          <div class="modal-dates">
-            <div class="modal-date-item">
-              <div class="modal-lbl">وقت الوصول</div>
-              <div class="modal-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
-            </div>
-            <div class="modal-date-item">
-              <div class="modal-lbl">الموعد النهائي</div>
-              <div class="modal-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
-            </div>
-          </div>
-
-          @if (selectedTicket()!.beforeImageUrls?.length) {
-            <div class="modal-section">
-              <div class="modal-lbl">صور قبل الشغل</div>
-              <div class="modal-imgs-grid">
-                @for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {
-                  <img [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />
-                }
-              </div>
-            </div>
-          }
-          @if (selectedTicket()!.afterImageUrls?.length) {
-            <div class="modal-section">
-              <div class="modal-lbl">صور بعد الشغل</div>
-              <div class="modal-imgs-grid">
-                @for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {
-                  <img [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.afterImageUrls, i)" />
-                }
-              </div>
-            </div>
-          }
-
-          @if (selectedTicket()!.status === 'ManagerReview') {
-            <div class="modal-review-actions">
-              <button class="approve-btn full" (click)="approveTicket(selectedTicket()!.id)"
-                [disabled]="approvingId() === selectedTicket()!.id">
-                <span class="material-icons-round">check</span> قبول الطلب
-              </button>
-              <button class="reject-btn full" (click)="openRejectModal(selectedTicket()!.id)">
-                <span class="material-icons-round">close</span> رفض الطلب
-              </button>
-            </div>
+          } @else {
+          <div class="modal-val" style="color:#9ca3af">لم يُحدد السعر بعد</div>
           }
         </div>
+
+        <div class="modal-dates">
+          <div class="modal-date-item">
+            <div class="modal-lbl">وقت الوصول</div>
+            <div class="modal-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
+          </div>
+          <div class="modal-date-item">
+            <div class="modal-lbl">الموعد النهائي</div>
+            <div class="modal-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
+          </div>
+        </div>
+
+        @if (selectedTicket()!.beforeImageUrls?.length) {
+        <div class="modal-section">
+          <div class="modal-lbl">صور قبل الشغل</div>
+          <div class="modal-imgs-grid">
+            @for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {
+            <img [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />
+            }
+          </div>
+        </div>
+        }
+        @if (selectedTicket()!.afterImageUrls?.length) {
+        <div class="modal-section">
+          <div class="modal-lbl">صور بعد الشغل</div>
+          <div class="modal-imgs-grid">
+            @for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {
+            <img [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.afterImageUrls, i)" />
+            }
+          </div>
+        </div>
+        }
+
+        @if (selectedTicket()!.status === 'ManagerReview') {
+        <div class="modal-review-actions">
+          <button class="approve-btn full" (click)="approveTicket(selectedTicket()!.id)"
+            [disabled]="approvingId() === selectedTicket()!.id">
+            <span class="material-icons-round">check</span> قبول الطلب
+          </button>
+          <button class="reject-btn full" (click)="openRejectModal(selectedTicket()!.id)">
+            <span class="material-icons-round">close</span> رفض الطلب
+          </button>
+        </div>
+        }
       </div>
     </div>
+  </div>
   }
 
   <!-- ═══════════════════ REJECT MODAL ═══════════════════════ -->
   @if (showRejectModal()) {
-    <div class="overlay" (click)="closeRejectModal()">
-      <div class="modal modal-sm" (click)="$event.stopPropagation()">
-        <div class="modal-hd">
-          <h2>رفض الطلب</h2>
-          <button class="modal-close" (click)="closeRejectModal()">
-            <span class="material-icons-round">close</span>
-          </button>
+  <div class="overlay" (click)="closeRejectModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-hd">
+        <h2>رفض الطلب</h2>
+        <button class="modal-close" (click)="closeRejectModal()">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="modal-bd">
+        <p class="reject-modal-hint">هل أنت متأكد من رفض هذا الطلب؟</p>
+        <div class="modal-section">
+          <div class="modal-lbl">سبب الرفض (اختياري)</div>
+          <textarea class="reject-reason-ta" placeholder="اكتب سبب الرفض هنا..." [value]="rejectReason()"
+            (input)="rejectReason.set($any($event.target).value)" rows="3"></textarea>
         </div>
-        <div class="modal-bd">
-          <p class="reject-modal-hint">هل أنت متأكد من رفض هذا الطلب؟</p>
-          <div class="modal-section">
-            <div class="modal-lbl">سبب الرفض (اختياري)</div>
-            <textarea class="reject-reason-ta" placeholder="اكتب سبب الرفض هنا..."
-              [value]="rejectReason()"
-              (input)="rejectReason.set($any($event.target).value)" rows="3"></textarea>
-          </div>
-          <div class="reject-modal-actions">
-            <button class="reject-btn full" (click)="confirmReject()" [disabled]="rejectingId() !== null">
-              @if (rejectingId() !== null) { <span class="btn-spin"></span> جاري الرفض... }
-              @else { تأكيد الرفض }
-            </button>
-            <button class="cancel-modal-btn" (click)="closeRejectModal()">إلغاء</button>
-          </div>
+        <div class="reject-modal-actions">
+          <button class="reject-btn full" (click)="confirmReject()" [disabled]="rejectingId() !== null">
+            @if (rejectingId() !== null) { <span class="btn-spin"></span> جاري الرفض... }
+            @else { تأكيد الرفض }
+          </button>
+          <button class="cancel-modal-btn" (click)="closeRejectModal()">إلغاء</button>
         </div>
       </div>
     </div>
+  </div>
   }
 
   <!-- ═══════════════════ IMAGE VIEWER ═══════════════════════ -->
   @if (previewImage()) {
-    <div class="img-viewer" (click)="closeImage()">
-      <button class="iv-close" (click)="closeImage()">
-        <span class="material-icons-round">close</span>
-      </button>
-      <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">
-        <span class="material-icons-round">chevron_right</span>
-      </button>
-      <img [src]="previewImage()!.startsWith('http') ? previewImage()! : API_URL + '/' + previewImage()"
-        (click)="$event.stopPropagation()" />
-      <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">
-        <span class="material-icons-round">chevron_left</span>
-      </button>
-      <div class="iv-dots" (click)="$event.stopPropagation()">
-        @for (img of _currentImages; track img; let i = $index) {
-          <span class="iv-dot" [class.active]="i === currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
-        }
-      </div>
+  <div class="img-viewer" (click)="closeImage()">
+    <button class="iv-close" (click)="closeImage()">
+      <span class="material-icons-round">close</span>
+    </button>
+    <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">
+      <span class="material-icons-round">chevron_right</span>
+    </button>
+    <img [src]="previewImage()!.startsWith('http') ? previewImage()! : API_URL + '/' + previewImage()"
+      (click)="$event.stopPropagation()" />
+    <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">
+      <span class="material-icons-round">chevron_left</span>
+    </button>
+    <div class="iv-dots" (click)="$event.stopPropagation()">
+      @for (img of _currentImages; track img; let i = $index) {
+      <span class="iv-dot" [class.active]="i === currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
+      }
     </div>
+  </div>
   }
 
 </div>

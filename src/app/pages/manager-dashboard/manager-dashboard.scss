@@ -1479,3 +1479,115 @@ body {
 
   &.active { background: $accent-mid; transform: scale(1.5); }
 }
+// ── Vendor Applications ───────────────────────────────────
+.vendors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 16px;
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.vendor-app-card {
+  background: $white;
+  border-radius: 18px;
+  padding: 20px;
+  border: 1.5px solid $border;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $accent;
+    box-shadow: 0 6px 22px rgba($accent, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.vac-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vac-avatar {
+  width: 48px; height: 48px;
+  border-radius: 13px;
+  background: $brand-dark;
+  border: 1.5px solid rgba($accent-mid, 0.3);
+  color: $accent-mid;
+  font-weight: 900; font-size: 19px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.vac-info { flex: 1; overflow: hidden; }
+.vac-name { font-size: 15px; font-weight: 800; color: $text; }
+.vac-specialty { font-size: 12px; color: $accent; font-weight: 700; margin-top: 2px; }
+
+.vac-exp {
+  background: $accent-light;
+  color: $accent-dark;
+  border: 1px solid $border2;
+  border-radius: 20px;
+  padding: 4px 11px;
+  font-size: 11px; font-weight: 800;
+  white-space: nowrap;
+}
+
+.vac-meta {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  span {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: $text3; font-weight: 600;
+    .material-icons-round { font-size: 14px; color: $accent; }
+  }
+}
+
+.vac-bio {
+  font-size: 13px; color: $text3; line-height: 1.7;
+  border-right: 3px solid $surface3;
+  padding-right: 10px; margin: 0;
+}
+
+.vac-id-section {
+  background: $surface;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1.5px solid $border;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.vac-id-title {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 800; color: $text3;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  .material-icons-round { font-size: 14px; color: $accent; }
+}
+
+.vac-id-imgs { display: flex; gap: 10px; }
+
+.vac-id-img {
+  cursor: pointer;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 2px solid $border;
+  position: relative;
+  transition: border-color 0.15s;
+
+  &:hover { border-color: $accent; }
+
+  img {
+    width: 120px; height: 75px;
+    object-fit: cover; display: block;
+    @include mobile { width: 100px; height: 64px; }
+  }
+
+  span {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba($brand-dark, 0.6);
+    color: rgba(255,255,255,0.9);
+    font-size: 10px; font-weight: 700;
+    text-align: center; padding: 3px 0;
+  }
+}
