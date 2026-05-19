@@ -38,6 +38,10 @@
         <span class="material-icons-round">smart_toy</span>
         <span>دليل الصيانة</span>
       </button>
+      <button class="sb-link" (click)="openScheduleModal()">
+        <span class="material-icons-round">calendar_month</span>
+        <span>جدول الصيانة الذكي</span>
+      </button>
       <button class="sb-link" (click)="openContactModal()">
         <span class="material-icons-round">support_agent</span>
         <span>راسل الإدارة</span>
@@ -82,6 +86,10 @@
       <button class="mob-nav-btn" (click)="openAIModal()">
         <span class="material-icons-round">smart_toy</span>
         <span>مساعد</span>
+      </button>
+      <button class="mob-nav-btn" (click)="openScheduleModal()">
+        <span class="material-icons-round">calendar_month</span>
+        <span>جدول</span>
       </button>
       <button class="mob-nav-btn" (click)="openContactModal()">
         <span class="material-icons-round">support_agent</span>
@@ -417,6 +425,187 @@
                 <span class="material-icons-round">add_circle</span>أنشئ طلب صيانة
               </a>
             </div>
+          </div>
+          }
+
+        </div>
+      </div>
+    </div>
+    }
+    <!-- ══ MAINTENANCE SCHEDULE MODAL ══ -->
+    @if (showScheduleModal()) {
+    <div class="overlay sched-overlay" (click)="closeScheduleModal()">
+      <div class="modal modal-sched" (click)="$event.stopPropagation()">
+
+        <!-- Head -->
+        <div class="modal-head sched-head">
+          <div class="sched-head-content">
+            <div class="sched-head-icon">
+              <span class="material-icons-round">calendar_month</span>
+            </div>
+            <div>
+              <h2>جدول الصيانة الوقائية</h2>
+              <p class="sched-head-sub">مخصص لمنزلك بالذكاء الاصطناعي</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="closeScheduleModal()">
+            <span class="material-icons-round">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body sched-body">
+
+          <!-- STEP 1: Form -->
+          @if (scheduleStep() === 1) {
+          <div class="sched-form">
+
+            <div class="sched-section-title">
+              <span class="material-icons-round">ac_unit</span>
+              معلومات التكييف
+            </div>
+
+            <div class="sched-field">
+              <label>نوع التكييف</label>
+              <div class="sched-options">
+                @for (type of ['سبليت', 'شباك', 'مركزي', 'لا يوجد']; track type) {
+                <button class="sched-opt" [class.selected]="acType() === type" (click)="acType.set(type)">{{ type
+                  }}</button>
+                }
+              </div>
+            </div>
+
+            @if (acType() !== 'لا يوجد') {
+            <div class="sched-field">
+              <label>عمر التكييف (بالسنوات)</label>
+              <div class="sched-number-input">
+                <button (click)="acAge.set(Math.max(0, acAge()-1))">
+                  <span class="material-icons-round">remove</span>
+                </button>
+                <span>{{ acAge() }} سنة</span>
+                <button (click)="acAge.set(acAge()+1)">
+                  <span class="material-icons-round">add</span>
+                </button>
+              </div>
+            </div>
+            }
+
+            <div class="sched-divider"></div>
+
+            <div class="sched-section-title">
+              <span class="material-icons-round">water_heater</span>
+              أجهزة أخرى
+            </div>
+
+            <div class="sched-field">
+              <label>عمر السخان (بالسنوات)</label>
+              <div class="sched-number-input">
+                <button (click)="heaterAge.set(Math.max(0, heaterAge()-1))">
+                  <span class="material-icons-round">remove</span>
+                </button>
+                <span>{{ heaterAge() }} سنة</span>
+                <button (click)="heaterAge.set(heaterAge()+1)">
+                  <span class="material-icons-round">add</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="sched-field">
+              <label>عمر الغسالة (بالسنوات)</label>
+              <div class="sched-number-input">
+                <button (click)="washerAge.set(Math.max(0, washerAge()-1))">
+                  <span class="material-icons-round">remove</span>
+                </button>
+                <span>{{ washerAge() }} سنة</span>
+                <button (click)="washerAge.set(washerAge()+1)">
+                  <span class="material-icons-round">add</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="sched-divider"></div>
+
+            <div class="sched-field">
+              <label>تاريخ آخر صيانة عامة (اختياري)</label>
+              <div class="pinput-wrap">
+                <span class="material-icons-round">event</span>
+                <input type="date" [value]="lastMaintenance()"
+                  (change)="lastMaintenance.set($any($event.target).value)" />
+              </div>
+            </div>
+
+            @if (scheduleError()) {
+            <div class="err-box">
+              <span class="material-icons-round">error_outline</span>
+              {{ scheduleError() }}
+            </div>
+            }
+
+            <button class="sched-submit-btn" (click)="generateSchedule()" [disabled]="scheduleLoading()">
+              @if (scheduleLoading()) {
+              <div class="ai-spinner"></div>
+              جاري إنشاء الجدول...
+              } @else {
+              <span class="material-icons-round">auto_awesome</span>
+              إنشاء جدول الصيانة
+              }
+            </button>
+
+          </div>
+          }
+
+          <!-- STEP 2: Results -->
+          @if (scheduleStep() === 2) {
+          <div class="sched-result">
+
+            <div class="sched-result-header">
+              <div class="sched-result-icon">
+                <span class="material-icons-round">task_alt</span>
+              </div>
+              <div>
+                <div class="sched-result-title">جدولك الشخصي جاهز</div>
+                <div class="sched-result-sub">{{ scheduleResult().length }} مهمة صيانة مقترحة</div>
+              </div>
+            </div>
+
+            <div class="sched-items">
+              @for (item of scheduleResult(); track item.device) {
+              <div class="sched-item">
+                <div class="sched-item-top">
+                  <div class="sched-item-device">
+                    <span class="material-icons-round">
+                      {{ item.device.includes('تكييف') ? 'ac_unit' :
+                      item.device.includes('سخان') ? 'water_heater' :
+                      item.device.includes('غسال') ? 'local_laundry_service' :
+                      item.device.includes('كهرب') ? 'electrical_services' :
+                      item.device.includes('سباك') ? 'plumbing' : 'build' }}
+                    </span>
+                    {{ item.device }}
+                  </div>
+                  <span class="sched-priority-pill" [style.background]="getPriorityConfig(item.priority).bg"
+                    [style.color]="getPriorityConfig(item.priority).color">
+                    {{ getPriorityConfig(item.priority).label }}
+                  </span>
+                </div>
+                <div class="sched-item-task">{{ item.task }}</div>
+                <div class="sched-item-meta">
+                  <span>
+                    <span class="material-icons-round">repeat</span>
+                    {{ item.frequency }}
+                  </span>
+                  <span>
+                    <span class="material-icons-round">event</span>
+                    {{ item.nextDue }}
+                  </span>
+                </div>
+              </div>
+              }
+            </div>
+
+            <button class="sched-retry-btn" (click)="scheduleStep.set(1)">
+              <span class="material-icons-round">refresh</span>
+              تعديل البيانات
+            </button>
+
           </div>
           }
 

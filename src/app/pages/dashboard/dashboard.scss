@@ -3518,3 +3518,324 @@ $blue-light: #DBEAFE;
     .ai-ex-label { display: none; }
   }
 }
+// ══════════════════════════════════
+//  MAINTENANCE SCHEDULE MODAL
+// ══════════════════════════════════
+.sched-overlay { z-index: 300; }
+
+.modal-sched { max-width: 500px; }
+
+.sched-head {
+  background: linear-gradient(135deg, $brand-dark, $accent-dark) !important;
+  border-bottom: none !important;
+  padding: 20px 24px !important;
+
+  h2 { color: #fff !important; font-size: 16px; }
+}
+
+.sched-head-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.sched-head-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .material-icons-round { font-size: 20px; color: $accent-mid; }
+}
+
+.sched-head-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.sched-head .close-btn {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: rgba(255,255,255,0.6) !important;
+
+  &:hover {
+    background: rgba(255,255,255,0.2) !important;
+    color: #fff !important;
+  }
+}
+
+.sched-body { gap: 14px; }
+
+.sched-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sched-section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 800;
+  color: $accent-dark;
+
+  .material-icons-round { font-size: 16px; }
+}
+
+.sched-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 12px;
+    font-weight: 700;
+    color: $text2;
+  }
+}
+
+.sched-options {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.sched-opt {
+  padding: 7px 14px;
+  border-radius: 9px;
+  border: 1.5px solid $border2;
+  background: $white;
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: $text2;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: $accent; color: $accent-dark; }
+
+  &.selected {
+    background: $accent-dark;
+    border-color: $accent-dark;
+    color: #fff;
+  }
+}
+
+.sched-number-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 11px;
+  padding: 8px 14px;
+  width: fit-content;
+
+  button {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1.5px solid $border2;
+    background: $white;
+    color: $accent-dark;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+
+    .material-icons-round { font-size: 16px; }
+
+    &:hover { background: $accent-dark; color: #fff; border-color: $accent-dark; }
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 800;
+    color: $brand-dark;
+    min-width: 55px;
+    text-align: center;
+  }
+}
+
+.sched-divider {
+  height: 1px;
+  background: $border;
+  margin: 4px 0;
+}
+
+.sched-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  background: $accent-dark;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  margin-top: 4px;
+
+  .material-icons-round { font-size: 18px; }
+
+  &:hover:not(:disabled) { background: $brand-dark; }
+
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+// Results
+.sched-result {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: popIn 0.25s ease;
+}
+
+.sched-result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: $green-light;
+  border: 1.5px solid darken($green-light, 7%);
+  border-radius: 12px;
+}
+
+.sched-result-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: $green;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .material-icons-round { font-size: 20px; color: #fff; }
+}
+
+.sched-result-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: darken($green, 10%);
+}
+
+.sched-result-sub {
+  font-size: 11px;
+  color: $green;
+  margin-top: 2px;
+}
+
+.sched-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sched-item {
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 13px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $accent;
+    box-shadow: 0 4px 14px rgba($accent, 0.1);
+  }
+}
+
+.sched-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sched-item-device {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 800;
+  color: $brand-dark;
+
+  .material-icons-round { font-size: 17px; color: $accent-dark; }
+}
+
+.sched-priority-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sched-item-task {
+  font-size: 13px;
+  color: $text2;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.sched-item-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: $text3;
+    font-weight: 600;
+
+    .material-icons-round { font-size: 13px; }
+  }
+}
+
+.sched-retry-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px;
+  background: $surface2;
+  border: 1.5px solid $border2;
+  border-radius: 11px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text2;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  .material-icons-round { font-size: 16px; }
+
+  &:hover { background: $surface3; }
+}
+
+@media (max-width: 768px) {
+  .modal-sched { max-width: 100%; }
+
+  .sched-number-input { width: 100%; justify-content: space-between; }
+}

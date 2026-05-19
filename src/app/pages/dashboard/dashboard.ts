@@ -30,6 +30,13 @@ interface Ticket {
   isPaid: boolean;
   price: number;
 }
+interface ScheduleItem {
+  device: string;
+  task: string;
+  frequency: string;
+  nextDue: string;
+  priority: string;
+}
 
 interface TicketApplication {
   id: string;
@@ -53,6 +60,7 @@ export class Dashboard implements OnInit {
   private http = inject(HttpClient);
   private paymentSvc = inject(PaymentService);
   readonly API_URL = environment.apiUrl;
+  readonly Math = Math;
 
   // ── Active Tab ────────────────────────────────────────────
   activeTab = signal<'tickets' | 'statistics' | 'profile'>('tickets');
@@ -72,6 +80,19 @@ export class Dashboard implements OnInit {
   aiLoading = signal(false);
   aiError = signal('');
   aiDone = signal(false);
+  // ── Maintenance Schedule ──────────────────────────────────
+  showScheduleModal = signal(false);
+  scheduleStep = signal(1);
+  scheduleLoading = signal(false);
+  scheduleError = signal('');
+  scheduleResult = signal<ScheduleItem[]>([]);
+
+  // Form fields
+  acType = signal('سبليت');
+  acAge = signal(0);
+  heaterAge = signal(0);
+  washerAge = signal(0);
+  lastMaintenance = signal('');
 
   // ── Contact Admin ─────────────────────────────────────────
   showContactModal = signal(false);
@@ -388,6 +409,55 @@ export class Dashboard implements OnInit {
         this.aiError.set(err?.error?.message ?? 'حصل خطأ، حاول تاني');
       }
     });
+  }
+  // ── Methods: Maintenance Schedule ────────────────────────
+  openScheduleModal() {
+    this.scheduleStep.set(1);
+    this.scheduleResult.set([]);
+    this.scheduleError.set('');
+    this.acType.set('سبليت');
+    this.acAge.set(0);
+    this.heaterAge.set(0);
+    this.washerAge.set(0);
+    this.lastMaintenance.set('');
+    this.showScheduleModal.set(true);
+  }
+
+  closeScheduleModal() { this.showScheduleModal.set(false); }
+
+  generateSchedule() {
+    this.scheduleLoading.set(true);
+    this.scheduleError.set('');
+    this.http.post<{ schedule: ScheduleItem[] }>(
+      `${this.API_URL}/api/AI/maintenance-schedule`,
+      {
+        acType: this.acType(),
+        acAgeYears: this.acAge(),
+        waterHeaterAgeYears: this.heaterAge(),
+        washingMachineAgeYears: this.washerAge(),
+        lastMaintenanceDate: this.lastMaintenance() || 'غير محدد'
+      },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (res) => {
+        this.scheduleLoading.set(false);
+        this.scheduleResult.set(res.schedule);
+        this.scheduleStep.set(2);
+      },
+      error: (err) => {
+        this.scheduleLoading.set(false);
+        this.scheduleError.set(err?.error?.message ?? 'حدث خطأ، يرجى المحاولة مجدداً');
+      }
+    });
+  }
+
+  getPriorityConfig(priority: string): { label: string; color: string; bg: string } {
+    const map: Record<string, { label: string; color: string; bg: string }> = {
+      High: { label: 'عاجل', color: '#b91c1c', bg: '#fee2e2' },
+      Medium: { label: 'متوسط', color: '#b45309', bg: '#fef9c3' },
+      Low: { label: 'منخفض', color: '#15803d', bg: '#dcfce7' },
+    };
+    return map[priority] ?? { label: priority, color: '#4b5563', bg: '#f3f4f6' };
   }
 
   // ── Methods: Contact Admin ────────────────────────────────
