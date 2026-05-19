@@ -252,6 +252,13 @@ export class ManagerDashboard implements OnInit {
       error: e => { console.error(e); this.loadingTickets.set(false); },
     });
   }
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : this.API_URL + '/' + url;
+  }
+  getIdImages(front: string | undefined, back: string | undefined): string[] {
+    return [front, back].filter((x): x is string => !!x);
+  }
 
   loadVendors() {
     this.loadingVendors.set(true);

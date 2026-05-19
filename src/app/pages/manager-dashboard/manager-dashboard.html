@@ -327,15 +327,13 @@
             </span>
             <div class="vac-id-imgs">
               @if (v.idCardFront) {
-              <div class="vac-id-img" (click)="openImage(
-                         [v.idCardFront, v.idCardBack].filter(Boolean) as string[], 0)">
+              <div class="vac-id-img" (click)="openImage(getIdImages(v.idCardFront, v.idCardBack), 0)">
                 <img [src]="API_URL + '/' + v.idCardFront" />
                 <span>الوجه</span>
               </div>
               }
               @if (v.idCardBack) {
-              <div class="vac-id-img" (click)="openImage(
-                         [v.idCardFront, v.idCardBack].filter(Boolean) as string[], 1)">
+              <div class="vac-id-img" (click)="openImage(getIdImages(v.idCardFront, v.idCardBack), 1)">
                 <img [src]="API_URL + '/' + v.idCardBack" />
                 <span>الظهر</span>
               </div>
@@ -716,7 +714,7 @@
       <span class="material-icons-round">manage_search</span>
       <span>مراجعة</span>
       @if (reviewStats().total > 0) {
-      <span class="mbn-badge">{{ reviewStats().total }}</span>ب
+      <span class="mbn-badge">{{ reviewStats().total }}</span>
       }
     </button>
     <button class="mbn-item" [class.active]="activeTab() === 'users'" (click)="switchTab('users')">
@@ -879,8 +877,7 @@
     <button class="iv-btn iv-prev" (click)="$event.stopPropagation(); prevImage()">
       <span class="material-icons-round">chevron_right</span>
     </button>
-    <img [src]="previewImage()!.startsWith('http') ? previewImage()! : API_URL + '/' + previewImage()"
-      (click)="$event.stopPropagation()" />
+    <img [src]="getImageUrl(previewImage())" (click)="$event.stopPropagation()" />
     <button class="iv-btn iv-next" (click)="$event.stopPropagation(); nextImage()">
       <span class="material-icons-round">chevron_left</span>
     </button>
