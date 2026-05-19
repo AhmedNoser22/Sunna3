@@ -360,8 +360,8 @@
           <div class="ai-head-content">
             <div class="ai-head-icon"><span class="material-icons-round">smart_toy</span></div>
             <div>
-              <h2>دليل الصيانة الذكي</h2>
-              <p class="ai-head-sub">صِف مشكلتك واحصل على نصائح فورية</p>
+              <h2>المساعد الذكي للصيانة</h2>
+              <p class="ai-head-sub">مدعوم بالذكاء الاصطناعي لتشخيص الأعطال</p>
             </div>
           </div>
           <button class="close-btn" (click)="closeAIModal()"><span class="material-icons-round">close</span></button>
@@ -370,9 +370,9 @@
 
           @if (!aiDone()) {
           <div class="ai-input-section">
-            <label class="ai-label">اكتب المشكلة بكلامك العادي</label>
-            <textarea class="ai-textarea" rows="4" placeholder="مثال: المياه بتنزل ببطء من الحنفية في الحمام..."
-              [value]="aiProblemText()" (input)="aiProblemText.set($any($event.target).value)"></textarea>
+            <label class="ai-label">اكتب وصفًا واضحًا للمشكلة التي تواجهه</label>
+            <textarea class="ai-textarea" rows="4" placeholder="صف مشكلتك..." [value]="aiProblemText()"
+              (input)="aiProblemText.set($any($event.target).value)"></textarea>
 
             <div class="ai-examples">
               <span class="ai-ex-label">أمثلة سريعة:</span>
@@ -392,7 +392,7 @@
               جاري التحليل...
               } @else {
               <span class="material-icons-round">psychology</span>
-              احصل على النصيحة
+              ابدأ التشخيص الذكي
               }
             </button>
           </div>
