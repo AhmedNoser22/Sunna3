@@ -68,8 +68,6 @@
       </button>
     </div>
   </aside>
-
-  <!-- MOBILE BOTTOM NAV -->
   <div class="mobile-nav">
     <nav>
       <button class="mob-nav-btn" [class.active]="activeTab() === 'tickets'" (click)="activeTab.set('tickets')">
@@ -86,10 +84,6 @@
       <button class="mob-nav-btn" (click)="openAIModal()">
         <span class="material-icons-round">smart_toy</span>
         <span>مساعد</span>
-      </button>
-      <button class="mob-nav-btn" (click)="openScheduleModal()">
-        <span class="material-icons-round">calendar_month</span>
-        <span>جدول</span>
       </button>
       <button class="mob-nav-btn" (click)="openContactModal()">
         <span class="material-icons-round">support_agent</span>

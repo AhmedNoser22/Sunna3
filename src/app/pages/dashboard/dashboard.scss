@@ -3839,3 +3839,116 @@ $blue-light: #DBEAFE;
 
   .sched-number-input { width: 100%; justify-content: space-between; }
 }
+.sched-devices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sched-device-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 12px;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+
+  &:focus-within { border-color: $accent; }
+}
+
+.sched-device-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+
+  .material-icons-round { font-size: 17px; color: $text3; flex-shrink: 0; }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    color: $text;
+    outline: none;
+
+    &::placeholder { color: $text3; }
+  }
+}
+
+.sched-device-age {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  button {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    border: 1.5px solid $border2;
+    background: $white;
+    color: $accent-dark;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+
+    .material-icons-round { font-size: 15px; }
+
+    &:hover { background: $accent-dark; color: #fff; border-color: $accent-dark; }
+  }
+
+  span {
+    font-size: 13px;
+    font-weight: 800;
+    color: $brand-dark;
+    min-width: 48px;
+    text-align: center;
+  }
+}
+
+.sched-remove-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid darken($red-light, 6%);
+  background: $red-light;
+  color: $red;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+
+  .material-icons-round { font-size: 16px; }
+
+  &:hover { background: darken($red-light, 8%); }
+}
+
+.sched-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px;
+  background: $surface2;
+  border: 1.5px dashed $border2;
+  border-radius: 11px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: $accent-dark;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: 100%;
+  justify-content: center;
+
+  .material-icons-round { font-size: 18px; }
+
+  &:hover { background: $accent-light; border-color: $accent; }
+}
