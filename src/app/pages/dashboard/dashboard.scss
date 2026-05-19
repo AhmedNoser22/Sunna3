@@ -3196,3 +3196,325 @@ $blue-light: #DBEAFE;
 
   &:hover { background: #f9fafb; }
 }
+// ══════════════════════════════════
+//  AI ADVISOR MODAL
+// ══════════════════════════════════
+.ai-overlay { z-index: 300; }
+
+.modal-ai {
+  max-width: 520px;
+}
+
+.ai-modal-head {
+  background: linear-gradient(135deg, $brand-dark, $accent-dark) !important;
+  border-bottom: none !important;
+  padding: 20px 24px !important;
+
+  h2 { color: #fff !important; font-size: 16px; }
+}
+
+.ai-head-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.ai-head-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .material-icons-round { font-size: 20px; color: $accent-mid; }
+}
+
+.ai-head-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.ai-modal-head .close-btn {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  color: rgba(255,255,255,0.6) !important;
+
+  &:hover {
+    background: rgba(255,255,255,0.2) !important;
+    color: #fff !important;
+  }
+}
+
+.ai-modal-body { gap: 14px; }
+
+.ai-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: $text2;
+}
+
+.ai-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid $border2;
+  border-radius: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  color: $text;
+  resize: vertical;
+  outline: none;
+  background: $surface;
+  line-height: 1.7;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 100px;
+
+  &:focus {
+    border-color: $accent;
+    background: $white;
+    box-shadow: 0 0 0 3px rgba($accent, 0.1);
+  }
+
+  &::placeholder { color: $text3; }
+}
+
+.ai-examples {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.ai-ex-label {
+  font-size: 11px;
+  color: $text3;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ai-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 20px;
+  border: 1.5px solid $border2;
+  background: $white;
+  font-family: 'Cairo', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: $text2;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: $accent;
+    color: $accent-dark;
+    background: $accent-light;
+  }
+}
+
+.ai-send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  background: $accent-dark;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+
+  .material-icons-round { font-size: 18px; }
+
+  &:hover:not(:disabled) { background: $brand-dark; }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.ai-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+// Result
+.ai-result-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: popIn 0.25s ease;
+}
+
+.ai-result-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ai-result-icon {
+  font-size: 22px;
+  color: $amber;
+}
+
+.ai-result-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: $brand-dark;
+}
+
+.ai-problem-ref {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  background: $surface2;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: $text3;
+  font-style: italic;
+  line-height: 1.5;
+
+  .material-icons-round { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+}
+
+.ai-advice-box {
+  background: $green-light;
+  border: 1.5px solid darken($green-light, 7%);
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 13px;
+  color: darken($green, 10%);
+  line-height: 1.9;
+  white-space: pre-line;
+  font-weight: 600;
+}
+
+.ai-result-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.ai-retry-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: $surface2;
+  border: 1.5px solid $border2;
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: $text2;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1;
+  justify-content: center;
+
+  .material-icons-round { font-size: 16px; }
+  &:hover { background: $surface3; }
+}
+
+.ai-ticket-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: $accent-dark;
+  color: #fff;
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  flex: 1;
+  justify-content: center;
+  transition: all 0.15s;
+
+  .material-icons-round { font-size: 16px; }
+  &:hover { background: $brand-dark; }
+}
+
+// ══════════════════════════════════
+//  CONTACT ADMIN
+// ══════════════════════════════════
+.contact-head-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: $accent-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .material-icons-round { font-size: 18px; color: $accent-dark; }
+}
+
+.contact-char-count {
+  font-size: 11px;
+  color: $text3;
+  text-align: left;
+  font-weight: 600;
+
+  &.near-limit { color: $red; }
+}
+
+// ══════════════════════════════════
+//  MOBILE RESPONSIVE — NEW MODALS
+// ══════════════════════════════════
+@media (max-width: 768px) {
+  // 5 buttons in mobile nav — smaller text
+  .mob-nav-btn {
+    padding: 6px 10px;
+    font-size: 9px;
+
+    .material-icons-round { font-size: 20px; }
+  }
+
+  .modal-ai {
+    max-width: 100%;
+  }
+
+  .ai-result-actions {
+    flex-direction: column;
+  }
+
+  .ai-retry-btn,
+  .ai-ticket-btn {
+    flex: unset;
+    width: 100%;
+  }
+
+  .ai-examples {
+    .ai-ex-label { display: none; }
+  }
+}

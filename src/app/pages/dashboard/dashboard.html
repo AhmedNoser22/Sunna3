@@ -20,6 +20,10 @@
     </div>
 
     <nav class="sb-nav">
+      <button class="sb-link" [class.active]="activeTab() === 'profile'" (click)="activeTab.set('profile')">
+        <span class="material-icons-round">person</span>
+        <span>الملف الشخصي</span>
+      </button>
       <button class="sb-link" [class.active]="activeTab() === 'tickets'" (click)="activeTab.set('tickets')">
         <span class="material-icons-round">dashboard</span>
         <span>طلباتي</span>
@@ -29,9 +33,14 @@
         <span class="material-icons-round">bar_chart</span>
         <span>الإحصائيات</span>
       </button>
-      <button class="sb-link" [class.active]="activeTab() === 'profile'" (click)="activeTab.set('profile')">
-        <span class="material-icons-round">person</span>
-        <span>الملف الشخصي</span>
+
+      <button class="sb-link" (click)="openAIModal()">
+        <span class="material-icons-round">smart_toy</span>
+        <span>دليل الصيانة</span>
+      </button>
+      <button class="sb-link" (click)="openContactModal()">
+        <span class="material-icons-round">support_agent</span>
+        <span>راسل الإدارة</span>
       </button>
     </nav>
 
@@ -69,6 +78,14 @@
       <button class="mob-nav-btn" [class.active]="activeTab() === 'statistics'" (click)="activeTab.set('statistics')">
         <span class="material-icons-round">bar_chart</span>
         <span>إحصائيات</span>
+      </button>
+      <button class="mob-nav-btn" (click)="openAIModal()">
+        <span class="material-icons-round">smart_toy</span>
+        <span>مساعد</span>
+      </button>
+      <button class="mob-nav-btn" (click)="openContactModal()">
+        <span class="material-icons-round">support_agent</span>
+        <span>إدارة</span>
       </button>
       <button class="mob-nav-btn" [class.active]="activeTab() === 'profile'" (click)="activeTab.set('profile')">
         <span class="material-icons-round">person</span>
@@ -334,7 +351,119 @@
     </div>
     }
 
-    } <!-- end tickets tab -->
+    }
+    <!-- ══ AI MAINTENANCE ADVISOR MODAL ══ -->
+    @if (showAIModal()) {
+    <div class="overlay ai-overlay" (click)="closeAIModal()">
+      <div class="modal modal-ai" (click)="$event.stopPropagation()">
+        <div class="modal-head ai-modal-head">
+          <div class="ai-head-content">
+            <div class="ai-head-icon"><span class="material-icons-round">smart_toy</span></div>
+            <div>
+              <h2>دليل الصيانة الذكي</h2>
+              <p class="ai-head-sub">صِف مشكلتك واحصل على نصائح فورية</p>
+            </div>
+          </div>
+          <button class="close-btn" (click)="closeAIModal()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body ai-modal-body">
+
+          @if (!aiDone()) {
+          <div class="ai-input-section">
+            <label class="ai-label">اكتب المشكلة بكلامك العادي</label>
+            <textarea class="ai-textarea" rows="4" placeholder="مثال: المياه بتنزل ببطء من الحنفية في الحمام..."
+              [value]="aiProblemText()" (input)="aiProblemText.set($any($event.target).value)"></textarea>
+
+            <div class="ai-examples">
+              <span class="ai-ex-label">أمثلة سريعة:</span>
+              <button class="ai-chip" (click)="aiProblemText.set('التيار الكهربائي انقطع في غرفة واحدة بس')">⚡
+                كهرباء</button>
+              <button class="ai-chip" (click)="aiProblemText.set('في تسريب مياه من تحت الحوض')">💧 تسريب</button>
+              <button class="ai-chip" (click)="aiProblemText.set('التكييف شغال بس مش بيبرد')">❄️ تكييف</button>
+            </div>
+
+            @if (aiError()) {
+            <div class="err-box"><span class="material-icons-round">error_outline</span>{{ aiError() }}</div>
+            }
+
+            <button class="ai-send-btn" (click)="askAI()" [disabled]="aiLoading() || !aiProblemText().trim()">
+              @if (aiLoading()) {
+              <div class="ai-spinner"></div>
+              جاري التحليل...
+              } @else {
+              <span class="material-icons-round">psychology</span>
+              احصل على النصيحة
+              }
+            </button>
+          </div>
+          }
+
+          @if (aiDone()) {
+          <div class="ai-result-section">
+            <div class="ai-result-header">
+              <span class="material-icons-round ai-result-icon">tips_and_updates</span>
+              <span class="ai-result-title">النصائح الأولية</span>
+            </div>
+            <div class="ai-problem-ref">
+              <span class="material-icons-round">chat_bubble_outline</span>
+              {{ aiProblemText() }}
+            </div>
+            <div class="ai-advice-box">{{ aiAdvice() }}</div>
+            <div class="ai-result-actions">
+              <button class="ai-retry-btn" (click)="aiDone.set(false); aiAdvice.set('')">
+                <span class="material-icons-round">refresh</span>اسأل عن مشكلة أخرى
+              </button>
+              <a routerLink="/create-ticket" class="ai-ticket-btn" (click)="closeAIModal()">
+                <span class="material-icons-round">add_circle</span>أنشئ طلب صيانة
+              </a>
+            </div>
+          </div>
+          }
+
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- ══ CONTACT ADMIN MODAL ══ -->
+    @if (showContactModal()) {
+    <div class="overlay" (click)="closeContactModal()">
+      <div class="modal modal-sm" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="contact-head-icon"><span class="material-icons-round">support_agent</span></div>
+            <h2>راسل الإدارة</h2>
+          </div>
+          <button class="close-btn" (click)="closeContactModal()"><span
+              class="material-icons-round">close</span></button>
+        </div>
+        <div class="modal-body">
+          @if (contactSuccess()) {
+          <div class="success-box">
+            <span class="material-icons-round">check_circle</span>
+            <p>تم إرسال رسالتك للإدارة بنجاح!</p>
+            <span style="font-size:12px;color:#6b7280">سيتواصل معك فريق الإدارة قريباً</span>
+          </div>
+          } @else {
+          <p class="hint">أرسل استفساراتك أو ملاحظاتك مباشرة لفريق الإدارة</p>
+          <textarea class="ta" rows="6" placeholder="اكتب رسالتك هنا... (استفسار، شكوى، اقتراح)"
+            [value]="contactMessage()" (input)="contactMessage.set($any($event.target).value)"></textarea>
+          <div class="contact-char-count" [class.near-limit]="contactMessage().length > 800">
+            {{ contactMessage().length }} / 1000
+          </div>
+          @if (contactError()) {
+          <div class="err-box"><span class="material-icons-round">error_outline</span>{{ contactError() }}</div>
+          }
+          <button class="btn-primary full" (click)="sendContactMessage()"
+            [disabled]="contactLoading() || !contactMessage().trim()">
+            <span class="material-icons-round">send</span>
+            @if (contactLoading()) { جاري الإرسال... } @else { إرسال الرسالة }
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+    }
 
     <!-- ══════════════════════════════════════════════════
          TAB: STATISTICS
@@ -630,455 +759,456 @@
             <span class="phs-lbl">ج.م مدفوعة</span>
           </div>
         </div>
-    </div>
-
-    <!-- Profile Completeness -->
-    <div class="profile-complete-bar">
-      <div class="pcb-header">
-        <div class="pcb-title"><span class="material-icons-round">verified_user</span>اكتمال الملف الشخصي</div>
-        <div class="pcb-pct">{{ profileCompleteness() }}%</div>
       </div>
-      <div class="pcb-track">
-        <div class="pcb-fill" [style.width.%]="profileCompleteness()"></div>
-      </div>
-      <div class="pcb-items">
-        <span class="pcb-item" [class.done]="profileFullName()" [class.todo]="!profileFullName()">
-          <span class="material-icons-round">{{ profileFullName() ? 'check_circle' : 'radio_button_unchecked'
-            }}</span>
-          الاسم
-        </span>
-        <span class="pcb-item" [class.done]="profileEmail()" [class.todo]="!profileEmail()">
-          <span class="material-icons-round">{{ profileEmail() ? 'check_circle' : 'radio_button_unchecked' }}</span>
-          البريد
-        </span>
-        <span class="pcb-item" [class.done]="profilePhone()" [class.todo]="!profilePhone()">
-          <span class="material-icons-round">{{ profilePhone() ? 'check_circle' : 'radio_button_unchecked' }}</span>
-          الهاتف
-        </span>
-      </div>
-    </div>
 
-    <!-- Sub Tabs -->
-    <div class="tab-bar">
-      <button class="tab-btn" [class.on]="profileSubTab() === 'info'" (click)="profileSubTab.set('info')">
-        <span class="material-icons-round">person</span>البيانات الشخصية
-      </button>
-      <button class="tab-btn" [class.on]="profileSubTab() === 'password'" (click)="profileSubTab.set('password')">
-        <span class="material-icons-round">lock</span>تغيير كلمة السر
-      </button>
-    </div>
-
-    <!-- INFO -->
-    @if (profileSubTab() === 'info') {
-    <div class="pcard">
-      <div class="form-fields">
-        <div class="pfield">
-          <label>الاسم الكامل</label>
-          <div class="pinput-wrap">
-            <span class="material-icons-round">badge</span>
-            <input type="text" placeholder="الاسم الكامل" [value]="profileFullName()"
-              (input)="profileFullName.set($any($event.target).value)" />
-          </div>
+      <!-- Profile Completeness -->
+      <div class="profile-complete-bar">
+        <div class="pcb-header">
+          <div class="pcb-title"><span class="material-icons-round">verified_user</span>اكتمال الملف الشخصي</div>
+          <div class="pcb-pct">{{ profileCompleteness() }}%</div>
         </div>
-        <div class="pfield">
-          <label>البريد الإلكتروني</label>
-          <div class="pinput-wrap disabled">
-            <span class="material-icons-round">email</span>
-            <input type="email" [value]="profileEmail()" disabled />
-          </div>
-          <span class="pfield-hint">لا يمكن تعديل البريد الإلكتروني</span>
+        <div class="pcb-track">
+          <div class="pcb-fill" [style.width.%]="profileCompleteness()"></div>
         </div>
-        <div class="pfield">
-          <label>رقم الهاتف</label>
-          <div class="pinput-wrap">
-            <span class="material-icons-round">phone</span>
-            <input type="tel" placeholder="01xxxxxxxxx" dir="ltr" [value]="profilePhone()"
-              (input)="profilePhone.set($any($event.target).value)" />
-          </div>
-        </div>
-      </div>
-      @if (profileError()) { <div class="perr-box"><span class="material-icons-round">error_outline</span>{{
-        profileError() }}</div> }
-      @if (profileSuccess()) { <div class="psuccess-box"><span class="material-icons-round">check_circle</span>تم حفظ
-        البيانات بنجاح</div> }
-      <button class="psave-btn" (click)="updateProfile()" [disabled]="profileLoading()">
-        <span class="material-icons-round">save</span>
-        @if (profileLoading()) { جاري الحفظ... } @else { حفظ التغييرات }
-      </button>
-    </div>
-    }
-
-    <!-- PASSWORD -->
-    @if (profileSubTab() === 'password') {
-    <div class="pcard">
-      <div class="form-fields">
-        <div class="pfield">
-          <label>كلمة السر الحالية</label>
-          <div class="pinput-wrap">
-            <span class="material-icons-round">lock_outline</span>
-            <input [type]="showCurrentPw() ? 'text' : 'password'" placeholder="••••••••" [value]="currentPassword()"
-              (input)="currentPassword.set($any($event.target).value)" />
-            <button class="eye-btn" (click)="showCurrentPw.set(!showCurrentPw())">
-              <span class="material-icons-round">{{ showCurrentPw() ? 'visibility_off' : 'visibility' }}</span>
-            </button>
-          </div>
-        </div>
-        <div class="pfield">
-          <label>كلمة السر الجديدة</label>
-          <div class="pinput-wrap">
-            <span class="material-icons-round">lock</span>
-            <input [type]="showNewPw() ? 'text' : 'password'" placeholder="6 أحرف على الأقل" [value]="newPassword()"
-              (input)="newPassword.set($any($event.target).value)" />
-            <button class="eye-btn" (click)="showNewPw.set(!showNewPw())">
-              <span class="material-icons-round">{{ showNewPw() ? 'visibility_off' : 'visibility' }}</span>
-            </button>
-          </div>
-          <!-- Password strength indicator -->
-          @if (newPassword().length > 0) {
-          <div style="margin-top:6px;">
-            <div style="height:4px;border-radius:99px;background:#EDEEF1;overflow:hidden;">
-              <div [style.width.%]="passwordStrengthPct()" [style.background]="passwordStrengthColor()"
-                style="height:100%;border-radius:99px;transition:all 0.3s;"></div>
-            </div>
-            <span style="font-size:11px;color:#717D8F;margin-top:4px;display:block;">
-              {{ passwordStrengthLabel() }}
-            </span>
-          </div>
-          }
-        </div>
-        <div class="pfield">
-          <label>تأكيد كلمة السر</label>
-          <div class="pinput-wrap" [class.error-border]="confirmPassword() && confirmPassword() !== newPassword()">
-            <span class="material-icons-round">lock</span>
-            <input [type]="showConfirmPw() ? 'text' : 'password'" placeholder="أعد كتابة كلمة السر"
-              [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)" />
-            <button class="eye-btn" (click)="showConfirmPw.set(!showConfirmPw())">
-              <span class="material-icons-round">{{ showConfirmPw() ? 'visibility_off' : 'visibility' }}</span>
-            </button>
-          </div>
-          @if (confirmPassword() && confirmPassword() !== newPassword()) {
-          <span style="font-size:11px;color:#b91c1c;margin-top:4px;display:flex;align-items:center;gap:4px;">
-            <span class="material-icons-round" style="font-size:13px;">error_outline</span>
-            كلمتا السر غير متطابقتين
+        <div class="pcb-items">
+          <span class="pcb-item" [class.done]="profileFullName()" [class.todo]="!profileFullName()">
+            <span class="material-icons-round">{{ profileFullName() ? 'check_circle' : 'radio_button_unchecked'
+              }}</span>
+            الاسم
           </span>
-          }
+          <span class="pcb-item" [class.done]="profileEmail()" [class.todo]="!profileEmail()">
+            <span class="material-icons-round">{{ profileEmail() ? 'check_circle' : 'radio_button_unchecked' }}</span>
+            البريد
+          </span>
+          <span class="pcb-item" [class.done]="profilePhone()" [class.todo]="!profilePhone()">
+            <span class="material-icons-round">{{ profilePhone() ? 'check_circle' : 'radio_button_unchecked' }}</span>
+            الهاتف
+          </span>
         </div>
       </div>
-      @if (passwordError()) { <div class="perr-box"><span class="material-icons-round">error_outline</span>{{
-        passwordError() }}</div> }
-      @if (passwordSuccess()) { <div class="psuccess-box"><span class="material-icons-round">check_circle</span>تم
-        تغيير كلمة السر بنجاح</div> }
-      <button class="psave-btn" (click)="changePassword()" [disabled]="passwordLoading()">
-        <span class="material-icons-round">lock_reset</span>
-        @if (passwordLoading()) { جاري التغيير... } @else { تغيير كلمة السر }
+
+      <!-- Sub Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn" [class.on]="profileSubTab() === 'info'" (click)="profileSubTab.set('info')">
+          <span class="material-icons-round">person</span>البيانات الشخصية
+        </button>
+        <button class="tab-btn" [class.on]="profileSubTab() === 'password'" (click)="profileSubTab.set('password')">
+          <span class="material-icons-round">lock</span>تغيير كلمة السر
+        </button>
+      </div>
+
+      <!-- INFO -->
+      @if (profileSubTab() === 'info') {
+      <div class="pcard">
+        <div class="form-fields">
+          <div class="pfield">
+            <label>الاسم الكامل</label>
+            <div class="pinput-wrap">
+              <span class="material-icons-round">badge</span>
+              <input type="text" placeholder="الاسم الكامل" [value]="profileFullName()"
+                (input)="profileFullName.set($any($event.target).value)" />
+            </div>
+          </div>
+          <div class="pfield">
+            <label>البريد الإلكتروني</label>
+            <div class="pinput-wrap disabled">
+              <span class="material-icons-round">email</span>
+              <input type="email" [value]="profileEmail()" disabled />
+            </div>
+            <span class="pfield-hint">لا يمكن تعديل البريد الإلكتروني</span>
+          </div>
+          <div class="pfield">
+            <label>رقم الهاتف</label>
+            <div class="pinput-wrap">
+              <span class="material-icons-round">phone</span>
+              <input type="tel" placeholder="01xxxxxxxxx" dir="ltr" [value]="profilePhone()"
+                (input)="profilePhone.set($any($event.target).value)" />
+            </div>
+          </div>
+        </div>
+        @if (profileError()) { <div class="perr-box"><span class="material-icons-round">error_outline</span>{{
+          profileError() }}</div> }
+        @if (profileSuccess()) { <div class="psuccess-box"><span class="material-icons-round">check_circle</span>تم حفظ
+          البيانات بنجاح</div> }
+        <button class="psave-btn" (click)="updateProfile()" [disabled]="profileLoading()">
+          <span class="material-icons-round">save</span>
+          @if (profileLoading()) { جاري الحفظ... } @else { حفظ التغييرات }
+        </button>
+      </div>
+      }
+
+      <!-- PASSWORD -->
+      @if (profileSubTab() === 'password') {
+      <div class="pcard">
+        <div class="form-fields">
+          <div class="pfield">
+            <label>كلمة السر الحالية</label>
+            <div class="pinput-wrap">
+              <span class="material-icons-round">lock_outline</span>
+              <input [type]="showCurrentPw() ? 'text' : 'password'" placeholder="••••••••" [value]="currentPassword()"
+                (input)="currentPassword.set($any($event.target).value)" />
+              <button class="eye-btn" (click)="showCurrentPw.set(!showCurrentPw())">
+                <span class="material-icons-round">{{ showCurrentPw() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+          <div class="pfield">
+            <label>كلمة السر الجديدة</label>
+            <div class="pinput-wrap">
+              <span class="material-icons-round">lock</span>
+              <input [type]="showNewPw() ? 'text' : 'password'" placeholder="6 أحرف على الأقل" [value]="newPassword()"
+                (input)="newPassword.set($any($event.target).value)" />
+              <button class="eye-btn" (click)="showNewPw.set(!showNewPw())">
+                <span class="material-icons-round">{{ showNewPw() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <!-- Password strength indicator -->
+            @if (newPassword().length > 0) {
+            <div style="margin-top:6px;">
+              <div style="height:4px;border-radius:99px;background:#EDEEF1;overflow:hidden;">
+                <div [style.width.%]="passwordStrengthPct()" [style.background]="passwordStrengthColor()"
+                  style="height:100%;border-radius:99px;transition:all 0.3s;"></div>
+              </div>
+              <span style="font-size:11px;color:#717D8F;margin-top:4px;display:block;">
+                {{ passwordStrengthLabel() }}
+              </span>
+            </div>
+            }
+          </div>
+          <div class="pfield">
+            <label>تأكيد كلمة السر</label>
+            <div class="pinput-wrap" [class.error-border]="confirmPassword() && confirmPassword() !== newPassword()">
+              <span class="material-icons-round">lock</span>
+              <input [type]="showConfirmPw() ? 'text' : 'password'" placeholder="أعد كتابة كلمة السر"
+                [value]="confirmPassword()" (input)="confirmPassword.set($any($event.target).value)" />
+              <button class="eye-btn" (click)="showConfirmPw.set(!showConfirmPw())">
+                <span class="material-icons-round">{{ showConfirmPw() ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            @if (confirmPassword() && confirmPassword() !== newPassword()) {
+            <span style="font-size:11px;color:#b91c1c;margin-top:4px;display:flex;align-items:center;gap:4px;">
+              <span class="material-icons-round" style="font-size:13px;">error_outline</span>
+              كلمتا السر غير متطابقتين
+            </span>
+            }
+          </div>
+        </div>
+        @if (passwordError()) { <div class="perr-box"><span class="material-icons-round">error_outline</span>{{
+          passwordError() }}</div> }
+        @if (passwordSuccess()) { <div class="psuccess-box"><span class="material-icons-round">check_circle</span>تم
+          تغيير كلمة السر بنجاح</div> }
+        <button class="psave-btn" (click)="changePassword()" [disabled]="passwordLoading()">
+          <span class="material-icons-round">lock_reset</span>
+          @if (passwordLoading()) { جاري التغيير... } @else { تغيير كلمة السر }
+        </button>
+      </div>
+      }
+
+      <button class="logout-btn" (click)="auth.logout()">
+        <span class="material-icons-round">logout</span>تسجيل الخروج
       </button>
+
     </div>
-    }
+    } <!-- end profile tab -->
 
-    <button class="logout-btn" (click)="auth.logout()">
-      <span class="material-icons-round">logout</span>تسجيل الخروج
-    </button>
+  </main>
 
-</div>
-} <!-- end profile tab -->
+  <!-- ══ MODALS ══ -->
 
-</main>
-
-<!-- ══ MODALS ══ -->
-
-@if (selectedTicket()) {
-<div class="overlay" (click)="closeTicket()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-head">
-      <h2>تفاصيل الطلب</h2>
-      <button class="close-btn" (click)="closeTicket()"><span class="material-icons-round">close</span></button>
-    </div>
-    <div class="modal-body">
-      <div class="pill-row">
-        <span class="status-pill lg" [style.background]="getStatus(selectedTicket()!.status).bg"
-          [style.color]="getStatus(selectedTicket()!.status).color">{{ getStatus(selectedTicket()!.status).label
-          }}</span>
-        <span class="priority-pill lg" [style.background]="getPriority(selectedTicket()!.priority).bg"
-          [style.color]="getPriority(selectedTicket()!.priority).color">{{
-          getPriority(selectedTicket()!.priority).label }}</span>
+  @if (selectedTicket()) {
+  <div class="overlay" (click)="closeTicket()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>تفاصيل الطلب</h2>
+        <button class="close-btn" (click)="closeTicket()"><span class="material-icons-round">close</span></button>
       </div>
-      @if (selectedTicket()!.status === 'Review' || selectedTicket()!.status === 'ManagerReview') {
-      <div class="modal-review-notice"><span class="material-icons-round">manage_search</span>
-        <div>
-          <div class="mrn-title">طلبك قيد المراجعة حاليًا</div>
+      <div class="modal-body">
+        <div class="pill-row">
+          <span class="status-pill lg" [style.background]="getStatus(selectedTicket()!.status).bg"
+            [style.color]="getStatus(selectedTicket()!.status).color">{{ getStatus(selectedTicket()!.status).label
+            }}</span>
+          <span class="priority-pill lg" [style.background]="getPriority(selectedTicket()!.priority).bg"
+            [style.color]="getPriority(selectedTicket()!.priority).color">{{
+            getPriority(selectedTicket()!.priority).label }}</span>
         </div>
-      </div>
-      }
-      @if (selectedTicket()!.status === 'Rejected') {
-      <div class="modal-rejected-notice"><span class="material-icons-round">cancel</span>
-        <div>
-          <div class="mrn-title">تم رفض هذا الطلب</div>
-          <div class="mrn-sub">ممكن تتواصل مع المدير أو ترفع طلب جديد</div>
+        @if (selectedTicket()!.status === 'Review' || selectedTicket()!.status === 'ManagerReview') {
+        <div class="modal-review-notice"><span class="material-icons-round">manage_search</span>
+          <div>
+            <div class="mrn-title">طلبك قيد المراجعة حاليًا</div>
+          </div>
         </div>
-      </div>
-      }
-      @if (selectedTicket()!.status === 'vendorAccepted') {
-      <div class="modal-inprog-notice"><span class="material-icons-round">construction</span>
-        <div>
-          <div class="mrn-title">الفني شغّال دلوقتي</div>
-          <div class="mrn-sub">في انتظار الإنهاء ورفع الصور</div>
+        }
+        @if (selectedTicket()!.status === 'Rejected') {
+        <div class="modal-rejected-notice"><span class="material-icons-round">cancel</span>
+          <div>
+            <div class="mrn-title">تم رفض هذا الطلب</div>
+            <div class="mrn-sub">ممكن تتواصل مع المدير أو ترفع طلب جديد</div>
+          </div>
         </div>
-      </div>
-      }
-      @if (needsPayment(selectedTicket()!)) {
-      <div class="modal-pay-notice"><span class="material-icons-round">payments</span>
-        <div>
-          <div class="mrn-title">الفني أنهى الشغل 🎉</div>
-          <div class="mrn-sub">السعر المحدد: <strong>{{ selectedTicket()!.price }} ج.م</strong></div>
+        }
+        @if (selectedTicket()!.status === 'vendorAccepted') {
+        <div class="modal-inprog-notice"><span class="material-icons-round">construction</span>
+          <div>
+            <div class="mrn-title">الفني شغّال دلوقتي</div>
+            <div class="mrn-sub">في انتظار الإنهاء ورفع الصور</div>
+          </div>
         </div>
-      </div>
-      }
-      @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
-      <div class="modal-paid-notice"><span class="material-icons-round">verified</span>
-        <div>
-          <div class="mrn-title">تم الدفع بنجاح ✅</div>
-          <div class="mrn-sub">دفعت {{ selectedTicket()!.price }} ج.م</div>
-        </div>
-      </div>
-      }
-      <div class="info-block">
-        <div class="info-label">الوصف</div>
-        <div class="info-val">{{ selectedTicket()!.description }}</div>
-      </div>
-      <div class="info-block">
-        <div class="info-label">الموقع</div>
-        <div class="info-val">{{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}@if
-          (selectedTicket()!.tenantLocation) {<div class="info-sub">{{ selectedTicket()!.tenantLocation }}</div>}
-        </div>
-      </div>
-      <div class="dates-2col">
-        <div class="date-box">
-          <div class="info-label">وقت الوصول</div>
-          <div class="info-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
-        </div>
-        <div class="date-box">
-          <div class="info-label">الموعد النهائي</div>
-          <div class="info-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
-        </div>
-      </div>
-      @if (selectedTicket()!.vendorName) {
-      <div class="vendor-strip">
-        <div class="vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
-        <div class="vendor-det">
-          <div class="info-label">الفني المسؤول</div>
-          <div class="info-val">{{ selectedTicket()!.vendorName }}</div>
-        </div>
-        <button class="outline-btn" (click)="openVendorProfile(selectedTicket()!.vendorId!, $event)"><span
-            class="material-icons-round">person</span>عرض الملف</button>
-      </div>
-      }
-      @if (selectedTicket()!.beforeImageUrls?.length) {
-      <div class="info-block">
-        <div class="info-label">صور قبل الشغل</div>
-        <div class="imgs-grid">@for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {<img
-            [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />}</div>
-      </div>
-      }
-      @if (selectedTicket()!.afterImageUrls?.length) {
-      <div class="info-block">
-        <div class="info-label">صور بعد الشغل</div>
-        <div class="imgs-grid">@for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {<img
-            [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.afterImageUrls, i)" />}</div>
-      </div>
-      }
-      <div class="modal-actions">
-        @if (selectedTicket()!.status === 'Pending') {
-        <button class="btn-primary full" (click)="openApplications(selectedTicket()!, $event)"><span
-            class="material-icons-round">groups</span>عرض الفنيين المتقدمين</button>
         }
         @if (needsPayment(selectedTicket()!)) {
-        <button class="btn-pay full" (click)="openPayment(selectedTicket()!, $event)"><span
-            class="material-icons-round">payment</span>ادفع {{ selectedTicket()!.price }} ج.م الآن</button>
-        }
-        @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
-        <button class="btn-success full" (click)="closeTicketAction(selectedTicket()!.id, $event)"
-          [disabled]="closingTicketId() === selectedTicket()!.id">
-          <span class="material-icons-round">check_circle</span>
-          @if (closingTicketId() === selectedTicket()!.id) { جاري الإغلاق... } @else { تأكيد إغلاق الطلب }
-        </button>
-        }
-        <!-- ✅ التقييم في الـ modal يظهر فقط بعد الإغلاق (Closed) -->
-        @if (selectedTicket()!.status === 'Closed' && selectedTicket()!.vendorId) {
-        <button class="btn-outline full" (click)="openFeedback(selectedTicket()!, $event)"><span
-            class="material-icons-round">rate_review</span>كتابة تقييم للفني</button>
-        }
-      </div>
-    </div>
-  </div>
-</div>
-}
-
-@if (showApplicationsModal()) {
-<div class="overlay" (click)="closeApplicationsModal()">
-  <div class="modal modal-lg" (click)="$event.stopPropagation()">
-    <div class="modal-head">
-      <h2>الفنيون المتقدمون</h2><button class="close-btn" (click)="closeApplicationsModal()"><span
-          class="material-icons-round">close</span></button>
-    </div>
-    <div class="modal-body">
-      @if (loadingApplications()) {<div class="center-state compact">
-        <div class="loader"></div>
-        <p>جاري التحميل...</p>
-      </div>}
-      @else if (applications().length === 0) {<div class="center-state compact"><span
-          class="material-icons-round empty-ico">engineering</span>
-        <p>لم يتقدم أي فني بعد</p>
-      </div>}
-      @else {
-      <div class="apps-list">
-        @for (app of applications(); track app.id) {
-        <div class="app-card">
-          <div class="app-av">{{ app.vendorName.charAt(0) }}</div>
-          <div class="app-info">
-            <div class="app-name">{{ app.vendorName }}</div>
-            <div class="app-phone"><span class="material-icons-round">phone</span>{{ app.vendorPhone }}</div>
-            <div class="app-date">تقدم في {{ app.appliedAt | date:'dd/MM/yyyy — hh:mm a' }}</div>
-          </div>
-          <div class="app-btns">
-            <button class="outline-btn sm" (click)="openVendorProfile(app.vendorId, $event)"><span
-                class="material-icons-round">person</span>الملف</button>
-            <button class="btn-primary sm" (click)="acceptApplication(app.id)" [disabled]="acceptingId() === app.id">
-              <span class="material-icons-round">check</span>
-              @if (acceptingId() === app.id) { جاري... } @else { قبول }
-            </button>
+        <div class="modal-pay-notice"><span class="material-icons-round">payments</span>
+          <div>
+            <div class="mrn-title">الفني أنهى الشغل 🎉</div>
+            <div class="mrn-sub">السعر المحدد: <strong>{{ selectedTicket()!.price }} ج.م</strong></div>
           </div>
         </div>
         }
+        @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
+        <div class="modal-paid-notice"><span class="material-icons-round">verified</span>
+          <div>
+            <div class="mrn-title">تم الدفع بنجاح ✅</div>
+            <div class="mrn-sub">دفعت {{ selectedTicket()!.price }} ج.م</div>
+          </div>
+        </div>
+        }
+        <div class="info-block">
+          <div class="info-label">الوصف</div>
+          <div class="info-val">{{ selectedTicket()!.description }}</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">الموقع</div>
+          <div class="info-val">{{ selectedTicket()!.governorate }} — {{ selectedTicket()!.city }}@if
+            (selectedTicket()!.tenantLocation) {<div class="info-sub">{{ selectedTicket()!.tenantLocation }}</div>}
+          </div>
+        </div>
+        <div class="dates-2col">
+          <div class="date-box">
+            <div class="info-label">وقت الوصول</div>
+            <div class="info-val">{{ selectedTicket()!.arrival | date:'dd/MM/yyyy — hh:mm a' }}</div>
+          </div>
+          <div class="date-box">
+            <div class="info-label">الموعد النهائي</div>
+            <div class="info-val">{{ selectedTicket()!.deadline | date:'dd/MM/yyyy — hh:mm a' }}</div>
+          </div>
+        </div>
+        @if (selectedTicket()!.vendorName) {
+        <div class="vendor-strip">
+          <div class="vendor-av">{{ selectedTicket()!.vendorName!.charAt(0) }}</div>
+          <div class="vendor-det">
+            <div class="info-label">الفني المسؤول</div>
+            <div class="info-val">{{ selectedTicket()!.vendorName }}</div>
+          </div>
+          <button class="outline-btn" (click)="openVendorProfile(selectedTicket()!.vendorId!, $event)"><span
+              class="material-icons-round">person</span>عرض الملف</button>
+        </div>
+        }
+        @if (selectedTicket()!.beforeImageUrls?.length) {
+        <div class="info-block">
+          <div class="info-label">صور قبل الشغل</div>
+          <div class="imgs-grid">@for (img of selectedTicket()!.beforeImageUrls; track img; let i = $index) {<img
+              [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.beforeImageUrls, i)" />}</div>
+        </div>
+        }
+        @if (selectedTicket()!.afterImageUrls?.length) {
+        <div class="info-block">
+          <div class="info-label">صور بعد الشغل</div>
+          <div class="imgs-grid">@for (img of selectedTicket()!.afterImageUrls; track img; let i = $index) {<img
+              [src]="API_URL + '/' + img" (click)="openImage(selectedTicket()!.afterImageUrls, i)" />}</div>
+        </div>
+        }
+        <div class="modal-actions">
+          @if (selectedTicket()!.status === 'Pending') {
+          <button class="btn-primary full" (click)="openApplications(selectedTicket()!, $event)"><span
+              class="material-icons-round">groups</span>عرض الفنيين المتقدمين</button>
+          }
+          @if (needsPayment(selectedTicket()!)) {
+          <button class="btn-pay full" (click)="openPayment(selectedTicket()!, $event)"><span
+              class="material-icons-round">payment</span>ادفع {{ selectedTicket()!.price }} ج.م الآن</button>
+          }
+          @if (selectedTicket()!.status === 'Resolved' && selectedTicket()!.isPaid) {
+          <button class="btn-success full" (click)="closeTicketAction(selectedTicket()!.id, $event)"
+            [disabled]="closingTicketId() === selectedTicket()!.id">
+            <span class="material-icons-round">check_circle</span>
+            @if (closingTicketId() === selectedTicket()!.id) { جاري الإغلاق... } @else { تأكيد إغلاق الطلب }
+          </button>
+          }
+          <!-- ✅ التقييم في الـ modal يظهر فقط بعد الإغلاق (Closed) -->
+          @if (selectedTicket()!.status === 'Closed' && selectedTicket()!.vendorId) {
+          <button class="btn-outline full" (click)="openFeedback(selectedTicket()!, $event)"><span
+              class="material-icons-round">rate_review</span>كتابة تقييم للفني</button>
+          }
+        </div>
       </div>
+    </div>
+  </div>
+  }
+
+  @if (showApplicationsModal()) {
+  <div class="overlay" (click)="closeApplicationsModal()">
+    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>الفنيون المتقدمون</h2><button class="close-btn" (click)="closeApplicationsModal()"><span
+            class="material-icons-round">close</span></button>
+      </div>
+      <div class="modal-body">
+        @if (loadingApplications()) {<div class="center-state compact">
+          <div class="loader"></div>
+          <p>جاري التحميل...</p>
+        </div>}
+        @else if (applications().length === 0) {<div class="center-state compact"><span
+            class="material-icons-round empty-ico">engineering</span>
+          <p>لم يتقدم أي فني بعد</p>
+        </div>}
+        @else {
+        <div class="apps-list">
+          @for (app of applications(); track app.id) {
+          <div class="app-card">
+            <div class="app-av">{{ app.vendorName.charAt(0) }}</div>
+            <div class="app-info">
+              <div class="app-name">{{ app.vendorName }}</div>
+              <div class="app-phone"><span class="material-icons-round">phone</span>{{ app.vendorPhone }}</div>
+              <div class="app-date">تقدم في {{ app.appliedAt | date:'dd/MM/yyyy — hh:mm a' }}</div>
+            </div>
+            <div class="app-btns">
+              <button class="outline-btn sm" (click)="openVendorProfile(app.vendorId, $event)"><span
+                  class="material-icons-round">person</span>الملف</button>
+              <button class="btn-primary sm" (click)="acceptApplication(app.id)" [disabled]="acceptingId() === app.id">
+                <span class="material-icons-round">check</span>
+                @if (acceptingId() === app.id) { جاري... } @else { قبول }
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
+  @if (showFeedbackModal()) {
+  <div class="overlay" (click)="closeFeedbackModal()">
+    <div class="modal modal-sm" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>تقييم الفني</h2><button class="close-btn" (click)="closeFeedbackModal()"><span
+            class="material-icons-round">close</span></button>
+      </div>
+      <div class="modal-body">
+        @if (feedbackSuccess()) {
+        <div class="success-box"><span class="material-icons-round">check_circle</span>
+          <p>تم إرسال التقييم بنجاح!</p>
+        </div>
+        } @else {
+        <p class="hint">شارك رأيك في أداء الفني على هذا الطلب</p>
+        <textarea class="ta" [value]="feedbackComment()" (input)="feedbackComment.set($any($event.target).value)"
+          placeholder="اكتب تعليقك هنا..." rows="5"></textarea>
+        @if (feedbackError()) {<div class="err-box"><span class="material-icons-round">error_outline</span>{{
+          feedbackError() }}</div>}
+        <button class="btn-primary full" (click)="submitFeedback()" [disabled]="feedbackLoading()">
+          <span class="material-icons-round">send</span>
+          @if (feedbackLoading()) { جاري الإرسال... } @else { إرسال التقييم }
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
+  @if (showPaymentModal() && paymentTicket()) {
+  <app-payment-modal [ticketId]="paymentTicket()!.id" [ticketDescription]="paymentTicket()!.description"
+    [amount]="paymentTicket()!.price" (closed)="onPaymentClosed()" (paymentDone)="onPaymentDone()">
+  </app-payment-modal>
+  }
+
+  @if (previewImage()) {
+  <div class="img-viewer" (click)="closeImage()">
+    <button class="iv-close" (click)="closeImage()"><span class="material-icons-round">close</span></button>
+    <button class="iv-nav iv-prev" (click)="$event.stopPropagation(); prevImage()"><span
+        class="material-icons-round">chevron_right</span></button>
+    <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
+    <button class="iv-nav iv-next" (click)="$event.stopPropagation(); nextImage()"><span
+        class="material-icons-round">chevron_left</span></button>
+    <div class="iv-dots" (click)="$event.stopPropagation()">
+      @for (img of _currentImages; track img; let i = $index) {
+      <span class="iv-dot" [class.on]="i===currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
       }
     </div>
   </div>
-</div>
-}
+  }
 
-@if (showFeedbackModal()) {
-<div class="overlay" (click)="closeFeedbackModal()">
-  <div class="modal modal-sm" (click)="$event.stopPropagation()">
-    <div class="modal-head">
-      <h2>تقييم الفني</h2><button class="close-btn" (click)="closeFeedbackModal()"><span
-          class="material-icons-round">close</span></button>
-    </div>
-    <div class="modal-body">
-      @if (feedbackSuccess()) {
-      <div class="success-box"><span class="material-icons-round">check_circle</span>
-        <p>تم إرسال التقييم بنجاح!</p>
-      </div>
-      } @else {
-      <p class="hint">شارك رأيك في أداء الفني على هذا الطلب</p>
-      <textarea class="ta" [value]="feedbackComment()" (input)="feedbackComment.set($any($event.target).value)"
-        placeholder="اكتب تعليقك هنا..." rows="5"></textarea>
-      @if (feedbackError()) {<div class="err-box"><span class="material-icons-round">error_outline</span>{{
-        feedbackError() }}</div>}
-      <button class="btn-primary full" (click)="submitFeedback()" [disabled]="feedbackLoading()">
-        <span class="material-icons-round">send</span>
-        @if (feedbackLoading()) { جاري الإرسال... } @else { إرسال التقييم }
-      </button>
-      }
-    </div>
-  </div>
-</div>
-}
-
-@if (showPaymentModal() && paymentTicket()) {
-<app-payment-modal [ticketId]="paymentTicket()!.id" [ticketDescription]="paymentTicket()!.description"
-  [amount]="paymentTicket()!.price" (closed)="onPaymentClosed()" (paymentDone)="onPaymentDone()">
-</app-payment-modal>
-}
-
-@if (previewImage()) {
-<div class="img-viewer" (click)="closeImage()">
-  <button class="iv-close" (click)="closeImage()"><span class="material-icons-round">close</span></button>
-  <button class="iv-nav iv-prev" (click)="$event.stopPropagation(); prevImage()"><span
-      class="material-icons-round">chevron_right</span></button>
-  <img [src]="API_URL + '/' + previewImage()" (click)="$event.stopPropagation()" />
-  <button class="iv-nav iv-next" (click)="$event.stopPropagation(); nextImage()"><span
-      class="material-icons-round">chevron_left</span></button>
-  <div class="iv-dots" (click)="$event.stopPropagation()">
-    @for (img of _currentImages; track img; let i = $index) {
-    <span class="iv-dot" [class.on]="i===currentImageIndex()" (click)="openImage(_currentImages, i)"></span>
-    }
-  </div>
-</div>
-}
-
-<!-- ══════════════════════════════════════════════════
+  <!-- ══════════════════════════════════════════════════
      TICKET CLOSED SUCCESS POPUP
 ══════════════════════════════════════════════════ -->
-@if (showClosedSuccessModal()) {
-<div class="overlay csm-overlay" (click)="dismissClosedModal()">
-  <div class="modal modal-sm csm-modal" (click)="$event.stopPropagation()">
+  @if (showClosedSuccessModal()) {
+  <div class="overlay csm-overlay" (click)="dismissClosedModal()">
+    <div class="modal modal-sm csm-modal" (click)="$event.stopPropagation()">
 
-    <!-- Confetti dots -->
-    <div class="csm-confetti" aria-hidden="true">
-      <span class="csm-dot" style="background:#97C459"></span>
-      <span class="csm-dot" style="background:#FAC775"></span>
-      <span class="csm-dot" style="background:#378ADD"></span>
-      <span class="csm-dot" style="background:#97C459"></span>
-      <span class="csm-dot" style="background:#F09595"></span>
-      <span class="csm-dot" style="background:#FAC775"></span>
-      <span class="csm-dot" style="background:#8B5CF6"></span>
-    </div>
-
-    <!-- Check icon -->
-    <div class="csm-icon-wrap" aria-hidden="true">
-      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-        <circle cx="26" cy="26" r="26" fill="#EAF3DE"/>
-        <path d="M15 26.5L22 33.5L37 18" stroke="#3B6D11" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-
-    <h2 class="csm-title">تم إغلاق التذكرة بنجاح 🎉</h2>
-    <p class="csm-sub">طلبك أُغلق رسمياً — شكراً لاستخدامك منصة صُنّاع</p>
-
-    <!-- Ticket summary card -->
-    <div class="csm-summary">
-      <div class="csm-row">
-        <span class="csm-row-label"><span class="material-icons-round">flag</span>الحالة</span>
-        <span class="csm-pill"><span class="material-icons-round" style="font-size:12px">lock</span>مغلق</span>
+      <!-- Confetti dots -->
+      <div class="csm-confetti" aria-hidden="true">
+        <span class="csm-dot" style="background:#97C459"></span>
+        <span class="csm-dot" style="background:#FAC775"></span>
+        <span class="csm-dot" style="background:#378ADD"></span>
+        <span class="csm-dot" style="background:#97C459"></span>
+        <span class="csm-dot" style="background:#F09595"></span>
+        <span class="csm-dot" style="background:#FAC775"></span>
+        <span class="csm-dot" style="background:#8B5CF6"></span>
       </div>
-      @if (closedTicketRef()?.problemType) {
-      <div class="csm-row">
-        <span class="csm-row-label">
-          <span class="material-icons-round">{{ problemIconMap[closedTicketRef()!.problemType] || 'build' }}</span>
-          نوع المشكلة
-        </span>
-        <span class="csm-val">{{ closedTicketRef()!.problemType === 'Electrical' ? 'كهرباء' :
-          closedTicketRef()!.problemType === 'Plumbing' ? 'سباكة' :
-          closedTicketRef()!.problemType === 'AC' ? 'تكييف' : 'أخرى' }}</span>
+
+      <!-- Check icon -->
+      <div class="csm-icon-wrap" aria-hidden="true">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="26" fill="#EAF3DE" />
+          <path d="M15 26.5L22 33.5L37 18" stroke="#3B6D11" stroke-width="2.8" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
       </div>
+
+      <h2 class="csm-title">تم إغلاق التذكرة بنجاح 🎉</h2>
+      <p class="csm-sub">طلبك أُغلق رسمياً — شكراً لاستخدامك منصة صُنّاع</p>
+
+      <!-- Ticket summary card -->
+      <div class="csm-summary">
+        <div class="csm-row">
+          <span class="csm-row-label"><span class="material-icons-round">flag</span>الحالة</span>
+          <span class="csm-pill"><span class="material-icons-round" style="font-size:12px">lock</span>مغلق</span>
+        </div>
+        @if (closedTicketRef()?.problemType) {
+        <div class="csm-row">
+          <span class="csm-row-label">
+            <span class="material-icons-round">{{ problemIconMap[closedTicketRef()!.problemType] || 'build' }}</span>
+            نوع المشكلة
+          </span>
+          <span class="csm-val">{{ closedTicketRef()!.problemType === 'Electrical' ? 'كهرباء' :
+            closedTicketRef()!.problemType === 'Plumbing' ? 'سباكة' :
+            closedTicketRef()!.problemType === 'AC' ? 'تكييف' : 'أخرى' }}</span>
+        </div>
+        }
+        @if (closedTicketRef()?.price) {
+        <div class="csm-row">
+          <span class="csm-row-label"><span class="material-icons-round">payments</span>المبلغ المدفوع</span>
+          <span class="csm-val csm-green">{{ closedTicketRef()!.price }} ج.م ✓</span>
+        </div>
+        }
+        @if (closedTicketRef()?.vendorName) {
+        <div class="csm-row">
+          <span class="csm-row-label"><span class="material-icons-round">engineering</span>الفني</span>
+          <span class="csm-val">{{ closedTicketRef()!.vendorName }}</span>
+        </div>
+        }
+      </div>
+
+      <!-- Action buttons -->
+      @if (closedTicketRef()?.vendorId) {
+      <button class="csm-btn-rate" (click)="openFeedbackFromClosed()">
+        <span class="material-icons-round">star</span>
+        قيّم الفني الآن
+      </button>
       }
-      @if (closedTicketRef()?.price) {
-      <div class="csm-row">
-        <span class="csm-row-label"><span class="material-icons-round">payments</span>المبلغ المدفوع</span>
-        <span class="csm-val csm-green">{{ closedTicketRef()!.price }} ج.م ✓</span>
-      </div>
-      }
-      @if (closedTicketRef()?.vendorName) {
-      <div class="csm-row">
-        <span class="csm-row-label"><span class="material-icons-round">engineering</span>الفني</span>
-        <span class="csm-val">{{ closedTicketRef()!.vendorName }}</span>
-      </div>
-      }
+      <button class="csm-btn-skip" (click)="dismissClosedModal()">
+        تخطّي — سأقيّم لاحقاً
+      </button>
+
     </div>
-
-    <!-- Action buttons -->
-    @if (closedTicketRef()?.vendorId) {
-    <button class="csm-btn-rate" (click)="openFeedbackFromClosed()">
-      <span class="material-icons-round">star</span>
-      قيّم الفني الآن
-    </button>
-    }
-    <button class="csm-btn-skip" (click)="dismissClosedModal()">
-      تخطّي — سأقيّم لاحقاً
-    </button>
-
   </div>
-</div>
-}
+  }
 
 </div>

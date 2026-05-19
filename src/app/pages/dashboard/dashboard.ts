@@ -65,10 +65,24 @@ export class Dashboard implements OnInit {
   previewImage = signal<string | null>(null);
   currentImageIndex = signal(0);
   _currentImages: string[] = [];
+  // ── AI Advisor ────────────────────────────────────────────
+  showAIModal = signal(false);
+  aiProblemText = signal('');
+  aiAdvice = signal('');
+  aiLoading = signal(false);
+  aiError = signal('');
+  aiDone = signal(false);
+
+  // ── Contact Admin ─────────────────────────────────────────
+  showContactModal = signal(false);
+  contactMessage = signal('');
+  contactLoading = signal(false);
+  contactSuccess = signal(false);
+  contactError = signal('');
 
   // ── Search & Sort ─────────────────────────────────────────
-  searchQuery   = signal('');
-  sortBy        = signal<'date_desc' | 'date_asc' | 'priority'>('date_desc');
+  searchQuery = signal('');
+  sortBy = signal<'date_desc' | 'date_asc' | 'priority'>('date_desc');
   filterProblem = signal('all');
 
   // ── Applications ──────────────────────────────────────────
@@ -99,67 +113,67 @@ export class Dashboard implements OnInit {
   closedTicketRef = signal<Ticket | null>(null);
 
   // ── Profile ───────────────────────────────────────────────
-  profileFullName   = signal('');
-  profilePhone      = signal('');
-  profileEmail      = signal('');
-  profileLoading    = signal(false);
-  profileSuccess    = signal(false);
-  profileError      = signal('');
-  showCurrentPw     = signal(false);
-  showNewPw         = signal(false);
-  showConfirmPw     = signal(false);
-  currentPassword   = signal('');
-  newPassword       = signal('');
-  confirmPassword   = signal('');
-  passwordLoading   = signal(false);
-  passwordSuccess   = signal(false);
-  passwordError     = signal('');
-  profileSubTab     = signal<'info' | 'password'>('info');
+  profileFullName = signal('');
+  profilePhone = signal('');
+  profileEmail = signal('');
+  profileLoading = signal(false);
+  profileSuccess = signal(false);
+  profileError = signal('');
+  showCurrentPw = signal(false);
+  showNewPw = signal(false);
+  showConfirmPw = signal(false);
+  currentPassword = signal('');
+  newPassword = signal('');
+  confirmPassword = signal('');
+  passwordLoading = signal(false);
+  passwordSuccess = signal(false);
+  passwordError = signal('');
+  profileSubTab = signal<'info' | 'password'>('info');
 
   // ── Maps ──────────────────────────────────────────────────
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
-    Low:       { label: 'منخفضة', color: '#15803d', bg: '#dcfce7', dot: '#22c55e' },
-    Medium:    { label: 'متوسطة', color: '#b45309', bg: '#fef9c3', dot: '#eab308' },
-    High:      { label: 'عالية',  color: '#b91c1c', bg: '#fee2e2', dot: '#ef4444' },
-    Critical:  { label: 'حرجة',   color: '#6d28d9', bg: '#ede9fe', dot: '#8b5cf6' },
-    Emergency: { label: 'طارئة',  color: '#9a3412', bg: '#ffedd5', dot: '#f97316' },
+    Low: { label: 'منخفضة', color: '#15803d', bg: '#dcfce7', dot: '#22c55e' },
+    Medium: { label: 'متوسطة', color: '#b45309', bg: '#fef9c3', dot: '#eab308' },
+    High: { label: 'عالية', color: '#b91c1c', bg: '#fee2e2', dot: '#ef4444' },
+    Critical: { label: 'حرجة', color: '#6d28d9', bg: '#ede9fe', dot: '#8b5cf6' },
+    Emergency: { label: 'طارئة', color: '#9a3412', bg: '#ffedd5', dot: '#f97316' },
   };
 
   statusMap: Record<string, { label: string; color: string; bg: string; icon: string }> = {
     ManagerReview: { label: 'قيد مراجعة الادارة', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
-    Review:        { label: 'قيد مراجعة الادارة', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
-    Rejected:      { label: 'مرفوض من الادارة',   color: '#dc2626', bg: '#fee2e2', icon: '❌' },
-    Pending:       { label: 'قيد الانتظار',        color: '#b45309', bg: '#fef9c3', icon: '⏳' },
-    vendorAccepted:{ label: 'جارٍ التنفيذ',        color: '#1d4ed8', bg: '#dbeafe', icon: '🔧' },
-    Resolved:      { label: 'تم الإنجاز',          color: '#15803d', bg: '#dcfce7', icon: '✅' },
-    Closed:        { label: 'مغلق',                color: '#4b5563', bg: '#f3f4f6', icon: '🔒' },
+    Review: { label: 'قيد مراجعة الادارة', color: '#7c3aed', bg: '#ede9fe', icon: '🔍' },
+    Rejected: { label: 'مرفوض من الادارة', color: '#dc2626', bg: '#fee2e2', icon: '❌' },
+    Pending: { label: 'قيد الانتظار', color: '#b45309', bg: '#fef9c3', icon: '⏳' },
+    vendorAccepted: { label: 'جارٍ التنفيذ', color: '#1d4ed8', bg: '#dbeafe', icon: '🔧' },
+    Resolved: { label: 'تم الإنجاز', color: '#15803d', bg: '#dcfce7', icon: '✅' },
+    Closed: { label: 'مغلق', color: '#4b5563', bg: '#f3f4f6', icon: '🔒' },
   };
 
   problemIconMap: Record<string, string> = {
     Electrical: 'electrical_services',
-    Plumbing:   'plumbing',
-    AC:         'ac_unit',
-    Other:      'build',
+    Plumbing: 'plumbing',
+    AC: 'ac_unit',
+    Other: 'build',
   };
 
   // ── Computed: Stats ───────────────────────────────────────
   stats = computed(() => {
     const t = this.tickets();
     return {
-      total:           t.length,
-      review:          t.filter(x => x.status === 'Review' || x.status === 'ManagerReview').length,
-      rejected:        t.filter(x => x.status === 'Rejected').length,
-      pending:         t.filter(x => x.status === 'Pending').length,
-      inProgress:      t.filter(x => x.status === 'vendorAccepted').length,
-      done:            t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
+      total: t.length,
+      review: t.filter(x => x.status === 'Review' || x.status === 'ManagerReview').length,
+      rejected: t.filter(x => x.status === 'Rejected').length,
+      pending: t.filter(x => x.status === 'Pending').length,
+      inProgress: t.filter(x => x.status === 'vendorAccepted').length,
+      done: t.filter(x => x.status === 'Resolved' || x.status === 'Closed').length,
       awaitingPayment: t.filter(x => x.status === 'Resolved' && !x.isPaid && x.price > 0).length,
     };
   });
 
   // ── Computed: Filtered Tickets ────────────────────────────
   filteredTickets = computed(() => {
-    const f    = this.activeFilter();
-    const q    = this.searchQuery().trim().toLowerCase();
+    const f = this.activeFilter();
+    const q = this.searchQuery().trim().toLowerCase();
     const prob = this.filterProblem();
     const sort = this.sortBy();
     const priorityOrder: Record<string, number> = {
@@ -167,7 +181,7 @@ export class Dashboard implements OnInit {
     };
 
     let list = this.tickets();
-    if (f !== 'all')    list = list.filter(t => t.status === f);
+    if (f !== 'all') list = list.filter(t => t.status === f);
     if (prob !== 'all') list = list.filter(t => t.problemType === prob);
     if (q) {
       list = list.filter(t =>
@@ -179,8 +193,8 @@ export class Dashboard implements OnInit {
     }
     return [...list].sort((a, b) => {
       if (sort === 'date_desc') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      if (sort === 'date_asc')  return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      if (sort === 'priority')  return (priorityOrder[b.priority] ?? 0) - (priorityOrder[a.priority] ?? 0);
+      if (sort === 'date_asc') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      if (sort === 'priority') return (priorityOrder[b.priority] ?? 0) - (priorityOrder[a.priority] ?? 0);
       return 0;
     });
   });
@@ -190,17 +204,17 @@ export class Dashboard implements OnInit {
     const t = this.tickets();
     const totalPaid = t.filter(x => x.isPaid).reduce((s, x) => s + (x.price || 0), 0);
     return {
-      total:      t.length,
-      closed:     t.filter(x => x.status === 'Closed').length,
+      total: t.length,
+      closed: t.filter(x => x.status === 'Closed').length,
       inProgress: t.filter(x => x.status === 'vendorAccepted').length,
-      pending:    t.filter(x => x.status === 'Pending').length,
+      pending: t.filter(x => x.status === 'Pending').length,
       totalPaid,
-      closedPct:  t.length ? Math.round((t.filter(x => x.status === 'Closed').length / t.length) * 100) : 0,
+      closedPct: t.length ? Math.round((t.filter(x => x.status === 'Closed').length / t.length) * 100) : 0,
     };
   });
 
   monthlyStats = computed((): MonthStat[] => {
-    const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
     const map: Record<string, number> = {};
     this.tickets().forEach(t => {
       const d = new Date(t.createdAt);
@@ -223,16 +237,16 @@ export class Dashboard implements OnInit {
     this.tickets().forEach(t => { map[t.problemType] = (map[t.problemType] || 0) + 1; });
     const config: Record<string, { label: string; icon: string; color: string; bg: string }> = {
       Electrical: { label: 'كهرباء', icon: 'electrical_services', color: '#b45309', bg: '#fef9c3' },
-      Plumbing:   { label: 'سباكة',  icon: 'plumbing',            color: '#1d4ed8', bg: '#dbeafe' },
-      AC:         { label: 'تكييف',  icon: 'ac_unit',             color: '#0f766e', bg: '#ccfbf1' },
-      Other:      { label: 'أخرى',   icon: 'build',               color: '#6b7280', bg: '#f3f4f6' },
+      Plumbing: { label: 'سباكة', icon: 'plumbing', color: '#1d4ed8', bg: '#dbeafe' },
+      AC: { label: 'تكييف', icon: 'ac_unit', color: '#0f766e', bg: '#ccfbf1' },
+      Other: { label: 'أخرى', icon: 'build', color: '#6b7280', bg: '#f3f4f6' },
     };
     return Object.entries(map).map(([type, count]) => ({
       type, count,
       label: config[type]?.label ?? type,
-      icon:  config[type]?.icon  ?? 'build',
+      icon: config[type]?.icon ?? 'build',
       color: config[type]?.color ?? '#6b7280',
-      bg:    config[type]?.bg    ?? '#f3f4f6',
+      bg: config[type]?.bg ?? '#f3f4f6',
     })).sort((a, b) => b.count - a.count);
   });
 
@@ -243,33 +257,33 @@ export class Dashboard implements OnInit {
     if (!t.length) return [];
     const groups = [
       { label: 'مراجعة', statuses: ['Review', 'ManagerReview'], color: '#7c3aed', bg: '#ede9fe' },
-      { label: 'انتظار', statuses: ['Pending'],                  color: '#b45309', bg: '#fef9c3' },
-      { label: 'تنفيذ',  statuses: ['vendorAccepted'],           color: '#1d4ed8', bg: '#dbeafe' },
-      { label: 'مكتمل',  statuses: ['Resolved', 'Closed'],       color: '#15803d', bg: '#dcfce7' },
-      { label: 'مرفوض',  statuses: ['Rejected'],                 color: '#dc2626', bg: '#fee2e2' },
+      { label: 'انتظار', statuses: ['Pending'], color: '#b45309', bg: '#fef9c3' },
+      { label: 'تنفيذ', statuses: ['vendorAccepted'], color: '#1d4ed8', bg: '#dbeafe' },
+      { label: 'مكتمل', statuses: ['Resolved', 'Closed'], color: '#15803d', bg: '#dcfce7' },
+      { label: 'مرفوض', statuses: ['Rejected'], color: '#dc2626', bg: '#fee2e2' },
     ];
     return groups.map(g => ({
       ...g,
       count: t.filter(x => g.statuses.includes(x.status)).length,
-      pct:   Math.round((t.filter(x => g.statuses.includes(x.status)).length / t.length) * 100),
+      pct: Math.round((t.filter(x => g.statuses.includes(x.status)).length / t.length) * 100),
     })).filter(g => g.count > 0);
   });
 
   priorityDist = computed(() => {
     const t = this.tickets();
     const config: Record<string, { label: string; color: string; bg: string }> = {
-      Low:       { label: 'منخفضة', color: '#15803d', bg: '#dcfce7' },
-      Medium:    { label: 'متوسطة', color: '#b45309', bg: '#fef9c3' },
-      High:      { label: 'عالية',  color: '#b91c1c', bg: '#fee2e2' },
-      Critical:  { label: 'حرجة',   color: '#6d28d9', bg: '#ede9fe' },
-      Emergency: { label: 'طارئة',  color: '#9a3412', bg: '#ffedd5' },
+      Low: { label: 'منخفضة', color: '#15803d', bg: '#dcfce7' },
+      Medium: { label: 'متوسطة', color: '#b45309', bg: '#fef9c3' },
+      High: { label: 'عالية', color: '#b91c1c', bg: '#fee2e2' },
+      Critical: { label: 'حرجة', color: '#6d28d9', bg: '#ede9fe' },
+      Emergency: { label: 'طارئة', color: '#9a3412', bg: '#ffedd5' },
     };
     const map: Record<string, number> = {};
     t.forEach(x => { map[x.priority] = (map[x.priority] || 0) + 1; });
     return Object.entries(map).map(([p, count]) => ({
       label: config[p]?.label ?? p,
       color: config[p]?.color ?? '#4b5563',
-      bg:    config[p]?.bg    ?? '#f3f4f6',
+      bg: config[p]?.bg ?? '#f3f4f6',
       count,
       pct: Math.round((count / t.length) * 100),
     })).sort((a, b) => b.count - a.count);
@@ -289,8 +303,8 @@ export class Dashboard implements OnInit {
   profileCompleteness = computed(() => {
     let score = 0;
     if (this.profileFullName()?.trim()) score += 34;
-    if (this.profileEmail()?.trim())    score += 33;
-    if (this.profilePhone()?.trim())    score += 33;
+    if (this.profileEmail()?.trim()) score += 33;
+    if (this.profilePhone()?.trim()) score += 33;
     return score;
   });
 
@@ -299,10 +313,10 @@ export class Dashboard implements OnInit {
     const pw = this.newPassword();
     if (!pw) return 0;
     let score = 0;
-    if (pw.length >= 6)             score += 25;
-    if (pw.length >= 10)            score += 25;
-    if (/[A-Z]/.test(pw))          score += 25;
-    if (/[0-9!@#$%^&*]/.test(pw))  score += 25;
+    if (pw.length >= 6) score += 25;
+    if (pw.length >= 10) score += 25;
+    if (/[A-Z]/.test(pw)) score += 25;
+    if (/[0-9!@#$%^&*]/.test(pw)) score += 25;
     return score;
   }
 
@@ -337,13 +351,80 @@ export class Dashboard implements OnInit {
 
   getPaidRingOffset(): number {
     const total = this.tickets().length;
-    const paid  = this.tickets().filter(t => t.isPaid).length;
+    const paid = this.tickets().filter(t => t.isPaid).length;
     if (!total) return 314;
     return 314 - (314 * paid / total);
   }
+  // ── Methods: AI Advisor ───────────────────────────────────
+  openAIModal() {
+    this.aiProblemText.set('');
+    this.aiAdvice.set('');
+    this.aiError.set('');
+    this.aiDone.set(false);
+    this.showAIModal.set(true);
+  }
+
+  closeAIModal() { this.showAIModal.set(false); }
+
+  askAI() {
+    const text = this.aiProblemText().trim();
+    if (!text) { this.aiError.set('اكتب وصف المشكلة أولاً'); return; }
+    this.aiLoading.set(true);
+    this.aiError.set('');
+    this.aiAdvice.set('');
+    this.aiDone.set(false);
+    this.http.post<{ advice: string }>(
+      `${this.API_URL}/api/AI/maintenance-advice`,
+      { problem: text },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (res) => {
+        this.aiLoading.set(false);
+        this.aiAdvice.set(res.advice);
+        this.aiDone.set(true);
+      },
+      error: (err) => {
+        this.aiLoading.set(false);
+        this.aiError.set(err?.error?.message ?? 'حصل خطأ، حاول تاني');
+      }
+    });
+  }
+
+  // ── Methods: Contact Admin ────────────────────────────────
+  openContactModal() {
+    this.contactMessage.set('');
+    this.contactSuccess.set(false);
+    this.contactError.set('');
+    this.showContactModal.set(true);
+  }
+
+  closeContactModal() { this.showContactModal.set(false); }
+
+  sendContactMessage() {
+    const msg = this.contactMessage().trim();
+    if (!msg) { this.contactError.set('اكتب رسالتك أولاً'); return; }
+    this.contactLoading.set(true);
+    this.contactError.set('');
+    this.http.post(
+      `${this.API_URL}/api/Contact/send`,
+      { message: msg },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: () => {
+        this.contactLoading.set(false);
+        this.contactSuccess.set(true);
+        this.contactMessage.set('');
+        setTimeout(() => this.closeContactModal(), 2500);
+      },
+      error: (err) => {
+        this.contactLoading.set(false);
+        this.contactError.set(err?.error?.message ?? 'حصل خطأ، حاول تاني');
+      }
+    });
+  }
 
   // ── Constructor ───────────────────────────────────────────
-  constructor(public auth: Auth, private router: Router) {}
+  constructor(public auth: Auth, private router: Router) { }
 
   ngOnInit() {
     const user = this.auth.currentUser();
@@ -354,12 +435,12 @@ export class Dashboard implements OnInit {
     }
 
     const paymentId = localStorage.getItem('payment_just_done');
-    const ticketId  = localStorage.getItem('payment_done_ticket');
+    const ticketId = localStorage.getItem('payment_done_ticket');
     if (paymentId) {
       localStorage.removeItem('payment_just_done');
       localStorage.removeItem('payment_done_ticket');
       this.paymentSvc.verifyPayment(paymentId).subscribe({
-        next:  () => this.loadTicketsAndOpenIfPaid(ticketId ?? null),
+        next: () => this.loadTicketsAndOpenIfPaid(ticketId ?? null),
         error: () => this.loadTicketsAndOpenIfPaid(ticketId ?? null),
       });
     } else {
@@ -376,8 +457,8 @@ export class Dashboard implements OnInit {
   loadTickets() {
     this.loading.set(true);
     this.http.get<Ticket[]>(`${this.API_URL}/api/Tickets`, { headers: this.getHeaders() }).subscribe({
-      next:  (data) => { this.tickets.set(data); this.loading.set(false); },
-      error: (err)  => { console.error(err); this.loading.set(false); },
+      next: (data) => { this.tickets.set(data); this.loading.set(false); },
+      error: (err) => { console.error(err); this.loading.set(false); },
     });
   }
 
@@ -394,7 +475,7 @@ export class Dashboard implements OnInit {
   }
 
   openTicket(t: Ticket) { this.selectedTicket.set(t); this.currentImageIndex.set(0); }
-  closeTicket()         { this.selectedTicket.set(null); this.closeImage(); }
+  closeTicket() { this.selectedTicket.set(null); this.closeImage(); }
 
   needsPayment(ticket: Ticket): boolean {
     return ticket.status === 'Resolved' && !ticket.isPaid && ticket.price > 0;
@@ -411,14 +492,14 @@ export class Dashboard implements OnInit {
       { fullName: this.profileFullName(), phoneNumber: this.profilePhone() },
       { headers: this.getHeaders() }
     ).subscribe({
-      next:  () => { this.profileLoading.set(false); this.profileSuccess.set(true); setTimeout(() => this.profileSuccess.set(false), 3000); },
+      next: () => { this.profileLoading.set(false); this.profileSuccess.set(true); setTimeout(() => this.profileSuccess.set(false), 3000); },
       error: (err) => { this.profileLoading.set(false); this.profileError.set(err?.error?.message ?? 'حصل خطأ، حاول تاني'); },
     });
   }
 
   changePassword() {
-    if (!this.currentPassword())        { this.passwordError.set('ادخل كلمة السر الحالية'); return; }
-    if (this.newPassword().length < 6)  { this.passwordError.set('كلمة السر الجديدة 6 أحرف على الأقل'); return; }
+    if (!this.currentPassword()) { this.passwordError.set('ادخل كلمة السر الحالية'); return; }
+    if (this.newPassword().length < 6) { this.passwordError.set('كلمة السر الجديدة 6 أحرف على الأقل'); return; }
     if (this.newPassword() !== this.confirmPassword()) { this.passwordError.set('كلمتا السر مش متطابقتين'); return; }
     this.passwordLoading.set(true);
     this.passwordError.set('');
@@ -428,7 +509,7 @@ export class Dashboard implements OnInit {
       { currentPassword: this.currentPassword(), newPassword: this.newPassword(), confirmPassword: this.confirmPassword() },
       { headers: this.getHeaders() }
     ).subscribe({
-      next:  () => {
+      next: () => {
         this.passwordLoading.set(false);
         this.passwordSuccess.set(true);
         this.currentPassword.set(''); this.newPassword.set(''); this.confirmPassword.set('');
@@ -467,15 +548,15 @@ export class Dashboard implements OnInit {
     this.loadingApplications.set(true);
     this.applications.set([]);
     this.http.get<TicketApplication[]>(`${this.API_URL}/api/TicketApplication/${ticketId}`, { headers: this.getHeaders() }).subscribe({
-      next:  (data) => { this.applications.set(data); this.loadingApplications.set(false); },
-      error: (err)  => { console.error(err); this.loadingApplications.set(false); },
+      next: (data) => { this.applications.set(data); this.loadingApplications.set(false); },
+      error: (err) => { console.error(err); this.loadingApplications.set(false); },
     });
   }
 
   acceptApplication(applicationId: string) {
     this.acceptingId.set(applicationId);
     this.http.patch(`${this.API_URL}/api/Tickets/${applicationId}/accept`, {}, { headers: this.getHeaders() }).subscribe({
-      next:  () => { this.acceptingId.set(null); this.showApplicationsModal.set(false); this.loadTickets(); },
+      next: () => { this.acceptingId.set(null); this.showApplicationsModal.set(false); this.loadTickets(); },
       error: (err) => { console.error(err); this.acceptingId.set(null); },
     });
   }
@@ -493,15 +574,15 @@ export class Dashboard implements OnInit {
 
   submitFeedback() {
     const comment = this.feedbackComment().trim();
-    if (!comment)                  { this.feedbackError.set('اكتب تعليق الأول'); return; }
-    if (!this.feedbackVendorId())  { this.feedbackError.set('لا يوجد فني مرتبط بهذا الطلب'); return; }
+    if (!comment) { this.feedbackError.set('اكتب تعليق الأول'); return; }
+    if (!this.feedbackVendorId()) { this.feedbackError.set('لا يوجد فني مرتبط بهذا الطلب'); return; }
     this.feedbackLoading.set(true); this.feedbackError.set('');
     this.http.post(
       `${this.API_URL}/api/Feedbacks`,
       { comment, ticketId: this.feedbackTicketId(), vendorId: this.feedbackVendorId() },
       { headers: this.getHeaders() }
     ).subscribe({
-      next:  () => { this.feedbackLoading.set(false); this.feedbackSuccess.set(true); setTimeout(() => this.closeFeedbackModal(), 1800); },
+      next: () => { this.feedbackLoading.set(false); this.feedbackSuccess.set(true); setTimeout(() => this.closeFeedbackModal(), 1800); },
       error: (err) => { this.feedbackLoading.set(false); this.feedbackError.set(err?.error?.message ?? 'حصل خطأ، حاول تاني'); },
     });
   }
@@ -566,7 +647,7 @@ export class Dashboard implements OnInit {
 
   // ── Methods: Helpers ──────────────────────────────────────
   getPriority(v: string) { return this.priorityMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', dot: '#9ca3af' }; }
-  getStatus(v: string)   { return this.statusMap[v]   ?? { label: v, color: '#4b5563', bg: '#f3f4f6', icon: '•' }; }
+  getStatus(v: string) { return this.statusMap[v] ?? { label: v, color: '#4b5563', bg: '#f3f4f6', icon: '•' }; }
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboard(event: KeyboardEvent) {
@@ -577,8 +658,8 @@ export class Dashboard implements OnInit {
     if (!this.previewImage()) return;
     switch (event.key) {
       case 'ArrowRight': this.nextImage(); break;
-      case 'ArrowLeft':  this.prevImage(); break;
-      case 'Escape':     this.closeImage(); break;
+      case 'ArrowLeft': this.prevImage(); break;
+      case 'Escape': this.closeImage(); break;
     }
   }
 }
