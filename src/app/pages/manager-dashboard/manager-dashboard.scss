@@ -1591,3 +1591,369 @@ body {
     text-align: center; padding: 3px 0;
   }
 }
+// ══════════════════════════════════
+//  MESSAGES TAB
+// ══════════════════════════════════
+.messages-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $white;
+  border-radius: 18px;
+  padding: 22px 26px;
+  border: 1.5px solid $border;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  @include mobile { padding: 16px; border-radius: 12px; }
+}
+
+.messages-header-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  flex-wrap: wrap;
+
+  h2 { font-size: 17px; font-weight: 900; color: $text; margin-bottom: 3px; }
+  p  { font-size: 12px; color: $text3; }
+}
+
+.msg-header-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: $accent-light;
+  border: 1.5px solid $border2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .material-icons-round { font-size: 22px; color: $accent-dark; }
+}
+
+.unread-badge-big {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 13px;
+  background: rgba($accent, 0.12);
+  color: $accent-dark;
+  border: 1.5px solid rgba($accent, 0.25);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+// Messages List
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+
+  @include mobile { padding: 14px 15px; border-radius: 12px; gap: 11px; }
+
+  &:hover {
+    border-color: $accent;
+    box-shadow: 0 4px 18px rgba($accent, 0.1);
+    transform: translateY(-1px);
+  }
+
+  &.unread {
+    border-color: rgba($accent, 0.35);
+    background: linear-gradient(135deg, rgba($accent, 0.03) 0%, $white 60%);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 4px;
+      background: $accent-dark;
+      border-radius: 0 16px 16px 0;
+    }
+  }
+}
+
+.msg-card-right { flex-shrink: 0; }
+
+.msg-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: $brand-dark;
+  border: 1.5px solid rgba($accent-mid, 0.25);
+  color: $accent-mid;
+  font-weight: 900;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @include mobile { width: 40px; height: 40px; font-size: 16px; }
+
+  &.unread-av {
+    background: $accent-dark;
+    border-color: rgba($accent-mid, 0.4);
+  }
+}
+
+.msg-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow: hidden;
+}
+
+.msg-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.msg-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.msg-sender-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: $brand-dark;
+}
+
+.msg-new-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $accent;
+  flex-shrink: 0;
+}
+
+.msg-time {
+  font-size: 11px;
+  color: $text3;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.msg-meta-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.msg-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: $text3;
+  font-weight: 600;
+
+  .material-icons-round { font-size: 13px; color: $accent; }
+}
+
+.msg-preview {
+  font-size: 13px;
+  color: $text2;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+.msg-card-arrow {
+  flex-shrink: 0;
+  color: $border2;
+  display: flex;
+  align-items: center;
+  align-self: center;
+
+  .material-icons-round { font-size: 20px; }
+}
+
+// ── Message Modal ─────────────────────────────────────────
+.modal-msg { max-width: 500px; }
+
+.msg-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+
+  h2 { font-size: 16px; font-weight: 900; color: $brand-dark; }
+}
+
+.msg-modal-av {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: $accent-dark;
+  border: 1.5px solid rgba($accent-mid, 0.35);
+  color: $accent-mid;
+  font-weight: 900;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.msg-modal-sub {
+  font-size: 11px;
+  color: $text3;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+// Tenant Card in Modal
+.msg-tenant-card {
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.msg-tc-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: $text3;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  .material-icons-round { font-size: 15px; color: $accent; }
+}
+
+.msg-tc-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg-tc-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  .material-icons-round {
+    font-size: 17px;
+    color: $accent;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
+.msg-tc-label {
+  font-size: 10px;
+  color: $text3;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.msg-tc-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+  display: block;
+}
+
+// Message Body
+.msg-body-section {
+  background: $accent-light;
+  border: 1.5px solid $border2;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg-body-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: $accent-dark;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  .material-icons-round { font-size: 15px; }
+}
+
+.msg-body-text {
+  font-size: 14px;
+  color: $text;
+  line-height: 1.85;
+  font-weight: 500;
+  white-space: pre-wrap;
+}
+
+// Contact Actions
+.msg-contact-actions {
+  display: flex;
+  gap: 10px;
+
+  @include mobile { flex-direction: column; }
+}
+
+.msg-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  flex: 1;
+  transition: all 0.18s;
+
+  .material-icons-round { font-size: 17px; }
+
+  @include mobile { flex: unset; width: 100%; }
+
+  &.email-btn {
+    background: $accent-dark;
+    color: #fff;
+    &:hover { background: $brand-dark; }
+  }
+
+  &.whatsapp-btn {
+    background: $green-light;
+    color: $green;
+    border: 1.5px solid darken($green-light, 8%);
+    &:hover { background: darken($green-light, 5%); }
+  }
+}

@@ -68,6 +68,13 @@
         <span class="sb-badge pay-badge">{{ payoutsStats().pending }}</span>
         }
       </button>
+      <button class="sb-link" [class.active]="activeTab() === 'messages'" (click)="switchTab('messages')">
+        <span class="material-icons-round">mark_email_unread</span>
+        <span>رسائل المستأجرين</span>
+        @if (unreadCount() > 0) {
+        <span class="sb-badge review-badge">{{ unreadCount() }}</span>
+        }
+      </button>
 
       <button class="sb-link" [class.active]="activeTab() === 'invitations'" (click)="switchTab('invitations')">
         <span class="material-icons-round">mail</span>
@@ -106,6 +113,7 @@
         @else if (activeTab() === 'users') { المستخدمون }
         @else if (activeTab() === 'payouts') { المدفوعات }
         @else if (activeTab() === 'invitations') { دعوة فنيين }
+        @else if (activeTab() === 'messages') { رسائل المستأجرين }
       </h1>
       <p>لوحة تحكم المدير</p>
     </div>
@@ -259,6 +267,83 @@
             }
           </tbody>
         </table>
+      </div>
+      }
+      }
+      <!-- ══════════ MESSAGES TAB ══════════ -->
+      @if (activeTab() === 'messages') {
+
+      <div class="messages-header-bar">
+        <div class="messages-header-info">
+          <div class="msg-header-icon">
+            <span class="material-icons-round">forum</span>
+          </div>
+          <div>
+            <h2>رسائل المستأجرين</h2>
+            <p>الرسائل الواردة من المستأجرين للإدارة</p>
+          </div>
+          @if (unreadCount() > 0) {
+          <span class="unread-badge-big">{{ unreadCount() }} غير مقروء</span>
+          }
+        </div>
+        <button class="refresh-btn" (click)="loadMessages()" [disabled]="loadingMessages()">
+          <span class="material-icons-round">refresh</span> تحديث
+        </button>
+      </div>
+
+      @if (loadingMessages()) {
+      <div class="state-center">
+        <div class="spin"></div>
+        <p>جاري التحميل...</p>
+      </div>
+      } @else if (contactMessages().length === 0) {
+      <div class="state-center">
+        <div class="empty-icon">📭</div>
+        <h3>لا توجد رسائل بعد</h3>
+        <p>ستظهر هنا رسائل المستأجرين للإدارة</p>
+      </div>
+      } @else {
+      <div class="messages-list">
+        @for (msg of contactMessages(); track msg.id) {
+        <div class="message-card" [class.unread]="!msg.isRead" (click)="openMessage(msg)">
+
+          <div class="msg-card-right">
+            <div class="msg-avatar" [class.unread-av]="!msg.isRead">
+              {{ msg.tenantName.charAt(0) }}
+            </div>
+          </div>
+
+          <div class="msg-card-body">
+            <div class="msg-card-top">
+              <div class="msg-sender-info">
+                <span class="msg-sender-name">{{ msg.tenantName }}</span>
+                @if (!msg.isRead) {
+                <span class="msg-new-dot"></span>
+                }
+              </div>
+              <span class="msg-time">{{ msg.sentAt | date:'dd/MM — hh:mm a' }}</span>
+            </div>
+
+            <div class="msg-meta-row">
+              <span class="msg-meta-item">
+                <span class="material-icons-round">email</span>{{ msg.tenantEmail }}
+              </span>
+              @if (msg.tenantPhone) {
+              <span class="msg-meta-item">
+                <span class="material-icons-round">phone</span>{{ msg.tenantPhone }}
+              </span>
+              }
+            </div>
+
+            <p class="msg-preview">{{ msg.message }}</p>
+          </div>
+
+          <div class="msg-card-arrow">
+            <span class="material-icons-round">chevron_left</span>
+          </div>
+
+        </div>
+        }
       </div>
       }
       }
@@ -728,12 +813,18 @@
       <span class="mbn-badge">{{ payoutsStats().pending }}</span>
       }
     </button>
+    <button class="mbn-item" [class.active]="activeTab() === 'messages'" (click)="switchTab('messages')">
+      <span class="material-icons-round">mark_email_unread</span>
+      <span>الرسائل</span>
+      @if (unreadCount() > 0) {
+      <span class="mbn-badge">{{ unreadCount() }}</span>
+      }
+    </button>
     <button class="mbn-item" [class.active]="activeTab() === 'invitations'" (click)="switchTab('invitations')">
       <span class="material-icons-round">mail</span>
       <span>دعوة</span>
     </button>
   </nav>
-
   <!-- ═══════════════════ TICKET MODAL ═══════════════════════ -->
   @if (selectedTicket()) {
   <div class="overlay" (click)="closeTicket()">
@@ -838,7 +929,86 @@
     </div>
   </div>
   }
+  <!-- ═══════════════════ MESSAGE MODAL ══════════════════════ -->
+  @if (selectedMessage()) {
+  <div class="overlay" (click)="closeMessage()">
+    <div class="modal modal-msg" (click)="$event.stopPropagation()">
+      <div class="modal-hd">
+        <div class="msg-modal-title">
+          <div class="msg-modal-av">{{ selectedMessage()!.tenantName.charAt(0) }}</div>
+          <div>
+            <h2>{{ selectedMessage()!.tenantName }}</h2>
+            <p class="msg-modal-sub">{{ selectedMessage()!.sentAt | date:'dd/MM/yyyy — hh:mm a' }}</p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="closeMessage()">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
 
+      <div class="modal-bd">
+
+        <!-- بيانات المستأجر -->
+        <div class="msg-tenant-card">
+          <div class="msg-tc-title">
+            <span class="material-icons-round">person_pin</span>
+            بيانات المستأجر
+          </div>
+          <div class="msg-tc-fields">
+            <div class="msg-tc-field">
+              <span class="material-icons-round">badge</span>
+              <div>
+                <span class="msg-tc-label">الاسم</span>
+                <span class="msg-tc-val">{{ selectedMessage()!.tenantName }}</span>
+              </div>
+            </div>
+            <div class="msg-tc-field">
+              <span class="material-icons-round">email</span>
+              <div>
+                <span class="msg-tc-label">البريد الإلكتروني</span>
+                <span class="msg-tc-val" dir="ltr">{{ selectedMessage()!.tenantEmail }}</span>
+              </div>
+            </div>
+            @if (selectedMessage()!.tenantPhone) {
+            <div class="msg-tc-field">
+              <span class="material-icons-round">phone</span>
+              <div>
+                <span class="msg-tc-label">الهاتف</span>
+                <span class="msg-tc-val" dir="ltr">{{ selectedMessage()!.tenantPhone }}</span>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- الرسالة -->
+        <div class="msg-body-section">
+          <div class="msg-body-label">
+            <span class="material-icons-round">chat_bubble_outline</span>
+            نص الرسالة
+          </div>
+          <div class="msg-body-text">{{ selectedMessage()!.message }}</div>
+        </div>
+
+        <!-- أزرار التواصل -->
+        <div class="msg-contact-actions">
+          <a [href]="'mailto:' + selectedMessage()!.tenantEmail" class="msg-action-btn email-btn">
+            <span class="material-icons-round">reply</span>
+            رد بالبريد
+          </a>
+          @if (selectedMessage()!.tenantPhone) {
+          <a [href]="'https://wa.me/2' + selectedMessage()!.tenantPhone?.replace('0','')" target="_blank"
+            class="msg-action-btn whatsapp-btn">
+            <span class="material-icons-round">chat</span>
+            واتساب
+          </a>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+  }
   <!-- ═══════════════════ REJECT MODAL ═══════════════════════ -->
   @if (showRejectModal()) {
   <div class="overlay" (click)="closeRejectModal()">

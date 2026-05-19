@@ -67,8 +67,18 @@ interface VendorPayout {
   isDisbursed: boolean;
   disbursedAt?: string;
 }
+interface ContactMessage {
+  id: number;
+  tenantId: string;
+  tenantName: string;
+  tenantEmail: string;
+  tenantPhone?: string;
+  message: string;
+  sentAt: string;
+  isRead: boolean;
+}
 
-type ActiveTab = 'tickets' | 'vendors' | 'invitations' | 'review' | 'users' | 'payouts';
+type ActiveTab = 'tickets' | 'vendors' | 'invitations' | 'review' | 'users' | 'payouts' | 'messages';
 type UsersSubTab = 'tenants' | 'vendors';
 
 @Component({
@@ -132,6 +142,11 @@ export class ManagerDashboard implements OnInit {
   searchQuery = signal('');
   specialtyFilter = signal('all');
   usersSearchQuery = signal('');
+  // ── Contact Messages ──────────────────────────────────────
+  contactMessages = signal<ContactMessage[]>([]);
+  loadingMessages = signal(false);
+  selectedMessage = signal<ContactMessage | null>(null);
+  unreadCount = signal(0);
 
   priorityMap: Record<string, { label: string; color: string; bg: string; dot: string }> = {
     Low: { label: 'منخفضة', color: '#059669', bg: '#d1fae5', dot: '#10b981' },
@@ -456,6 +471,7 @@ export class ManagerDashboard implements OnInit {
     if (tab === 'review') this.loadReviewTickets();
     if (tab === 'users') this.loadUsers();
     if (tab === 'payouts') this.loadPayouts();
+    if (tab === 'payouts') this.loadPayouts();
   }
 
   switchUsersSubTab(sub: UsersSubTab) { this.usersSubTab.set(sub); this.usersSearchQuery.set(''); }
@@ -476,6 +492,41 @@ export class ManagerDashboard implements OnInit {
     const p = (this.currentImageIndex() - 1 + this._currentImages.length) % this._currentImages.length;
     this.currentImageIndex.set(p); this.previewImage.set(this._currentImages[p]);
   }
+  // ── Methods: Contact Messages ─────────────────────────────
+  loadMessages() {
+    this.loadingMessages.set(true);
+    this.http.get<ContactMessage[]>(
+      `${this.API_URL}/api/Contact/messages`,
+      { headers: this.headers() }
+    ).subscribe({
+      next: (data) => {
+        this.contactMessages.set(data);
+        this.unreadCount.set(data.filter(m => !m.isRead).length);
+        this.loadingMessages.set(false);
+      },
+      error: (e) => { console.error(e); this.loadingMessages.set(false); }
+    });
+  }
+
+  openMessage(msg: ContactMessage) {
+    this.selectedMessage.set(msg);
+    if (!msg.isRead) {
+      this.http.patch(
+        `${this.API_URL}/api/Contact/messages/${msg.id}/read`,
+        {},
+        { headers: this.headers() }
+      ).subscribe({
+        next: () => {
+          this.contactMessages.update(list =>
+            list.map(m => m.id === msg.id ? { ...m, isRead: true } : m)
+          );
+          this.unreadCount.update(n => Math.max(0, n - 1));
+        }
+      });
+    }
+  }
+
+  closeMessage() { this.selectedMessage.set(null); }
 
   @HostListener('document:keydown', ['$event'])
   handleKey(e: KeyboardEvent) {
