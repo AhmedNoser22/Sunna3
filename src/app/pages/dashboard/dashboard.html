@@ -455,72 +455,50 @@
 
         <div class="modal-body sched-body">
 
-          <!-- STEP 1: Form -->
           @if (scheduleStep() === 1) {
           <div class="sched-form">
 
             <div class="sched-section-title">
-              <span class="material-icons-round">ac_unit</span>
-              معلومات التكييف
+              <span class="material-icons-round">devices</span>
+              أجهزة منزلك
             </div>
 
-            <div class="sched-field">
-              <label>نوع التكييف</label>
-              <div class="sched-options">
-                @for (type of ['سبليت', 'شباك', 'مركزي', 'لا يوجد']; track type) {
-                <button class="sched-opt" [class.selected]="acType() === type" (click)="acType.set(type)">{{ type
-                  }}</button>
+            <p class="hint">أضف الأجهزة الموجودة في منزلك وحدد عمر كل جهاز</p>
+
+            <div class="sched-devices-list">
+              @for (device of devices(); track $index; let i = $index) {
+              <div class="sched-device-row">
+
+                <div class="sched-device-name-wrap">
+                  <span class="material-icons-round">build</span>
+                  <input type="text" placeholder="اسم الجهاز (مثال: تكييف، سخان...)" [value]="device.name"
+                    (input)="updateDeviceName(i, $any($event.target).value)" />
+                </div>
+
+                <div class="sched-device-age">
+                  <button (click)="updateDeviceAge(i, device.age - 1)">
+                    <span class="material-icons-round">remove</span>
+                  </button>
+                  <span>{{ device.age }} سنة</span>
+                  <button (click)="updateDeviceAge(i, device.age + 1)">
+                    <span class="material-icons-round">add</span>
+                  </button>
+                </div>
+
+                @if (devices().length > 1) {
+                <button class="sched-remove-btn" (click)="removeDevice(i)">
+                  <span class="material-icons-round">delete_outline</span>
+                </button>
                 }
+
               </div>
+              }
             </div>
 
-            @if (acType() !== 'لا يوجد') {
-            <div class="sched-field">
-              <label>عمر التكييف (بالسنوات)</label>
-              <div class="sched-number-input">
-                <button (click)="acAge.set(Math.max(0, acAge()-1))">
-                  <span class="material-icons-round">remove</span>
-                </button>
-                <span>{{ acAge() }} سنة</span>
-                <button (click)="acAge.set(acAge()+1)">
-                  <span class="material-icons-round">add</span>
-                </button>
-              </div>
-            </div>
-            }
-
-            <div class="sched-divider"></div>
-
-            <div class="sched-section-title">
-              <span class="material-icons-round">water_heater</span>
-              أجهزة أخرى
-            </div>
-
-            <div class="sched-field">
-              <label>عمر السخان (بالسنوات)</label>
-              <div class="sched-number-input">
-                <button (click)="heaterAge.set(Math.max(0, heaterAge()-1))">
-                  <span class="material-icons-round">remove</span>
-                </button>
-                <span>{{ heaterAge() }} سنة</span>
-                <button (click)="heaterAge.set(heaterAge()+1)">
-                  <span class="material-icons-round">add</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="sched-field">
-              <label>عمر الغسالة (بالسنوات)</label>
-              <div class="sched-number-input">
-                <button (click)="washerAge.set(Math.max(0, washerAge()-1))">
-                  <span class="material-icons-round">remove</span>
-                </button>
-                <span>{{ washerAge() }} سنة</span>
-                <button (click)="washerAge.set(washerAge()+1)">
-                  <span class="material-icons-round">add</span>
-                </button>
-              </div>
-            </div>
+            <button class="sched-add-btn" (click)="addDevice()">
+              <span class="material-icons-round">add_circle_outline</span>
+              إضافة جهاز آخر
+            </button>
 
             <div class="sched-divider"></div>
 

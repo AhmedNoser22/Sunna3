@@ -93,6 +93,8 @@ export class Dashboard implements OnInit {
   heaterAge = signal(0);
   washerAge = signal(0);
   lastMaintenance = signal('');
+  devices = signal<{ name: string; age: number }[]>([{ name: '', age: 0 }]);
+  newDeviceName = signal('');
 
   // ── Contact Admin ─────────────────────────────────────────
   showContactModal = signal(false);
@@ -425,16 +427,34 @@ export class Dashboard implements OnInit {
 
   closeScheduleModal() { this.showScheduleModal.set(false); }
 
+  addDevice() {
+    this.devices.update(d => [...d, { name: '', age: 0 }]);
+  }
+
+  removeDevice(index: number) {
+    this.devices.update(d => d.filter((_, i) => i !== index));
+  }
+
+  updateDeviceName(index: number, name: string) {
+    this.devices.update(d => d.map((item, i) => i === index ? { ...item, name } : item));
+  }
+
+  updateDeviceAge(index: number, age: number) {
+    this.devices.update(d => d.map((item, i) => i === index ? { ...item, age: Math.max(0, age) } : item));
+  }
+
   generateSchedule() {
+    const validDevices = this.devices().filter(d => d.name.trim());
+    if (!validDevices.length) {
+      this.scheduleError.set('أضف جهازاً واحداً على الأقل');
+      return;
+    }
     this.scheduleLoading.set(true);
     this.scheduleError.set('');
     this.http.post<{ schedule: ScheduleItem[] }>(
       `${this.API_URL}/api/AI/maintenance-schedule`,
       {
-        acType: this.acType(),
-        acAgeYears: this.acAge(),
-        waterHeaterAgeYears: this.heaterAge(),
-        washingMachineAgeYears: this.washerAge(),
+        devices: validDevices.map(d => ({ deviceName: d.name, ageYears: d.age })),
         lastMaintenanceDate: this.lastMaintenance() || 'غير محدد'
       },
       { headers: this.getHeaders() }
