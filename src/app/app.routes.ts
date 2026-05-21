@@ -1,20 +1,23 @@
 import { Routes } from '@angular/router';
-import { authGuard, tenantGuard, managerGuard, vendorGuard } from './guards/auth-guard';
+import { authGuard, tenantGuard, managerGuard, vendorGuard, guestGuard } from './guards/auth-guard';
 import { PaymentCallback } from './pages/payment-callback/payment-callback';
 
 export const routes: Routes = [
   {
     path: '',
+    canActivate: [guestGuard], 
     loadComponent: () =>
       import('./pages/landing/landing').then((m) => m.Landing),
   },
   {
     path: 'login',
+    canActivate: [guestGuard], 
     loadComponent: () =>
       import('./pages/auth/login/login').then((m) => m.Login),
   },
   {
     path: 'register',
+    canActivate: [guestGuard], 
     loadComponent: () =>
       import('./pages/auth/register/register').then((m) => m.Register),
   },
@@ -73,12 +76,6 @@ export const routes: Routes = [
       import('./pages/vedorprofile/vedorprofile').then(
         (m) => m.VendorProfile
       ),
-  },
-  {
-    path: '',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./pages/landing/landing').then((m) => m.Landing),
   },
   { path: '**', redirectTo: '' },
 ];
