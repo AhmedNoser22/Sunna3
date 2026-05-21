@@ -31,8 +31,10 @@ export class Login implements OnInit {
     const redirect = this.route.snapshot.queryParamMap.get('redirect');
     const email = this.route.snapshot.queryParamMap.get('email');
 
-    if (redirect) {
-      this.redirectUrl = redirect.startsWith('/') ? redirect : '/' + redirect;
+    if (this.redirectUrl) {
+      this.router.navigateByUrl(this.redirectUrl, { replaceUrl: true });
+    } else {
+      this.navigateBasedOnRole();
     }
 
     if (email) {
