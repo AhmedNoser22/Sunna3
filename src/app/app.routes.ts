@@ -74,5 +74,11 @@ export const routes: Routes = [
         (m) => m.VendorProfile
       ),
   },
+  {
+    path: '',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/landing/landing').then((m) => m.Landing),
+  },
   { path: '**', redirectTo: '' },
 ];
