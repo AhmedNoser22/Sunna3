@@ -301,8 +301,10 @@
               ✓</span></div>
           }
           @if (t.status === 'vendorAccepted') {
-          <div class="inprog-banner"><span class="material-icons-round">construction</span><span>الفني شغّال
-              دلوقتي</span></div>
+          <div class="inprog-banner">
+            <span class="material-icons-round">construction</span>
+            <span>الفني يعمل حالياً على تنفيذ الخدمة</span>
+          </div>
           }
           <p class="tcard-desc">{{ t.description }}</p>
           @if (t.city || t.governorate) {
