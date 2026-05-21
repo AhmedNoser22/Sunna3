@@ -6,7 +6,7 @@ import { Api } from '../../../services/api';
 import { Auth } from '../../../services/auth';
 import { EGYPT_DATA, GOVERNORATES } from '../../../data';
 
-export type Priority = 'Low' | 'Medium' | 'High' | 'Critical';
+export type Priority = 'Low' | 'Medium' | 'High' | 'Emergency';
 export type ProblemType =
   | 'Electrical'
   | 'Plumbing'
@@ -65,7 +65,7 @@ export class CreateTicket implements AfterViewInit {
     { value: 'Low', label: 'منخفضة', color: '#10b981', icon: '🟢' },
     { value: 'Medium', label: 'متوسطة', color: '#f59e0b', icon: '🟡' },
     { value: 'High', label: 'عالية', color: '#ef4444', icon: '🔴' },
-    { value: 'Critical', label: 'حرجة', color: '#7c3aed', icon: '🚨' },
+    { value: 'Emergency', label: 'حرجة', color: '#7c3aed', icon: '🚨' },
   ];
 
   problemTypes: { value: ProblemType; label: string; icon: string }[] = [
