@@ -122,7 +122,7 @@ export class CreateTicket implements AfterViewInit {
   }
 
   goToDashboard() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard'], { replaceUrl: true });
   }
 
   selectType(t: ProblemType) {

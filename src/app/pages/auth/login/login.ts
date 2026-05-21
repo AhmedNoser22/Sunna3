@@ -70,7 +70,7 @@ export class Login implements OnInit {
 
         const field = res?.field;
 
-     
+
         if (code === 'INVALID_PASSWORD' || field === 'password') {
           this.error.set('كلمة المرور غير صحيحة');
         }
@@ -89,11 +89,11 @@ export class Login implements OnInit {
 
   private navigateBasedOnRole() {
     if (this.auth.isManager()) {
-      this.router.navigate(['/manager-dashboard']);
+      this.router.navigate(['/manager-dashboard'], { replaceUrl: true });
     } else if (this.auth.isVendor()) {
-      this.router.navigate(['/vendor-dashboard']);
+      this.router.navigate(['/vendor-dashboard'], { replaceUrl: true });
     } else {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard'], { replaceUrl: true });
     }
   }
 }
