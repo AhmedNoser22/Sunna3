@@ -42,3 +42,11 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+vercel.json
+angular.json
+tsconfig.json
+tsconfig.app.json
+tsconfig.spec.json
+.editorconfig
+src/environments/
